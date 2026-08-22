@@ -3,6 +3,7 @@ import * as tripController from '../controllers/trip.controller.js';
 import * as stopController from '../controllers/stop.controller.js';
 import * as activityLinkController from '../controllers/activityLink.controller.js';
 import * as budgetController from '../controllers/budget.controller.js';
+import * as exportController from '../controllers/export.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 import { validate } from '../middleware/validate.middleware.js';
 import { upload } from '../middleware/upload.middleware.js';
@@ -25,6 +26,10 @@ router.get('/:id', tripController.getTripById);
 router.patch('/:id', upload.single('coverPhoto'), validate(updateTripSchema), tripController.updateTrip);
 router.delete('/:id', tripController.deleteTrip);
 router.patch('/:id/publish', validate(publishTripSchema), tripController.publishTrip);
+
+// Export Trip Endpoints (.ics Calendar & Detailed Summary)
+router.get('/:id/export/ical', exportController.exportICal);
+router.get('/:id/export/summary', exportController.exportSummary);
 
 // Stop CRUD & Reorder
 router.post('/:id/stops', validate(addStopSchema), stopController.addStop);
