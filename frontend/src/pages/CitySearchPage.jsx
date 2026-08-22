@@ -712,8 +712,9 @@ export const CitySearchPage = () => {
                 </button>
                 <button
                   onClick={() => {
+                    const cityName = videoModalCity.name;
                     setVideoModalCity(null);
-                    navigate('/trips/new');
+                    navigate(`/trips/new?city=${encodeURIComponent(cityName)}`);
                   }}
                   className="px-5 py-2.5 bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-glow flex items-center space-x-1.5"
                 >
@@ -812,8 +813,9 @@ export const CitySearchPage = () => {
               </button>
               <button
                 onClick={() => {
+                  const cityName = selectedCityModal.name;
                   handleCloseModal();
-                  navigate('/trips/new');
+                  navigate(`/trips/new?city=${encodeURIComponent(cityName)}`);
                 }}
                 className="px-5 py-2.5 bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-glow flex items-center space-x-1.5"
               >

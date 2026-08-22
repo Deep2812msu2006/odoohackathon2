@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { tripApi } from '../services/tripApi.js';
 import toast from 'react-hot-toast';
-import { Map, Calendar, Image, FileText, ArrowRight, Share2, Search, X } from 'lucide-react';
+import { Map, Calendar, Image, FileText, ArrowRight, Share2, Search, X, Sparkles } from 'lucide-react';
 
 export const CreateTripPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const cityParam = searchParams.get('city') || searchParams.get('cityName');
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -30,6 +33,20 @@ export const CreateTripPage = () => {
     { city: 'Barcelona', country: 'Spain', flag: '🇪🇸', url: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&auto=format&fit=crop&q=80' },
     { city: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80' },
   ];
+
+  // Auto-select city cover photo & title when navigating with ?city=Name
+  useEffect(() => {
+    if (cityParam) {
+      setName(`${cityParam} Escapade`);
+      const matched = sampleCovers.find(c =>
+        c.city.toLowerCase() === cityParam.toLowerCase() ||
+        cityParam.toLowerCase().includes(c.city.toLowerCase())
+      );
+      if (matched) {
+        setCoverPhotoUrl(matched.url);
+      }
+    }
+  }, [cityParam]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
