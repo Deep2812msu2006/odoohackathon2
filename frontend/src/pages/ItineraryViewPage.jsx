@@ -212,6 +212,48 @@ export const ItineraryViewPage = () => {
 
   const displayStops = hasStops ? trip.stops : [defaultPackageStop];
 
+  // Helper to ensure default guided tour passes + any custom added food/activity tickets are ALL shown together!
+  const getStopActivitiesWithDefaults = (stop, cityName, startDateStr) => {
+    const realDbActivities = stop?.stopActivities || [];
+
+    const defaultPasses = [
+      {
+        id: `act-default-1-${stop?.id || 'main'}`,
+        scheduledDate: stop?.arrivalDate || startDateStr || new Date().toISOString(),
+        scheduledTime: '10:00 AM',
+        customCost: 45,
+        activity: {
+          name: `Iconic ${cityName || mainCityName} Guided Landmark Sightseeing Tour & Pass`,
+          estimatedCost: 45,
+          imageUrl: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&auto=format&fit=crop&q=80'
+        }
+      },
+      {
+        id: `act-default-2-${stop?.id || 'main'}`,
+        scheduledDate: stop?.arrivalDate || startDateStr || new Date().toISOString(),
+        scheduledTime: '14:30 PM',
+        customCost: 35,
+        activity: {
+          name: `Historic Culture & Local Heritage Guided Walk`,
+          estimatedCost: 35,
+          imageUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&auto=format&fit=crop&q=80'
+        }
+      }
+    ];
+
+    const result = [...defaultPasses];
+
+    realDbActivities.forEach((realItem) => {
+      const realName = realItem.activity?.name || '';
+      const exists = result.some(r => r.activity?.name === realName);
+      if (!exists) {
+        result.push(realItem);
+      }
+    });
+
+    return result;
+  };
+
   // Calculate total days count of the trip (e.g. 4 days, 7 days, 10 days)
   const calculateTotalDays = (start, end) => {
     if (!start || !end) return 4;
@@ -594,32 +636,37 @@ export const ItineraryViewPage = () => {
                 </div>
 
                 {/* 4. 🎟️ SIGHTSEEING ATTRACTION & ACTIVITY TICKETS */}
-                <div className="space-y-3 pt-2 print:space-y-2">
-                  <h4 className="font-display font-bold text-sm text-cyan-300 print:text-slate-900 uppercase tracking-wider flex items-center space-x-2">
-                    <Ticket className="w-4 h-4 text-cyan-400 print:text-cyan-700" />
-                    <span>Attraction & Sightseeing Entrance Tickets ({stop.stopActivities?.length || 0})</span>
-                  </h4>
+                {(() => {
+                  const stopTickets = getStopActivitiesWithDefaults(stop, stop.city?.name || mainCityName, trip.startDate);
+                  return (
+                    <div className="space-y-3 pt-2 print:space-y-2">
+                      <h4 className="font-display font-bold text-sm text-cyan-300 print:text-slate-900 uppercase tracking-wider flex items-center space-x-2">
+                        <Ticket className="w-4 h-4 text-cyan-400 print:text-cyan-700" />
+                        <span>Attraction & Sightseeing Entrance Tickets ({stopTickets.length})</span>
+                      </h4>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-3">
-                    {(stop.stopActivities || []).map((link, actIdx) => (
-                      <div key={link.id} className="printable-stub glass-card rounded-2xl p-5 border border-cyan-500/30 bg-slate-950/90 flex items-center justify-between gap-4 break-inside-avoid page-break-inside-avoid print:bg-white print:border-slate-300">
-                        <div className="space-y-1.5 flex-1 min-w-0">
-                          <span className="px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 print:text-cyan-800 rounded-full text-[10px] font-black border border-cyan-500/20">
-                            FASTTRACK ENTRY PASS #{actIdx + 1}
-                          </span>
-                          <p className="font-extrabold text-sm text-white print:text-slate-900 truncate">{link.activity?.name}</p>
-                          <p className="text-xs text-slate-300 print:text-slate-800">Date: <strong>{formatDate(link.scheduledDate)}</strong> @ <strong>{link.scheduledTime || '10:00 AM'}</strong></p>
-                          <p className="text-[11px] text-emerald-400 print:text-emerald-700 font-bold">Ticket Value: {formatCurrency(link.customCost ?? link.activity?.estimatedCost)}</p>
-                        </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-3">
+                        {stopTickets.map((link, actIdx) => (
+                          <div key={link.id || actIdx} className="printable-stub glass-card rounded-2xl p-5 border border-cyan-500/30 bg-slate-950/90 flex items-center justify-between gap-4 break-inside-avoid page-break-inside-avoid print:bg-white print:border-slate-300">
+                            <div className="space-y-1.5 flex-1 min-w-0">
+                              <span className="px-2.5 py-0.5 bg-cyan-500/10 text-cyan-300 print:text-cyan-800 rounded-full text-[10px] font-black border border-cyan-500/20">
+                                FASTTRACK ENTRY PASS #{actIdx + 1}
+                              </span>
+                              <p className="font-extrabold text-sm text-white print:text-slate-900 truncate">{link.activity?.name}</p>
+                              <p className="text-xs text-slate-300 print:text-slate-800">Date: <strong>{formatDate(link.scheduledDate)}</strong> @ <strong>{link.scheduledTime || '10:00 AM'}</strong></p>
+                              <p className="text-[11px] text-emerald-400 print:text-emerald-700 font-bold">Ticket Value: {formatCurrency(link.customCost ?? link.activity?.estimatedCost)}</p>
+                            </div>
 
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-center shrink-0 print:bg-slate-100 print:border-slate-300">
-                          <QrCode className="w-8 h-8 text-cyan-400 print:text-slate-900 mx-auto" />
-                          <p className="font-mono text-[8px] text-slate-400 print:text-slate-700 font-bold mt-1">GT-ACT-{Math.floor(1000 + Math.random() * 9000)}</p>
-                        </div>
+                            <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-center shrink-0 print:bg-slate-100 print:border-slate-300">
+                              <QrCode className="w-8 h-8 text-cyan-400 print:text-slate-900 mx-auto" />
+                              <p className="font-mono text-[8px] text-slate-400 print:text-slate-700 font-bold mt-1">GT-ACT-{Math.floor(1000 + Math.random() * 9000)}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
