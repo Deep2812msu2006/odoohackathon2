@@ -5,7 +5,7 @@ import { systemApi } from '../services/systemApi.js';
 import { 
   ShieldCheck, Users, Map, Building2, Ticket, Share2, Star, 
   TrendingUp, Database, Activity, Cpu, Layers, AlertCircle, RefreshCw, Globe, ChevronRight, Server, Settings, DollarSign,
-  Terminal, Play, Pause, Trash2, Eye, TableInfo
+  Terminal, Play, Pause, Trash2, Eye, Table
 } from 'lucide-react';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, LineChart, Line, CartesianGrid
@@ -720,7 +720,7 @@ export const AdminDashboardPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900 pb-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
-                  <TableInfo className="w-5 h-5" />
+                  <Table className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-display font-black text-lg text-white">Database Schema Inspector</h3>
