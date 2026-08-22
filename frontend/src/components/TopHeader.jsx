@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext.jsx';
 import { cityApi } from '../services/cityApi.js';
 import { tripApi } from '../services/tripApi.js';
 import { activityApi } from '../services/activityApi.js';
-import { User, LogOut, ShieldCheck, Search, X, MapPin, Map, Ticket, ArrowRight, PanelLeftClose, PanelLeftOpen, Menu } from 'lucide-react';
+import { User, LogOut, ShieldCheck, Search, X, MapPin, Map, Ticket, ArrowRight, ArrowLeft, PanelLeftClose, PanelLeftOpen, Menu } from 'lucide-react';
 
 export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -100,20 +101,37 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
     }
   };
 
+  const handleGoBack = () => {
+    if (window.history.length > 1 && location.pathname !== '/dashboard') {
+      navigate(-1);
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
   return (
     <div className="w-full flex items-center justify-between">
-      {/* Left Action Area: Sidebar Toggles & Search */}
-      <div className="flex items-center space-x-3">
+      {/* Left Action Area: Universal Back Button, Sidebar Toggles & Search */}
+      <div className="flex items-center space-x-2.5">
+        {/* Universal Back Navigation Button */}
+        <button
+          onClick={handleGoBack}
+          title="Go Back to Previous Page"
+          className="p-2 rounded-xl text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 transition-all border border-slate-800/60 flex items-center justify-center hover:border-cyan-500/50 group shrink-0"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+        </button>
+
         {/* Desktop Sidebar Toggle Button */}
         <button
           onClick={onToggleSidebar}
           title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all border border-slate-800/50 hidden md:flex items-center justify-center hover:border-slate-700"
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all border border-slate-800/50 hidden md:flex items-center justify-center hover:border-slate-700 shrink-0"
         >
           {collapsed ? (
-            <PanelLeftOpen className="w-5 h-5 text-brand-400 animate-pulse" />
+            <PanelLeftOpen className="w-4 h-4 text-brand-400 animate-pulse" />
           ) : (
-            <PanelLeftClose className="w-5 h-5 text-slate-400 hover:text-brand-400 transition-colors" />
+            <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-brand-400 transition-colors" />
           )}
         </button>
 
@@ -121,13 +139,13 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
         <button
           onClick={onToggleSidebar}
           title="Open Menu"
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all border border-slate-800/50 md:hidden flex items-center justify-center"
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all border border-slate-800/50 md:hidden flex items-center justify-center shrink-0"
         >
-          <Menu className="w-5 h-5 text-brand-400" />
+          <Menu className="w-4 h-4 text-brand-400" />
         </button>
 
         {/* Transparent Glass Search Input */}
-        <div className="relative w-72 sm:w-80 hidden sm:block" ref={searchRef}>
+        <div className="relative w-64 sm:w-80 hidden sm:block" ref={searchRef}>
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3.5 top-3 text-cyan-400" />
             <input
