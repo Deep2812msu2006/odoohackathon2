@@ -133,7 +133,7 @@ export const AdminDashboardPage = () => {
       </div>
 
       {/* Tab Controls */}
-      <div className="flex space-x-2 border-b border-slate-900 pb-px">
+      <div className="flex bg-slate-905/70 p-1 border border-slate-850 rounded-2xl inline-flex space-x-1.5">
         {[
           { id: 'overview', label: 'System Overview', icon: Layers },
           { id: 'cities', label: 'Destination Insights', icon: Globe },
@@ -141,17 +141,18 @@ export const AdminDashboardPage = () => {
           { id: 'system', label: 'System Diagnostics', icon: Cpu }
         ].map((tab) => {
           const TabIcon = tab.icon;
+          const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-xs transition-all ${
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-400 bg-blue-500/5'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              className={`flex items-center space-x-2.5 px-4.5 py-2.5 rounded-xl font-bold text-xs transition-all duration-300 ${
+                isActive
+                  ? 'bg-gradient-to-r from-blue-600/15 to-indigo-600/15 border border-blue-500/25 text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.1)]'
+                  : 'border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-850/40'
               }`}
             >
-              <TabIcon className="w-3.5 h-3.5" />
+              <TabIcon className={`w-4 h-4 transition-colors ${isActive ? 'text-blue-400' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
             </button>
           );
