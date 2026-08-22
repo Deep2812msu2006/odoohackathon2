@@ -52,13 +52,67 @@ export const ProfilePage = () => {
   const [pwLoading, setPwLoading] = useState(false);
 
   // Settings State
-  const [selectedTheme, setSelectedTheme] = useState('cosmic');
+  const [selectedTheme, setSelectedTheme] = useState(() => {
+    const saved = localStorage.getItem('interfaceTheme');
+    return saved || 'cosmic';
+  });
   const [notifications, setNotifications] = useState({
     tripReminders: true,
     budgetAlerts: true,
     shareActivity: false,
     weeklyDigest: true,
   });
+
+  // Apply theme to document
+  const applyTheme = (themeId) => {
+    const body = document.body;
+    
+    // Remove all theme classes
+    body.classList.remove('theme-cosmic', 'theme-ocean', 'theme-ember', 'theme-forest');
+    
+    // Add selected theme class
+    body.classList.add(`theme-${themeId}`);
+    
+    // Store preference
+    localStorage.setItem('interfaceTheme', themeId);
+    
+    // Apply custom styles for each theme
+    const themeStyles = {
+      cosmic: {
+        '--brand-500': '#6366f1',
+        '--brand-400': '#818cf8',
+        '--brand-600': '#4f46e5',
+      },
+      ocean: {
+        '--brand-500': '#06b6d4',
+        '--brand-400': '#22d3ee',
+        '--brand-600': '#0891b2',
+      },
+      ember: {
+        '--brand-500': '#f97316',
+        '--brand-400': '#fb923c',
+        '--brand-600': '#ea580c',
+      },
+      forest: {
+        '--brand-500': '#10b981',
+        '--brand-400': '#34d399',
+        '--brand-600': '#059669',
+      }
+    };
+    
+    const styles = themeStyles[themeId] || themeStyles.cosmic;
+    Object.entries(styles).forEach(([key, value]) => {
+      document.documentElement.style.setProperty(key, value);
+    });
+    
+    // Force a reflow to ensure styles are applied
+    void document.documentElement.offsetHeight;
+  };
+
+  // Apply theme on mount
+  React.useEffect(() => {
+    applyTheme(selectedTheme);
+  }, [selectedTheme]);
 
   // Danger Zone
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -338,7 +392,17 @@ export const ProfilePage = () => {
               {THEMES.map(theme => (
                 <button
                   key={theme.id}
-                  onClick={() => { setSelectedTheme(theme.id); toast.success(`Theme switched to ${theme.label}`); }}
+                  onClick={() => { 
+                    setSelectedTheme(theme.id); 
+                    applyTheme(theme.id);
+                    toast.success(`Theme switched to ${theme.label}`, { 
+                      icon: '🎨',
+                      style: {
+                        background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                        color: 'white'
+                      }
+                    }); 
+                  }}
                   className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 space-y-3 overflow-hidden ${
                     selectedTheme === theme.id
                       ? 'border-brand-500/70 shadow-xl shadow-brand-500/25 transform scale-105'
