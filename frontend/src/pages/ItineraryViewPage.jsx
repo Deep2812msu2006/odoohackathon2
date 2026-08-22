@@ -259,9 +259,9 @@ export const ItineraryViewPage = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs Bar (CLEAN: 3rd "Save PDF" button REMOVED as requested!) */}
-      <div className="flex items-center justify-between border-b border-slate-800/50 pb-3 print:hidden">
-        <div className="flex space-x-2">
+      {/* Navigation Tabs Bar with High-Contrast Visible Buttons */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-2 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-xl print:hidden">
+        <div className="flex flex-wrap items-center gap-2">
           {[
             { id: 'vouchers', label: '🎫 Boarding Passes & Vouchers' },
             { id: 'list', label: '📋 Detailed Itinerary' },
@@ -272,8 +272,8 @@ export const ItineraryViewPage = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-brand-500 via-purple-600 to-cyan-500 text-white shadow-lg shadow-brand-500/30 scale-105'
-                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                  ? 'bg-gradient-to-r from-brand-500 via-purple-600 to-cyan-500 text-white shadow-lg shadow-brand-500/30 border border-white/20 scale-105'
+                  : 'bg-slate-950/90 text-slate-100 border border-slate-700/80 hover:bg-slate-800 hover:text-white hover:border-slate-500 shadow-md'
               }`}
             >
               {tab.label}
@@ -281,8 +281,8 @@ export const ItineraryViewPage = () => {
           ))}
         </div>
 
-        <div className="flex items-center space-x-2 text-xs text-slate-400 bg-slate-800/50 rounded-lg px-3 py-1.5">
-          <MapPin className="w-3.5 h-3.5 text-brand-400" />
+        <div className="flex items-center space-x-2 text-xs font-extrabold text-slate-200 bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2">
+          <MapPin className="w-4 h-4 text-brand-400" />
           <span>{displayStops.length} Destinations</span>
         </div>
       </div>
