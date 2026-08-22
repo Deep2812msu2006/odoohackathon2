@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import { tripApi } from '../services/tripApi.js';
 import toast from 'react-hot-toast';
-import { Map, Calendar, Image, FileText, ArrowRight, Share2, Search, X, Sparkles } from 'lucide-react';
+import { Map, Calendar, Image, FileText, ArrowRight, Share2, Search, X, Sparkles, User, Users, Hotel } from 'lucide-react';
 
 export const CreateTripPage = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const cityParam = searchParams.get('city') || searchParams.get('cityName');
 
   const [name, setName] = useState('');
+  const [ownerName, setOwnerName] = useState(user?.name || '');
+  const [maleCount, setMaleCount] = useState(1);
+  const [femaleCount, setFemaleCount] = useState(0);
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -58,9 +63,12 @@ export const CreateTripPage = () => {
 
     setLoading(true);
     try {
+      const demoNote = `[Hotel Allocation - Lead Guest: ${ownerName || user?.name || 'Lead Guest'}, Male: ${maleCount}, Female: ${femaleCount}]`;
+      const fullDescription = description ? `${description}\n\n${demoNote}` : demoNote;
+
       const res = await tripApi.createTrip({
         name,
-        description,
+        description: fullDescription,
         startDate,
         endDate,
         coverPhotoUrl: coverPhotoUrl || sampleCovers[0].url,
@@ -84,7 +92,7 @@ export const CreateTripPage = () => {
         </h1>
         <p className="text-sm text-slate-400 flex items-center justify-center space-x-2">
           <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span>Set your trip name and dates to launch your itinerary builder</span>
+          <span>Set your trip details, guest demographics & dates to launch your itinerary builder</span>
         </p>
       </div>
 
@@ -110,6 +118,71 @@ export const CreateTripPage = () => {
               placeholder="e.g. Grand European Summer Escapade"
               className="w-full pl-12 pr-4 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all group-hover:border-brand-500/30"
             />
+          </div>
+        </div>
+
+        {/* Trip Owner & Guest Demographics for Hotel Booking */}
+        <div className="p-6 bg-slate-900/80 rounded-3xl border border-brand-500/20 space-y-6">
+          <div className="flex items-center space-x-2">
+            <Hotel className="w-5 h-5 text-brand-400" />
+            <h3 className="font-display font-bold text-base text-white">Hotel Booking & Guest Demographics</h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* Owner / Lead Guest Name */}
+            <div className="space-y-2 sm:col-span-1">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                Owner / Lead Guest Name
+              </label>
+              <div className="relative group">
+                <User className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+                <input
+                  type="text"
+                  value={ownerName}
+                  onChange={(e) => setOwnerName(e.target.value)}
+                  placeholder="Lead guest name..."
+                  className="w-full pl-10 pr-3 py-2.5 rounded-xl glass-input text-xs focus:ring-2 focus:ring-brand-500/50"
+                />
+              </div>
+            </div>
+
+            {/* Male Count */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                Male Travelers (👨)
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={maleCount}
+                onChange={(e) => setMaleCount(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-full px-3 py-2.5 rounded-xl glass-input text-xs focus:ring-2 focus:ring-brand-500/50"
+              />
+            </div>
+
+            {/* Female Count */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                Female Travelers (👩)
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={femaleCount}
+                onChange={(e) => setFemaleCount(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-full px-3 py-2.5 rounded-xl glass-input text-xs focus:ring-2 focus:ring-brand-500/50"
+              />
+            </div>
+          </div>
+
+          <div className="p-3 bg-brand-500/10 border border-brand-500/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-200 gap-2">
+            <span className="font-bold text-brand-300 flex items-center space-x-1.5">
+              <Users className="w-4 h-4 text-emerald-400" />
+              <span>Hotel Room Allocation Summary:</span>
+            </span>
+            <span className="font-extrabold text-white bg-slate-950/80 px-3 py-1 rounded-xl border border-white/10">
+              Lead: <span className="text-brand-300">{ownerName || user?.name || 'Lead Guest'}</span> • Total: {maleCount + femaleCount} Guests ({maleCount} Male 👨, {femaleCount} Female 👩)
+            </span>
           </div>
         </div>
 
