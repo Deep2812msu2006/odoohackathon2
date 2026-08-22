@@ -6,6 +6,7 @@ const router = Router();
 
 router.use(protect);
 
+router.get('/stats', adminController.getAdminAnalytics);
 router.get('/analytics', adminController.getAdminAnalytics);
 
 export default router;
