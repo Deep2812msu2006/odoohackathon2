@@ -59,7 +59,7 @@ export const Sidebar = ({
     return (
       <div className="flex flex-col h-full">
         {/* Brand Header */}
-        <div className={`flex items-center ${isMini ? 'justify-center px-0' : 'justify-between px-3'} py-4 mb-3`}>
+        <div className={`flex items-center ${isMini ? 'justify-center px-0' : 'px-3'} py-4 mb-3`}>
           <Link to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-purple-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0 transform group-hover:scale-105 transition-transform duration-300">
               <Globe2 className="w-5.5 h-5.5 text-white animate-pulse" />
@@ -74,22 +74,11 @@ export const Sidebar = ({
             )}
           </Link>
 
-          {/* Desktop Toggle Button */}
-          {!isMobile && (
-            <button
-              onClick={onToggleCollapse}
-              title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-              className={`p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors border border-slate-800/50 ${isMini ? 'hidden' : 'block'}`}
-            >
-              <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-brand-400 transition-colors" />
-            </button>
-          )}
-
           {/* Mobile Close Button */}
           {isMobile && (
             <button
               onClick={onMobileClose}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 ml-auto"
             >
               <X className="w-5 h-5 text-slate-400" />
             </button>
