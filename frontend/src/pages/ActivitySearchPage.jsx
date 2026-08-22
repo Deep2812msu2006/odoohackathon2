@@ -492,388 +492,471 @@ export const ActivitySearchPage = () => {
           </button>
         </div>
       )}
-      
-      {/* 1. Header Showcase Banner */}
-      <div className="relative rounded-3xl overflow-hidden glass-card border border-slate-800/80 p-8 md:p-12 bg-gradient-to-br from-slate-900 via-slate-900/90 to-brand-950/20 shadow-2xl">
-        <div className="absolute right-0 top-0 w-[40%] h-full bg-gradient-to-l from-brand-500/10 to-transparent blur-3xl pointer-events-none"></div>
-        <div className="absolute left-10 bottom-0 w-[30%] h-[30%] bg-blue-500/5 blur-3xl pointer-events-none"></div>
 
-        <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="flex items-center space-x-2 bg-brand-500/10 text-brand-300 text-[11px] font-bold uppercase tracking-wider rounded-xl px-3 py-1.5 w-fit border border-brand-500/20">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Discover Local Wonders</span>
-          </div>
-          <h1 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
-            Curated Experiences <br/>
-            <span className="bg-gradient-to-r from-brand-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-              Designed for Adventure
-            </span>
-          </h1>
-          <p className="text-sm md:text-base text-slate-300 max-w-2xl leading-relaxed">
-            Skip the generic itineraries. Dive into personalized street food trails, historic guided tours, high-adrenaline sports, and tranquil cultural retreats tailored by local curators.
-          </p>
-          
-          {/* Quick Stats Grid */}
-          <div className="flex flex-wrap items-center gap-4 pt-4 text-xs font-semibold">
-            <div className="flex items-center space-x-2 bg-slate-950/60 rounded-xl px-4 py-2.5 border border-slate-800/50 backdrop-blur-md">
-              <Compass className="w-4 h-4 text-brand-400" />
-              <span className="text-slate-300">Total Tours: </span>
-              <span className="text-white font-bold text-sm">{rawActivities.length}</span>
-            </div>
-            <div className="flex items-center space-x-2 bg-slate-950/60 rounded-xl px-4 py-2.5 border border-slate-800/50 backdrop-blur-md">
-              <Flame className="w-4 h-4 text-rose-400 animate-pulse" />
-              <span className="text-slate-300">High Energy: </span>
-              <span className="text-white font-bold text-sm">
-                {rawActivities.filter(a => ['adventure'].includes(a.category)).length}
-              </span>
-            </div>
-
-            {/* Clickable Wishlist Counter Button */}
-            <button
-              onClick={() => setPriceFilter('wishlist')}
-              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 border backdrop-blur-md transition-all transform hover:scale-105 ${
-                priceFilter === 'wishlist'
-                  ? 'bg-rose-500/25 border-rose-500/50 text-rose-300 shadow-lg shadow-rose-500/20'
-                  : 'bg-slate-950/60 border-slate-800/50 text-slate-300 hover:border-rose-500/30'
-              }`}
-            >
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
-              <span>Saved Wishlist: </span>
-              <span className="text-white font-black text-sm">{wishlist.length} Items</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Interactive Filter System */}
-      <div className="glass-card rounded-3xl p-6 border border-slate-800/50 bg-gradient-to-b from-slate-900/50 to-slate-800/20 backdrop-blur-xl space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          
-          {/* Search Bar */}
-          <div className="relative lg:col-span-4 w-full">
-            <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, tags, or description..."
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all placeholder:text-slate-500 border border-slate-800/50"
-            />
-          </div>
-
-          {/* Quick Price & Wishlist Segment Filter */}
-          <div className="lg:col-span-5 flex flex-wrap gap-2 items-center">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2 flex items-center gap-1.5">
-              <Filter className="w-3.5 h-3.5" /> Filter:
-            </span>
-            {[
-              { id: 'all', label: 'All Costs' },
-              { id: 'wishlist', label: `💖 Saved Wishlist (${wishlist.length})` },
-              { id: 'free', label: 'Free Only' },
-              { id: 'budget', label: '< $30' },
-              { id: 'mid', label: '$30 - $80' },
-              { id: 'luxury', label: '$80+' }
-            ].map(segment => (
-              <button
-                key={segment.id}
-                onClick={() => setPriceFilter(segment.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${
-                  priceFilter === segment.id
-                    ? segment.id === 'wishlist'
-                      ? 'bg-gradient-to-r from-rose-600 to-rose-500 text-white shadow-lg shadow-rose-500/30 scale-105'
-                      : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/20 scale-105'
-                    : 'bg-slate-950/40 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                }`}
-              >
-                {segment.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Sorting Dropdown */}
-          <div className="lg:col-span-3 w-full flex items-center justify-end space-x-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Sort:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full max-w-[200px] bg-slate-950/60 border border-slate-800/50 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
-            >
-              <option value="popularity">🔥 High Popularity</option>
-              <option value="priceAsc">💵 Cost: Low to High</option>
-              <option value="priceDesc">💰 Cost: High to Low</option>
-              <option value="duration">⏱️ Duration Hours</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Category Carousel Row */}
-        <div className="border-t border-slate-800/50 pt-5 space-y-3">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Select Category</p>
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800">
-            <button
-              onClick={() => setCategoryFilter('')}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 shrink-0 ${
-                categoryFilter === ''
-                  ? 'bg-gradient-to-r from-brand-500 to-brand-400 text-white shadow-lg shadow-brand-500/30 scale-105'
-                  : 'bg-slate-950/40 text-slate-400 hover:bg-slate-800/50 hover:text-white'
-              }`}
-            >
-              All Categories
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.name}
-                onClick={() => setCategoryFilter(cat.name)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold capitalize transition-all duration-300 shrink-0 border border-slate-800/20 ${
-                  categoryFilter === cat.name
-                    ? `bg-gradient-to-r ${cat.gradient.split(' ')[0]} ${cat.gradient.split(' ')[1]} text-white shadow-lg scale-105`
-                    : 'bg-slate-950/40 text-slate-400 hover:bg-slate-800/50 hover:text-white'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Grid Content */}
-      {isLoading ? (
-        <GridSkeleton count={6} />
-      ) : filteredActivities.length === 0 ? (
-        <div className="glass-card rounded-3xl p-12 text-center border border-slate-800/50 max-w-xl mx-auto space-y-4">
-          <Heart className="w-12 h-12 text-rose-400 mx-auto animate-bounce" />
-          <h3 className="font-display font-bold text-lg text-white">
-            {priceFilter === 'wishlist' ? 'No Wishlisted Activities Saved Yet' : 'No Matching Activities'}
-          </h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            {priceFilter === 'wishlist'
-              ? 'Click the heart icon on any activity card to save it to your wishlist here!'
-              : 'Try adjusting your search query, selecting different categories, or raising your budget criteria.'}
-          </p>
-          <button
-            onClick={() => {
-              setSearch('');
-              setCategoryFilter('');
-              setPriceFilter('all');
-            }}
-            className="px-5 py-2.5 bg-brand-600 text-white font-semibold text-xs rounded-xl hover:bg-brand-500 transition"
-          >
-            Reset Filters
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredActivities.map((act) => {
-            const rating = getRating(act.id);
-            const reviews = getReviewCount(act.id);
-            const diff = getDifficulty(act.category);
-            const catGradient = categories.find(c => c.name === act.category)?.gradient || 'from-slate-500 to-slate-600';
-            const isWishlisted = wishlist.some(w => w.id === act.id);
-
-            return (
-              <div 
-                key={act.id} 
-                className="glass-card rounded-3xl overflow-hidden border border-slate-800/50 flex flex-col justify-between group hover:border-brand-500/40 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-500/10 transform hover:-translate-y-1.5"
-              >
-                <div className="h-60 relative overflow-hidden">
-                  <ActivityCardImageSlider activity={act} onOpenDetail={(a) => { setSelectedActivity(a); setBookingDate(''); }} />
-                  
-                  <span className={`absolute top-4 left-4 px-3 py-1.5 text-[10px] uppercase font-bold rounded-xl border border-white/10 backdrop-blur-xl bg-gradient-to-r ${catGradient} z-20 pointer-events-none`}>
-                    {act.category}
-                  </span>
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleWishlist(act);
-                    }}
-                    title={isWishlisted ? "Remove from Saved Wishlist" : "Save to Wishlist"}
-                    className={`absolute top-4 right-4 p-2.5 rounded-2xl backdrop-blur-md border transition-all duration-300 z-20 transform hover:scale-110 active:scale-95 ${
-                      isWishlisted
-                        ? 'bg-rose-500/30 border-rose-500/60 text-rose-400 shadow-lg shadow-rose-500/30'
-                        : 'bg-slate-950/70 border-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-900'
-                    }`}
-                  >
-                    <Heart className={`w-4.5 h-4.5 transition-transform duration-300 ${isWishlisted ? 'fill-rose-500 text-rose-500 scale-110 animate-pulse' : 'text-slate-300'}`} />
-                  </button>
-                  
-                  <div className="absolute bottom-4 left-4 flex items-center space-x-1.5 bg-slate-950/60 backdrop-blur-md rounded-lg px-2.5 py-1 border border-slate-850 z-20 pointer-events-none">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span className="text-[11px] font-bold text-white">{rating}</span>
-                    <span className="text-[9px] text-slate-400">({reviews} reviews)</span>
-                  </div>
-
-                  <div className={`absolute bottom-4 right-4 px-2.5 py-1 text-[10px] font-bold rounded-lg border ${diff.color} backdrop-blur-md z-20 pointer-events-none`}>
-                    {diff.label}
-                  </div>
-                </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-950/40 space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="font-display font-bold text-lg text-white group-hover:text-brand-300 transition-colors line-clamp-1">
-                      {act.name}
-                    </h3>
-                    <p className="text-xs text-slate-300 flex items-center space-x-1">
-                      <MapPin className="w-3.5 h-3.5 text-brand-400" />
-                      <span className="font-medium truncate">{act.city?.name}, {act.city?.country}</span>
-                    </p>
-                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed pt-1">
-                      {act.description || 'No description available for this curated local experience.'}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs pt-4 border-t border-slate-800/50">
-                    <div className="flex items-center space-x-3">
-                      <span className="flex items-center space-x-1 text-slate-400 bg-slate-900/60 rounded-lg px-2.5 py-1.5 border border-slate-800">
-                        <Clock className="w-3.5 h-3.5 text-brand-400" />
-                        <span className="font-medium text-slate-300">{act.durationHours} hrs</span>
-                      </span>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <span className="font-extrabold text-sm text-emerald-400">
-                        {act.estimatedCost === 0 ? 'Free' : formatCurrency(act.estimatedCost)}
-                      </span>
-                      
-                      <button
-                        onClick={() => {
-                          setSelectedActivity(act);
-                          setBookingDate('');
-                        }}
-                        className="p-2 bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white rounded-xl border border-brand-500/20 transition-all duration-300 transform group-hover:scale-105"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* 4. Rich Detail Preview Modal */}
-      {selectedActivity && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-          <div className="glass-card rounded-3xl border border-slate-800 overflow-hidden max-w-2xl w-full bg-slate-900 shadow-2xl relative max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
-            
+      {/* 2ND PAGE STANDALONE SHOWCASE VIEW WHEN AN ACTIVITY IS CLICKED */}
+      {selectedActivity ? (
+        <div className="space-y-8 animate-fade-in max-w-5xl mx-auto">
+          {/* Top Header Controls Bar */}
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
             <button
               onClick={() => setSelectedActivity(null)}
-              className="absolute top-4 right-4 z-30 p-2 rounded-full bg-slate-950/80 text-slate-300 hover:text-white hover:bg-slate-950 border border-slate-800 shadow-lg"
+              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl border border-slate-800 flex items-center space-x-2 shadow-lg transition-all transform hover:scale-105"
             >
-              <X className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 text-brand-400" />
+              <span>Back to All Browse Activities</span>
             </button>
 
+            <button
+              onClick={() => toggleWishlist(selectedActivity)}
+              className={`px-4 py-2.5 rounded-xl border text-xs font-bold flex items-center space-x-2 transition-all ${
+                wishlist.some(w => w.id === selectedActivity.id)
+                  ? 'bg-rose-500/20 border-rose-500/40 text-rose-400'
+                  : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white'
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${wishlist.some(w => w.id === selectedActivity.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
+              <span>{wishlist.some(w => w.id === selectedActivity.id) ? 'Saved in Wishlist' : 'Save to Wishlist'}</span>
+            </button>
+          </div>
+
+          {/* Hero Multi-Photo Showcase Slider */}
+          <div className="glass-card rounded-3xl overflow-hidden border border-brand-500/30 shadow-2xl bg-slate-900">
             {(() => {
               const slides = getActivitySlides(selectedActivity);
               return <ModalActivitySlider slides={slides} activity={selectedActivity} />;
             })()}
 
-            <div className="p-6 md:p-8 space-y-6">
-              
-              <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-300">
-                <div className="flex items-center space-x-2 bg-slate-950/40 rounded-xl px-3.5 py-2 border border-slate-800/50">
-                  <MapPin className="w-4 h-4 text-brand-400" />
-                  <span>{selectedActivity.city?.name}, {selectedActivity.city?.country}</span>
+            <div className="p-8 space-y-8">
+              {/* Quick Info Badges Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Destination City</span>
+                  <span className="font-extrabold text-white text-sm flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-brand-400" />
+                    <span>{selectedActivity.city?.name}, {selectedActivity.city?.country}</span>
+                  </span>
                 </div>
-                <div className="flex items-center space-x-2 bg-slate-950/40 rounded-xl px-3.5 py-2 border border-slate-800/50">
-                  <Clock className="w-4 h-4 text-brand-400" />
-                  <span>{selectedActivity.durationHours} Hours Duration</span>
+
+                <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Duration</span>
+                  <span className="font-extrabold text-white text-sm flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-brand-400" />
+                    <span>{selectedActivity.durationHours} Hours Duration</span>
+                  </span>
                 </div>
-                <div className="flex items-center space-x-2 bg-slate-950/40 rounded-xl px-3.5 py-2 border border-slate-800/50">
-                  <DollarSign className="w-4 h-4 text-emerald-400" />
-                  <span className="text-emerald-400 font-bold">
-                    {selectedActivity.estimatedCost === 0 ? 'Free Experience' : `${formatCurrency(selectedActivity.estimatedCost)} per slot`}
+
+                <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Ticket Price</span>
+                  <span className="font-extrabold text-emerald-400 text-sm flex items-center gap-1.5">
+                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                    <span>{selectedActivity.estimatedCost === 0 ? 'Free Experience' : `${formatCurrency(selectedActivity.estimatedCost)} per slot`}</span>
+                  </span>
+                </div>
+
+                <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Guest Rating</span>
+                  <span className="font-extrabold text-amber-400 text-sm flex items-center gap-1.5">
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <span>{getRating(selectedActivity.id)} ★ ({getReviewCount(selectedActivity.id)} reviews)</span>
                   </span>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">About this experience</h4>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  {selectedActivity.description || 'Embark on a customized local tour highlighting the best cultural events, sightseeing spots, and hidden local attractions of the region.'}
-                </p>
-              </div>
+              {/* Experience Description & Inclusions */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="font-display font-black text-xl text-white">About This Experience</h3>
+                    <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                      {selectedActivity.description || 'Embark on a customized local tour highlighting the best cultural events, sightseeing spots, and hidden local attractions of the region.'}
+                    </p>
+                  </div>
 
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center space-x-1.5">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span>Guest Reviews</span>
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {getReviews(selectedActivity.id).map((rev, i) => (
-                    <div key={i} className="bg-slate-950/30 rounded-xl p-3 border border-slate-850 space-y-1">
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-white font-bold">{rev.author}</span>
-                        <span className="text-amber-400 font-semibold">★ {rev.rating}.0</span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 italic line-clamp-3">"{rev.text}"</p>
+                  {/* Included Highlights */}
+                  <div className="space-y-3 p-5 bg-slate-950/60 rounded-2xl border border-slate-800">
+                    <h4 className="text-xs font-black uppercase text-brand-300 flex items-center space-x-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span>What's Included in This Experience Pass</span>
+                    </h4>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-300 font-medium">
+                      <li className="flex items-center space-x-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>Priority FastTrack Entrance Pass</span>
+                      </li>
+                      <li className="flex items-center space-x-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>Certified Local Guide / Culinary Host</span>
+                      </li>
+                      <li className="flex items-center space-x-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>All Food Market Samples & Tastings</span>
+                      </li>
+                      <li className="flex items-center space-x-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>Full Digital Voucher & Barcode Confirmation</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Guest Reviews Section */}
+                  <div className="space-y-4">
+                    <h3 className="font-display font-bold text-lg text-white flex items-center space-x-2">
+                      <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                      <span>Guest Reviews ({getReviewCount(selectedActivity.id)})</span>
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {getReviews(selectedActivity.id).map((rev, i) => (
+                        <div key={i} className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-white font-extrabold">{rev.author}</span>
+                            <span className="text-amber-400 font-bold">★ {rev.rating}.0</span>
+                          </div>
+                          <p className="text-xs text-slate-300 italic leading-relaxed">"{rev.text}"</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                {/* Booking & Trip Scheduler Sidebar Form */}
+                <div className="space-y-4">
+                  <div className="glass-card p-6 rounded-3xl border border-brand-500/40 bg-gradient-to-b from-slate-950 via-slate-900 to-brand-950/30 space-y-5 shadow-2xl">
+                    <div className="space-y-1 border-b border-slate-800 pb-3">
+                      <h4 className="font-display font-black text-lg text-white flex items-center space-x-2">
+                        <Calendar className="w-5 h-5 text-brand-400" />
+                        <span>Add to Trip Itinerary</span>
+                      </h4>
+                      <p className="text-xs text-slate-400">Schedule this experience into your trip plan & calculate total budget</p>
+                    </div>
+
+                    <form onSubmit={handleBookActivity} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs uppercase font-extrabold text-slate-300">Target Date</label>
+                        <input
+                          type="date"
+                          required
+                          value={bookingDate}
+                          onChange={(e) => setBookingDate(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-750 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-500 font-bold"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs uppercase font-extrabold text-slate-300">Preferred Time Slot</label>
+                        <select
+                          value={bookingTime}
+                          onChange={(e) => setBookingTime(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-750 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-500 font-bold"
+                        >
+                          <option value="08:30">08:30 AM (Morning Tour)</option>
+                          <option value="10:00">10:00 AM (Mid-Morning)</option>
+                          <option value="12:30">12:30 PM (Lunch & Food Market)</option>
+                          <option value="14:30">14:30 PM (Afternoon Visit)</option>
+                          <option value="19:30">19:30 PM (Gourmet Evening Dinner)</option>
+                        </select>
+                      </div>
+
+                      <div className="pt-2">
+                        <button
+                          type="submit"
+                          disabled={isSubmittingBooking}
+                          className="w-full py-3.5 bg-gradient-to-r from-brand-600 via-purple-600 to-cyan-500 hover:from-brand-500 hover:to-cyan-400 text-white text-xs font-black rounded-xl shadow-xl shadow-brand-500/30 disabled:opacity-50 flex items-center justify-center space-x-2 transition-all transform hover:scale-105"
+                        >
+                          {isSubmittingBooking ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>Adding to Trip Schedule...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="w-4.5 h-4.5" />
+                              <span>Schedule & Save into Trip</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
-
-              <form onSubmit={handleBookActivity} className="border-t border-slate-800 pt-5 space-y-4">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center space-x-1.5">
-                  <Calendar className="w-4 h-4 text-brand-400" />
-                  <span>Add to Itinerary Scheduler</span>
-                </h4>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase font-bold text-slate-400">Target Date</label>
-                    <input
-                      type="date"
-                      required
-                      value={bookingDate}
-                      onChange={(e) => setBookingDate(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-500/50"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase font-bold text-slate-400">Preferred Time Slot</label>
-                    <input
-                      type="time"
-                      required
-                      value={bookingTime}
-                      onChange={(e) => setBookingTime(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-500/50"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedActivity(null)}
-                    className="px-4 py-2.5 bg-slate-950 border border-slate-800 hover:bg-slate-800/80 text-xs font-bold text-slate-300 rounded-xl"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmittingBooking}
-                    className="px-6 py-2.5 bg-gradient-to-r from-brand-650 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white text-xs font-bold rounded-xl shadow-lg shadow-brand-500/20 disabled:opacity-50 flex items-center space-x-2"
-                  >
-                    {isSubmittingBooking ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Scheduling...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Schedule into Stop</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
         </div>
+      ) : (
+        /* GRID VIEW WITH ALL ACTIVITY CARDS WHEN NO ACTIVITY IS SELECTED */
+        <>
+          {/* 1. Header Showcase Banner */}
+          <div className="relative rounded-3xl overflow-hidden glass-card border border-slate-800/80 p-8 md:p-12 bg-gradient-to-br from-slate-900 via-slate-900/90 to-brand-950/20 shadow-2xl">
+            <div className="absolute right-0 top-0 w-[40%] h-full bg-gradient-to-l from-brand-500/10 to-transparent blur-3xl pointer-events-none"></div>
+            <div className="absolute left-10 bottom-0 w-[30%] h-[30%] bg-blue-500/5 blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 max-w-3xl space-y-4">
+              <div className="flex items-center space-x-2 bg-brand-500/10 text-brand-300 text-[11px] font-bold uppercase tracking-wider rounded-xl px-3 py-1.5 w-fit border border-brand-500/20">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Discover Local Wonders</span>
+              </div>
+              <h1 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
+                Curated Experiences <br/>
+                <span className="bg-gradient-to-r from-brand-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                  Designed for Adventure
+                </span>
+              </h1>
+              <p className="text-sm md:text-base text-slate-300 max-w-2xl leading-relaxed">
+                Skip the generic itineraries. Dive into personalized street food trails, historic guided tours, high-adrenaline sports, and tranquil cultural retreats tailored by local curators.
+              </p>
+              
+              {/* Quick Stats Grid */}
+              <div className="flex flex-wrap items-center gap-4 pt-4 text-xs font-semibold">
+                <div className="flex items-center space-x-2 bg-slate-950/60 rounded-xl px-4 py-2.5 border border-slate-800/50 backdrop-blur-md">
+                  <Compass className="w-4 h-4 text-brand-400" />
+                  <span className="text-slate-300">Total Tours: </span>
+                  <span className="text-white font-bold text-sm">{rawActivities.length}</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-slate-950/60 rounded-xl px-4 py-2.5 border border-slate-800/50 backdrop-blur-md">
+                  <Flame className="w-4 h-4 text-rose-400 animate-pulse" />
+                  <span className="text-slate-300">High Energy: </span>
+                  <span className="text-white font-bold text-sm">
+                    {rawActivities.filter(a => ['adventure'].includes(a.category)).length}
+                  </span>
+                </div>
+
+                {/* Clickable Wishlist Counter Button */}
+                <button
+                  onClick={() => setPriceFilter('wishlist')}
+                  className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 border backdrop-blur-md transition-all transform hover:scale-105 ${
+                    priceFilter === 'wishlist'
+                      ? 'bg-rose-500/25 border-rose-500/50 text-rose-300 shadow-lg shadow-rose-500/20'
+                      : 'bg-slate-950/60 border-slate-800/50 text-slate-300 hover:border-rose-500/30'
+                  }`}
+                >
+                  <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
+                  <span>Saved Wishlist ({wishlist.length})</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Interactive Search & Filter Control Bar */}
+          <div className="glass-card rounded-3xl p-6 border border-slate-800/80 space-y-6 shadow-xl bg-slate-900/90">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+              {/* Search Bar */}
+              <div className="md:col-span-5 relative">
+                <Search className="w-4 h-4 absolute left-4 top-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search experiences, tours, food or cities..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl glass-input text-xs font-medium text-white placeholder-slate-400 focus:ring-2 focus:ring-brand-500/50 transition"
+                />
+                {search && (
+                  <button 
+                    onClick={() => setSearch('')}
+                    className="absolute right-3 top-3 text-slate-500 hover:text-slate-300"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Price & Wishlist Filter Pills */}
+              <div className="md:col-span-4 flex items-center space-x-2 overflow-x-auto scrollbar-none py-1">
+                <span className="text-xs text-slate-400 font-bold flex items-center space-x-1 shrink-0">
+                  <Filter className="w-3.5 h-3.5 text-brand-400" />
+                  <span>Filter:</span>
+                </span>
+                
+                {[
+                  { id: 'all', label: 'All Costs' },
+                  { id: 'wishlist', label: `💖 Saved Wishlist (${wishlist.length})` },
+                  { id: 'free', label: 'Free Only' },
+                  { id: 'budget', label: '< $30' },
+                  { id: 'mid', label: '$30 - $80' },
+                  { id: 'luxury', label: '$80+' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setPriceFilter(item.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                      priceFilter === item.id
+                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/30'
+                        : 'bg-slate-950/60 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort Selector */}
+              <div className="md:col-span-3 flex items-center justify-end space-x-2">
+                <span className="text-xs text-slate-400 font-bold uppercase">Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-slate-950/80 border border-slate-800 text-slate-200 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                >
+                  <option value="popularity">🔥 High Popularity</option>
+                  <option value="priceAsc">💲 Price: Low to High</option>
+                  <option value="priceDesc">💎 Price: High to Low</option>
+                  <option value="duration">⏱️ Longest Duration</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Category Pills Bar */}
+            <div className="pt-2 border-t border-slate-850">
+              <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2.5">Select Category</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setCategoryFilter('')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    categoryFilter === ''
+                      ? 'bg-slate-200 text-slate-950 shadow-md font-extrabold'
+                      : 'bg-slate-950/60 text-slate-400 hover:text-white border border-slate-800'
+                  }`}
+                >
+                  ALL CATEGORIES
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.name}
+                    onClick={() => setCategoryFilter(categoryFilter === cat.name ? '' : cat.name)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      categoryFilter === cat.name
+                        ? `bg-gradient-to-r ${cat.gradient} border-white/20 shadow-lg font-black scale-105`
+                        : 'bg-slate-950/60 text-slate-300 hover:text-white border-slate-800'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Activity Cards Grid */}
+          {isLoading ? (
+            <GridSkeleton count={6} />
+          ) : filteredActivities.length === 0 ? (
+            <div className="text-center py-16 text-slate-400 glass-card rounded-3xl border border-slate-800/80 space-y-4 max-w-xl mx-auto">
+              <Heart className="w-12 h-12 text-rose-500/40 mx-auto animate-pulse" />
+              <h3 className="font-display font-bold text-lg text-white">
+                {priceFilter === 'wishlist' ? 'No Saved Wishlist Items Yet' : 'No Matching Activities'}
+              </h3>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                {priceFilter === 'wishlist'
+                  ? 'Click the heart icon on any activity card to save it to your wishlist here!'
+                  : 'Try adjusting your search query, selecting different categories, or raising your budget criteria.'}
+              </p>
+              <button
+                onClick={() => {
+                  setSearch('');
+                  setCategoryFilter('');
+                  setPriceFilter('all');
+                }}
+                className="px-5 py-2.5 bg-brand-600 text-white font-semibold text-xs rounded-xl hover:bg-brand-500 transition"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredActivities.map((act) => {
+                const rating = getRating(act.id);
+                const reviews = getReviewCount(act.id);
+                const diff = getDifficulty(act.category);
+                const catGradient = categories.find(c => c.name === act.category)?.gradient || 'from-slate-500 to-slate-600';
+                const isWishlisted = wishlist.some(w => w.id === act.id);
+
+                return (
+                  <div 
+                    key={act.id}
+                    onClick={() => {
+                      setSelectedActivity(act);
+                      setBookingDate('');
+                    }}
+                    className="glass-card rounded-3xl overflow-hidden border border-slate-800/50 flex flex-col justify-between group hover:border-brand-500/40 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-500/10 transform hover:-translate-y-1.5 cursor-pointer"
+                  >
+                    <div className="h-60 relative overflow-hidden">
+                      <ActivityCardImageSlider activity={act} onOpenDetail={(a) => { setSelectedActivity(a); setBookingDate(''); }} />
+                      
+                      <span className={`absolute top-4 left-4 px-3 py-1.5 text-[10px] uppercase font-bold rounded-xl border border-white/10 backdrop-blur-xl bg-gradient-to-r ${catGradient} z-20 pointer-events-none`}>
+                        {act.category}
+                      </span>
+                      
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(act);
+                        }}
+                        title={isWishlisted ? "Remove from Saved Wishlist" : "Save to Wishlist"}
+                        className={`absolute top-4 right-4 p-2.5 rounded-2xl backdrop-blur-md border transition-all duration-300 z-20 transform hover:scale-110 active:scale-95 ${
+                          isWishlisted
+                            ? 'bg-rose-500/30 border-rose-500/60 text-rose-400 shadow-lg shadow-rose-500/30'
+                            : 'bg-slate-950/70 border-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-900'
+                        }`}
+                      >
+                        <Heart className={`w-4.5 h-4.5 transition-transform duration-300 ${isWishlisted ? 'fill-rose-500 text-rose-500 scale-110 animate-pulse' : 'text-slate-300'}`} />
+                      </button>
+                      
+                      <div className="absolute bottom-4 left-4 flex items-center space-x-1.5 bg-slate-950/60 backdrop-blur-md rounded-lg px-2.5 py-1 border border-slate-850 z-20 pointer-events-none">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span className="text-[11px] font-bold text-white">{rating}</span>
+                        <span className="text-[9px] text-slate-400">({reviews} reviews)</span>
+                      </div>
+
+                      <div className={`absolute bottom-4 right-4 px-2.5 py-1 text-[10px] font-bold rounded-lg border ${diff.color} backdrop-blur-md z-20 pointer-events-none`}>
+                        {diff.label}
+                      </div>
+                    </div>
+
+                    <div className="p-5 flex-1 flex flex-col justify-between bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-950/40 space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="font-display font-bold text-lg text-white group-hover:text-brand-300 transition-colors line-clamp-1">
+                          {act.name}
+                        </h3>
+                        <p className="text-xs text-slate-300 flex items-center space-x-1">
+                          <MapPin className="w-3.5 h-3.5 text-brand-400" />
+                          <span className="font-medium truncate">{act.city?.name}, {act.city?.country}</span>
+                        </p>
+                        <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed pt-1">
+                          {act.description || 'No description available for this curated local experience.'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs pt-4 border-t border-slate-800/50">
+                        <div className="flex items-center space-x-3">
+                          <span className="flex items-center space-x-1 text-slate-400 bg-slate-900/60 rounded-lg px-2.5 py-1.5 border border-slate-800">
+                            <Clock className="w-3.5 h-3.5 text-brand-400" />
+                            <span className="font-medium text-slate-300">{act.durationHours} hrs</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <span className="font-extrabold text-sm text-emerald-400">
+                            {act.estimatedCost === 0 ? 'Free' : formatCurrency(act.estimatedCost)}
+                          </span>
+                          
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedActivity(act);
+                              setBookingDate('');
+                            }}
+                            className="p-2 bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white rounded-xl border border-brand-500/20 transition-all duration-300 transform group-hover:scale-105"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
