@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Sidebar } from '../components/Sidebar.jsx';
@@ -7,6 +7,23 @@ import { TravelWorldBackground } from '../components/TravelWorldBackground.jsx';
 
 export const AppLayout = () => {
   const { user, loading } = useAuth();
+  
+  // Persisted Collapsed Sidebar State
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('globetrotter_sidebar_collapsed') === 'true';
+  });
+
+  // Mobile Drawer State
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleToggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('globetrotter_sidebar_collapsed', String(next));
+      return next;
+    });
+    setMobileOpen((prev) => !prev);
+  };
 
   if (loading) {
     return (
@@ -28,14 +45,22 @@ export const AppLayout = () => {
       {/* City Travel Background Photo & Multi-City Traveling Dots */}
       <TravelWorldBackground />
 
-      {/* 1. Left Sidebar */}
-      <Sidebar />
+      {/* 1. Left Collapsible Sidebar */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
 
       {/* 2. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Top Navbar */}
         <header className="h-16 shrink-0 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl px-6 flex items-center justify-between z-20">
-          <TopHeader />
+          <TopHeader
+            onToggleSidebar={handleToggleSidebar}
+            collapsed={sidebarCollapsed}
+          />
         </header>
 
         {/* Dynamic Scrollable Page Body */}
