@@ -261,7 +261,17 @@ export const AdminDashboardPage = () => {
       </div>
 
       {/* Tab Controls */}
-      <div className="flex bg-slate-950/50 p-1.5 border border-slate-800/60 rounded-2xl inline-flex space-x-2 backdrop-blur-md">
+      <div className="relative flex bg-slate-950/60 p-1 border border-slate-850/30 rounded-2xl inline-flex backdrop-blur-md overflow-x-auto max-w-full scrollbar-none">
+        {/* Sliding Indicator Pill */}
+        <div 
+          className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-blue-600/15 to-indigo-600/15 border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.12)] transition-all duration-300 ease-out pointer-events-none"
+          style={{
+            width: 'calc(25% - 4px)',
+            transform: `translateX(${activeTab === 'overview' ? '0%' : activeTab === 'cities' ? '100%' : activeTab === 'activities' ? '200%' : '300%'})`,
+            left: activeTab === 'overview' ? '4px' : activeTab === 'cities' ? '5px' : activeTab === 'activities' ? '6px' : '7px'
+          }}
+        />
+
         {[
           { id: 'overview', label: 'System Overview', icon: Layers },
           { id: 'cities', label: 'Destination Insights', icon: Globe },
@@ -274,17 +284,14 @@ export const AdminDashboardPage = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2.5 px-5 py-2.5 rounded-xl font-bold text-xs transition-all duration-300 relative ${
+              className={`flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-xs transition-all duration-300 z-10 w-44 shrink-0 ${
                 isActive
-                  ? 'bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-500/20 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)] scale-102 font-extrabold'
-                  : 'border border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-850/40'
+                  ? 'text-blue-400 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <TabIcon className={`w-4 h-4 transition-colors duration-300 ${isActive ? 'text-blue-400' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
-              {isActive && (
-                <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-blue-450 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"></span>
-              )}
             </button>
           );
         })}
