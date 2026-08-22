@@ -7,7 +7,7 @@ import { formatDate, formatDateRange, formatCurrency } from '../utils/formatters
 import { 
   Calendar, MapPin, Clock, Ticket, PieChart, Edit3, Share2, Compass, 
   CheckCircle2, FileText, PlusCircle, Sparkles, Building2, Utensils, 
-  Hotel, Coffee, Award, ShieldCheck, Printer, Plane, Key, QrCode, Zap, ExternalLink, Navigation, DollarSign
+  Hotel, Coffee, Award, ShieldCheck, Printer, Plane, Key, QrCode, Zap, ExternalLink, Navigation, DollarSign, CreditCard, ArrowRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -15,6 +15,19 @@ export const ItineraryViewPage = () => {
   const { id: tripId } = useParams();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('vouchers'); // vouchers, days, list, timeline
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentStep, setPaymentStep] = useState('processing');
+  const [isPaid, setIsPaid] = useState(false);
+
+  const handleInitiatePayment = () => {
+    setShowPaymentModal(true);
+    setPaymentStep('processing');
+    setTimeout(() => {
+      setPaymentStep('success');
+      setIsPaid(true);
+      toast.success('Payment of $499.00 processed successfully! All reservations & passes locked in.', { icon: '💳' });
+    }, 1400);
+  };
 
   const { data: trip, isLoading } = useQuery({
     queryKey: ['trip', tripId],
@@ -341,10 +354,23 @@ export const ItineraryViewPage = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {/* MAKE FINAL PAYMENT BUTTON */}
+            <button
+              onClick={handleInitiatePayment}
+              className={`px-6 py-3.5 text-white font-black text-sm rounded-2xl shadow-xl flex items-center space-x-2.5 transition-all transform hover:scale-105 ${
+                isPaid
+                  ? 'bg-emerald-600/90 border border-emerald-400/50 shadow-emerald-500/20'
+                  : 'bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 shadow-emerald-500/30 ring-4 ring-emerald-500/20'
+              }`}
+            >
+              <CreditCard className="w-5 h-5 text-emerald-200 animate-pulse" />
+              <span>{isPaid ? '✓ Paid & Confirmed ($499)' : '💳 Make Final Payment ($499)'}</span>
+            </button>
+
             {/* MAIN DIRECT PRINT / SAVE PDF PASS BUTTON */}
             <button
               onClick={handlePrintVoucher}
-              className="px-6 py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center space-x-2.5 transition-all transform hover:scale-105"
+              className="px-6 py-3.5 bg-gradient-to-r from-purple-600 via-brand-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-black text-sm rounded-2xl shadow-xl flex items-center space-x-2.5 transition-all transform hover:scale-105"
             >
               <Printer className="w-5 h-5" />
               <span>Print / Direct Save PDF Pass</span>
@@ -881,12 +907,91 @@ export const ItineraryViewPage = () => {
           {displayStops.map((stop, idx) => (
             <div key={stop.id} className="relative group">
               <div className="absolute -left-[39px] top-2 w-6 h-6 rounded-full bg-brand-500 ring-4 ring-slate-950 shadow-lg shadow-brand-500/30"></div>
-              <div className="glass-card rounded-3xl p-6 border border-slate-800 space-y-4">
-                <h3 className="font-display font-bold text-xl text-white">Stop {idx + 1}: {stop.city?.name}</h3>
-                <p className="text-xs text-brand-400 font-bold">{formatDateRange(stop.arrivalDate, stop.departureDate)}</p>
-              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Bottom Sticky Final Payment Banner */}
+      <div className="glass-card rounded-3xl p-6 sm:p-8 border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950/40 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6 print:hidden">
+        <div className="space-y-1 text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start space-x-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Official Trip Checkout & Hotel Guarantee</span>
+          </div>
+          <h3 className="font-display font-black text-2xl text-white">Finalize Your Multi-City Experience</h3>
+          <p className="text-xs text-slate-300">Complete your $499 payment after configuring food & activities to lock in luxury suites and official boarding passes.</p>
+        </div>
+
+        <button
+          onClick={handleInitiatePayment}
+          className={`w-full sm:w-auto px-8 py-4 text-white font-black text-sm rounded-2xl shadow-2xl flex items-center justify-center space-x-3 transition-transform transform hover:scale-105 ${
+            isPaid
+              ? 'bg-emerald-600 border border-emerald-400/50 shadow-emerald-500/20'
+              : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 shadow-emerald-500/40 ring-4 ring-emerald-500/20'
+          }`}
+        >
+          <CreditCard className="w-5 h-5 animate-pulse" />
+          <span>{isPaid ? '✓ Booking Fully Paid & Confirmed' : '💳 Make Final Payment Now ($499)'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Payment Success Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in print:hidden">
+          <div className="glass-card max-w-md w-full rounded-3xl p-8 border border-emerald-500/40 shadow-[0_0_50px_rgba(16,185,129,0.25)] space-y-6 text-center bg-slate-950 relative overflow-hidden">
+            {paymentStep === 'processing' ? (
+              <div className="py-8 space-y-4">
+                <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <h3 className="font-display font-extrabold text-xl text-white">Processing Instant Payment...</h3>
+                <p className="text-xs text-slate-400">Verifying payment details & issuing official boarding passes for {trip.name}...</p>
+              </div>
+            ) : (
+              <div className="space-y-6 animate-scale-up">
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-400 text-white rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-emerald-500/40 ring-8 ring-emerald-500/20">
+                  <CheckCircle2 className="w-10 h-10 animate-bounce" />
+                </div>
+
+                <div className="space-y-2">
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    Payment Successful 💳
+                  </span>
+                  <h3 className="font-display font-black text-2xl text-white">All Bookings Confirmed!</h3>
+                  <p className="text-xs text-slate-400">
+                    Your payment of <strong className="text-emerald-400">$499.00 USD</strong> has been successfully processed. All hotel suite vouchers & boarding passes are now active.
+                  </p>
+                </div>
+
+                {/* Receipt Details */}
+                <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 text-left space-y-2 text-xs">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Transaction Ref:</span>
+                    <span className="font-mono font-bold text-white">#TXN-984210</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Trip Package:</span>
+                    <span className="font-bold text-white truncate max-w-[180px]">{trip.name}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Destination:</span>
+                    <span className="font-bold text-emerald-400">{mainCityName}, {mainCountry}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setShowPaymentModal(false);
+                    setActiveTab('vouchers');
+                  }}
+                  className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center justify-center space-x-2 transition-transform transform hover:scale-105"
+                >
+                  <span>View Boarding Passes & Vouchers</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

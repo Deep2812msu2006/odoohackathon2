@@ -257,12 +257,14 @@ export const ItineraryBuilderPage = () => {
             <span>Add City Stop</span>
           </button>
           <button
-            onClick={handleInitiatePayment}
+            onClick={() => {
+              toast.success('Proceeding to Detailed Itinerary...', { icon: '✈️' });
+              navigate(`/trips/${trip.id}`);
+            }}
             className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 hover:from-emerald-500 hover:to-teal-300 text-white font-extrabold text-xs rounded-xl shadow-xl shadow-emerald-500/25 flex items-center space-x-2 transition-all transform hover:scale-105"
-            title="Make payment & complete itinerary booking"
+            title="Proceed to detailed itinerary, hotel stay info, food & activities"
           >
-            <CreditCard className="w-4 h-4 text-emerald-100 animate-pulse" />
-            <span>Make Payment & Finish ($499)</span>
+            <span>Next / Proceed to Itinerary</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -276,7 +278,7 @@ export const ItineraryBuilderPage = () => {
           </div>
           <h3 className="font-display font-extrabold text-2xl text-white">No City Stops Added Yet</h3>
           <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome), or click finish to complete your payment & booking.
+            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome), or click next to view hotel info, food & activities.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
@@ -287,11 +289,13 @@ export const ItineraryBuilderPage = () => {
               <span>Add First Stop</span>
             </button>
             <button
-              onClick={handleInitiatePayment}
-              className="px-6 py-3 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 hover:from-emerald-500 hover:to-teal-300 text-white font-extrabold text-sm rounded-xl border border-emerald-400/40 inline-flex items-center space-x-2 transition-transform transform hover:scale-105 shadow-xl shadow-emerald-500/25"
+              onClick={() => {
+                toast.success('Proceeding to Detailed Itinerary...', { icon: '✈️' });
+                navigate(`/trips/${trip.id}`);
+              }}
+              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-extrabold text-sm rounded-xl border border-emerald-500/30 inline-flex items-center space-x-2 transition-transform transform hover:scale-105 shadow-lg"
             >
-              <CreditCard className="w-4 h-4 text-white animate-pulse" />
-              <span>Make Payment & Finish ($499)</span>
+              <span>Proceed to Detailed Itinerary</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
