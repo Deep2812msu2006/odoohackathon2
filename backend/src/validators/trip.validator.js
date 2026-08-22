@@ -30,3 +30,15 @@ export const publishTripSchema = z.object({
     isPublic: z.boolean(),
   }),
 });
+
+export const aiGenerateTripSchema = z.object({
+  body: z.object({
+    name: z.string().min(2, 'Trip name must be at least 2 characters').optional(),
+    cityIds: z.array(z.string().uuid('Invalid City UUID')).min(1, 'At least 1 city is required'),
+    startDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: 'Invalid start date' }).optional(),
+    durationDays: z.number().int().min(1).max(30).default(7),
+    totalBudget: z.number().positive().optional().default(1500),
+    preferredCategories: z.array(z.string()).optional(),
+    pace: z.enum(['relaxed', 'balanced', 'packed']).optional().default('balanced'),
+  }),
+});

@@ -49,6 +49,151 @@ export const createTrip = async (userId, { name, description, startDate, endDate
   return trip;
 };
 
+export const generateAiItinerary = async (
+  userId,
+  { name, cityIds, startDate, durationDays = 7, totalBudget = 1500, preferredCategories = [], pace = 'balanced' }
+) => {
+  const start = startDate ? new Date(startDate) : new Date();
+  const end = new Date(start);
+  end.setDate(end.getDate() + (durationDays - 1));
+
+  // 1. Fetch cities from DB
+  const cities = await prisma.city.findMany({
+    where: { id: { in: cityIds } },
+    include: {
+      activities: true,
+    },
+  });
+
+  if (cities.length === 0) {
+    throw new AppError('None of the selected cities were found in database.', 404, 'CITIES_NOT_FOUND');
+  }
+
+  // Preserve order of cityIds
+  const orderedCities = cityIds.map((id) => cities.find((c) => c.id === id)).filter(Boolean);
+
+  const tripName = name || `AI Smart Tour: ${orderedCities.map((c) => c.name).join(' → ')}`;
+  const publicSlug = createSlug(tripName);
+  const coverPhotoUrl = orderedCities[0]?.imageUrl || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80';
+
+  // 2. Calculate days per city stop
+  const daysPerCity = Math.max(1, Math.floor(durationDays / orderedCities.length));
+  let currentArrival = new Date(start);
+
+  const stopsData = [];
+  const activitiesPerDay = pace === 'relaxed' ? 1 : pace === 'packed' ? 3 : 2;
+  const timeSlots = ['09:30 AM', '02:00 PM', '06:30 PM'];
+
+  for (let i = 0; i < orderedCities.length; i++) {
+    const city = orderedCities[i];
+    const isLast = i === orderedCities.length - 1;
+    const stayDays = isLast ? Math.max(1, Math.ceil((end - currentArrival) / (1000 * 60 * 60 * 24)) + 1) : daysPerCity;
+
+    const stopDeparture = new Date(currentArrival);
+    stopDeparture.setDate(stopDeparture.getDate() + (stayDays - 1));
+
+    // Filter activities by preferred categories if provided
+    let availableActivities = city.activities;
+    if (preferredCategories.length > 0) {
+      const filtered = city.activities.filter((a) => preferredCategories.includes(a.category));
+      if (filtered.length > 0) availableActivities = filtered;
+    }
+
+    // Schedule stop activities for each day of this city stop
+    const stopActivitiesData = [];
+    let activityIdx = 0;
+
+    for (let day = 0; day < stayDays; day++) {
+      const scheduledDate = new Date(currentArrival);
+      scheduledDate.setDate(scheduledDate.getDate() + day);
+
+      for (let act = 0; act < activitiesPerDay; act++) {
+        if (availableActivities.length === 0) break;
+        const selectedActivity = availableActivities[activityIdx % availableActivities.length];
+        activityIdx++;
+
+        const customCost = Math.round(selectedActivity.estimatedCost * city.costIndex);
+
+        stopActivitiesData.push({
+          activityId: selectedActivity.id,
+          scheduledDate,
+          scheduledTime: timeSlots[act % timeSlots.length],
+          customCost,
+          orderIndex: stopActivitiesData.length,
+        });
+      }
+    }
+
+    stopsData.push({
+      cityId: city.id,
+      orderIndex: i,
+      arrivalDate: new Date(currentArrival),
+      departureDate: new Date(stopDeparture),
+      notes: `AI Recommended ${stayDays}-Day Exploration of ${city.name}, ${city.country}. (Cost Multiplier: ${city.costIndex}x)`,
+      stopActivitiesData,
+    });
+
+    currentArrival = new Date(stopDeparture);
+    currentArrival.setDate(currentArrival.getDate() + 1);
+  }
+
+  // 3. Database persistence
+  const newTrip = await prisma.trip.create({
+    data: {
+      userId,
+      name: tripName,
+      description: `AI-Optimized ${durationDays}-Day itinerary covering ${orderedCities.map((c) => c.name).join(', ')}. Planned for $${totalBudget} target budget (${pace} pace).`,
+      startDate: start,
+      endDate: end,
+      coverPhotoUrl,
+      isPublic: false,
+      publicSlug,
+    },
+  });
+
+  for (const stop of stopsData) {
+    const createdStop = await prisma.tripStop.create({
+      data: {
+        tripId: newTrip.id,
+        cityId: stop.cityId,
+        orderIndex: stop.orderIndex,
+        arrivalDate: stop.arrivalDate,
+        departureDate: stop.departureDate,
+        notes: stop.notes,
+      },
+    });
+
+    for (const act of stop.stopActivitiesData) {
+      await prisma.tripStopActivity.create({
+        data: {
+          tripStopId: createdStop.id,
+          activityId: act.activityId,
+          scheduledDate: act.scheduledDate,
+          scheduledTime: act.scheduledTime,
+          customCost: act.customCost,
+          orderIndex: act.orderIndex,
+        },
+      });
+    }
+  }
+
+  return prisma.trip.findUnique({
+    where: { id: newTrip.id },
+    include: {
+      stops: {
+        orderBy: { orderIndex: 'asc' },
+        include: {
+          city: true,
+          stopActivities: {
+            orderBy: { orderIndex: 'asc' },
+            include: { activity: true },
+          },
+        },
+      },
+    },
+  });
+};
+
 export const getUserTrips = async (userId) => {
   const trips = await prisma.trip.findMany({
     where: { userId },

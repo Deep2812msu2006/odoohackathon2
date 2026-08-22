@@ -6,7 +6,7 @@ import * as budgetController from '../controllers/budget.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 import { validate } from '../middleware/validate.middleware.js';
 import { upload } from '../middleware/upload.middleware.js';
-import { createTripSchema, updateTripSchema, publishTripSchema } from '../validators/trip.validator.js';
+import { createTripSchema, updateTripSchema, publishTripSchema, aiGenerateTripSchema } from '../validators/trip.validator.js';
 import { addStopSchema, updateStopSchema, reorderStopsSchema } from '../validators/stop.validator.js';
 import { addActivitySchema, updateActivityLinkSchema } from '../validators/activity.validator.js';
 
@@ -17,6 +17,10 @@ router.use(protect);
 // Trip CRUD & Publish
 router.get('/', tripController.getUserTrips);
 router.post('/', upload.single('coverPhoto'), validate(createTripSchema), tripController.createTrip);
+
+// AI Itinerary Generator & Smart Route Optimizer Endpoint
+router.post('/ai-generate', validate(aiGenerateTripSchema), tripController.generateAiItinerary);
+
 router.get('/:id', tripController.getTripById);
 router.patch('/:id', upload.single('coverPhoto'), validate(updateTripSchema), tripController.updateTrip);
 router.delete('/:id', tripController.deleteTrip);

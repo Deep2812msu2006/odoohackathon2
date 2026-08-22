@@ -14,6 +14,15 @@ export const createTrip = async (req, res, next) => {
   }
 };
 
+export const generateAiItinerary = async (req, res, next) => {
+  try {
+    const trip = await tripService.generateAiItinerary(req.user.id, req.body);
+    return sendSuccess(res, { trip }, 201, 'AI Itinerary generated & optimized successfully!');
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getUserTrips = async (req, res, next) => {
   try {
     const trips = await tripService.getUserTrips(req.user.id);
