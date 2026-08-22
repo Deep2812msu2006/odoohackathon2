@@ -18,10 +18,13 @@ export const ItineraryViewPage = () => {
     },
   });
 
-  const handleCopyShareLink = (slug) => {
+  const handleCopyShareLink = async (slug) => {
+    try {
+      await tripApi.publishTrip(trip.id, true);
+    } catch (e) {}
     const url = `${window.location.origin}/share/${slug}`;
     navigator.clipboard.writeText(url);
-    toast.success('Public share link copied to clipboard!');
+    toast.success('Public share link activated & copied to clipboard!');
   };
 
   if (isLoading) {
@@ -78,15 +81,13 @@ export const ItineraryViewPage = () => {
               <span>View Budget</span>
             </Link>
 
-            {trip.isPublic && (
-              <button
-                onClick={() => handleCopyShareLink(trip.publicSlug)}
-                className="px-4 py-2.5 bg-slate-800/80 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-emerald-400 text-emerald-400 hover:text-white font-semibold text-xs rounded-xl flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
-              >
-                <Share2 className="w-4 h-4" />
-                <span>Share Link</span>
-              </button>
-            )}
+            <button
+              onClick={() => handleCopyShareLink(trip.publicSlug)}
+              className="px-4 py-2.5 bg-slate-800/80 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-emerald-400 text-emerald-400 hover:text-white font-semibold text-xs rounded-xl flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Share Link</span>
+            </button>
           </div>
         </div>
       </div>

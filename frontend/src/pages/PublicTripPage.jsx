@@ -2,23 +2,24 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { publicApi } from '../services/publicApi.js';
+import { tripApi } from '../services/tripApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { formatDate, formatDateRange, formatCurrency } from '../utils/formatters.js';
 import toast from 'react-hot-toast';
-import { Copy, Calendar, MapPin, Ticket, User, Share2, Compass, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Copy, Calendar, MapPin, Ticket, User, Share2, Compass, CheckCircle2, ArrowRight, Globe, Lock } from 'lucide-react';
 
 export const PublicTripPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [copying, setCopying] = useState(false);
 
-  const { data: trip, isLoading, error } = useQuery({
+  const { data: trip, isLoading, error, refetch } = useQuery({
     queryKey: ['publicTrip', slug],
     queryFn: async () => {
       const res = await publicApi.getPublicTripBySlug(slug);
-      return res.data.trip;
+      return res.data?.trip || res.trip;
     },
+    retry: 1,
   });
 
   const copyMutation = useMutation({
@@ -43,13 +44,25 @@ export const PublicTripPage = () => {
 
   if (error || !trip) {
     return (
-      <div className="max-w-md mx-auto my-16 text-center glass-card rounded-3xl p-8 space-y-4 border border-slate-800">
-        <Compass className="w-12 h-12 text-rose-400 mx-auto" />
-        <h2 className="font-display font-bold text-xl text-white">Trip Not Found or Private</h2>
-        <p className="text-xs text-slate-400">This trip link may be invalid or the creator has unshared it.</p>
-        <Link to="/" className="inline-block px-5 py-2.5 bg-brand-600 text-white rounded-xl text-xs font-semibold">
-          Return Home
-        </Link>
+      <div className="max-w-md mx-auto my-16 text-center glass-card rounded-3xl p-8 sm:p-10 space-y-5 border border-slate-800 shadow-2xl">
+        <div className="p-4 bg-rose-500/10 text-rose-400 rounded-2xl w-fit mx-auto border border-rose-500/20 shadow-glow">
+          <Lock className="w-10 h-10 animate-pulse" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="font-display font-bold text-2xl text-white">Trip Link Not Public Yet</h2>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            This trip link is currently private. If you are the trip owner, make sure to enable public sharing in your trip builder!
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link to="/trips" className="w-full sm:w-auto px-5 py-2.5 bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold hover:bg-slate-700 transition-colors">
+            My Trips
+          </Link>
+          <Link to="/" className="w-full sm:w-auto px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-glow transition-all">
+            Return Home
+          </Link>
+        </div>
       </div>
     );
   }

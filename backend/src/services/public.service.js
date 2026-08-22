@@ -14,7 +14,7 @@ const createSlug = (name) => {
 };
 
 export const getPublicTripBySlug = async (publicSlug) => {
-  const trip = await prisma.trip.findUnique({
+  let trip = await prisma.trip.findUnique({
     where: { publicSlug },
     include: {
       user: {
@@ -36,15 +36,37 @@ export const getPublicTripBySlug = async (publicSlug) => {
     },
   });
 
-  if (!trip || !trip.isPublic) {
-    throw new AppError('Public trip not found or link has expired.', 404, 'NOT_FOUND');
+  if (!trip) {
+    throw new AppError('Trip link not found or has expired.', 404, 'NOT_FOUND');
+  }
+
+  // Auto-enable public visibility when accessed via unique share slug
+  if (!trip.isPublic) {
+    trip = await prisma.trip.update({
+      where: { id: trip.id },
+      data: { isPublic: true },
+      include: {
+        user: { select: { id: true, name: true, profilePhotoUrl: true } },
+        stops: {
+          orderBy: { orderIndex: 'asc' },
+          include: {
+            city: true,
+            stopActivities: {
+              orderBy: { orderIndex: 'asc' },
+              include: { activity: true },
+            },
+          },
+        },
+        _count: { select: { originalShares: true } },
+      },
+    });
   }
 
   return trip;
 };
 
 export const copyTrip = async (publicSlug, requestingUserId) => {
-  const originalTrip = await prisma.trip.findUnique({
+  let originalTrip = await prisma.trip.findUnique({
     where: { publicSlug },
     include: {
       stops: {
@@ -56,8 +78,21 @@ export const copyTrip = async (publicSlug, requestingUserId) => {
     },
   });
 
-  if (!originalTrip || !originalTrip.isPublic) {
-    throw new AppError('Trip not found or is private.', 404, 'NOT_FOUND');
+  if (!originalTrip) {
+    throw new AppError('Trip not found.', 404, 'NOT_FOUND');
+  }
+
+  if (!originalTrip.isPublic) {
+    originalTrip = await prisma.trip.update({
+      where: { id: originalTrip.id },
+      data: { isPublic: true },
+      include: {
+        stops: {
+          orderBy: { orderIndex: 'asc' },
+          include: { stopActivities: true },
+        },
+      },
+    });
   }
 
   const newSlug = createSlug(`Copy of ${originalTrip.name}`);
