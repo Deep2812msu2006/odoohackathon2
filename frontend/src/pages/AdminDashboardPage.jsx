@@ -4,7 +4,7 @@ import { adminApi } from '../services/adminApi.js';
 import { systemApi } from '../services/systemApi.js';
 import { 
   ShieldCheck, Users, Map, Building2, Ticket, Share2, Star, 
-  TrendingUp, Database, Activity, Cpu, Layers, AlertCircle, RefreshCw, Globe, ChevronRight, Server, Settings
+  TrendingUp, Database, Activity, Cpu, Layers, AlertCircle, RefreshCw, Globe, ChevronRight, Server, Settings, DollarSign
 } from 'lucide-react';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer
@@ -282,15 +282,19 @@ export const AdminDashboardPage = () => {
                     </span>
                   </div>
 
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] text-slate-500 font-semibold uppercase">
-                      <span>Cost multiplier: <strong className="text-emerald-400 font-bold">{city.costIndex}x</strong></span>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                      <span className="flex items-center gap-1.5">
+                        <DollarSign className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span>Cost Index</span>
+                      </span>
+                      <span className="text-emerald-400 font-extrabold text-xs">{city.costIndex ? `${city.costIndex}x` : '1.0x'}</span>
                     </div>
                     {/* Visual Progress Bar */}
-                    <div className="w-full bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-850 p-0.5">
                       <div 
-                        className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full" 
-                        style={{ width: `${Math.min((city.costIndex / 2.5) * 100, 100)}%` }}
+                        className="bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 h-[6px] rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+                        style={{ width: `${Math.min(((city.costIndex || 1.0) / 2.5) * 100, 100)}%` }}
                       ></div>
                     </div>
                   </div>
