@@ -193,13 +193,17 @@ export const ProfilePage = () => {
       return;
     }
     setPwLoading(true);
-    setTimeout(() => {
-      setPwLoading(false);
-      toast.success('Password updated successfully! 🔒');
+    try {
+      await userApi.changePassword({ currentPassword, newPassword });
+      toast.success('Password updated successfully in database! 🔒 Next login will require your new password.');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    }, 1500);
+    } catch (err) {
+      toast.error(err.message || 'Failed to update password.');
+    } finally {
+      setPwLoading(false);
+    }
   };
 
   const handleDeleteAccount = async () => {

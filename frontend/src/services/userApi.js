@@ -6,5 +6,6 @@ export const userApi = {
     const headers = data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {};
     return api.patch('/users/me', data, { headers });
   },
+  changePassword: (data) => api.patch('/users/me/password', data),
   deleteAccount: () => api.delete('/users/me'),
 };

@@ -14,6 +14,15 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
+export const changePassword = async (req, res, next) => {
+  try {
+    const result = await userService.changePassword(req.user.id, req.body);
+    return sendSuccess(res, result, 200, 'Password updated successfully in database.');
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const deleteAccount = async (req, res, next) => {
   try {
     const result = await userService.deleteAccount(req.user.id);
