@@ -41,7 +41,8 @@ export const ProfilePage = () => {
   // Profile State
   const [name, setName] = useState(user?.name || '');
   const [languagePreference, setLanguagePreference] = useState(user?.languagePreference || 'en');
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState(user?.profilePhotoUrl || '');
+  const initialPhoto = (user?.profilePhotoUrl || '').includes('images.unsplash.com/photo-1534528741775') ? '' : (user?.profilePhotoUrl || '');
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState(initialPhoto);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -363,11 +364,11 @@ export const ProfilePage = () => {
               
               <div className="flex flex-col sm:flex-row gap-4 items-center">
                 <div className="relative group shrink-0">
-                  <img
-                    src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'}
-                    alt="preview"
-                    className="w-16 h-16 rounded-2xl object-cover ring-2 ring-brand-500/30 group-hover:ring-brand-500/60 transition-all"
-                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'; }}
+                  <UserAvatar
+                    name={name}
+                    photoUrl={profilePhotoUrl}
+                    className="w-16 h-16 rounded-2xl ring-2 ring-brand-500/30 group-hover:ring-brand-500/60 transition-all"
+                    textClassName="text-xl"
                   />
                 </div>
 
