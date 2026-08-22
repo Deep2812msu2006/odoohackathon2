@@ -8,7 +8,7 @@ import {
   Terminal, Play, Pause, Trash2, Eye, TableInfo
 } from 'lucide-react';
 import {
-  BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, LineChart, Line
+  BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, LineChart, Line, CartesianGrid
 } from 'recharts';
 
 export const AdminDashboardPage = () => {
@@ -159,12 +159,28 @@ export const AdminDashboardPage = () => {
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      const getUnitLabel = (name) => {
+        if (name === 'Users') return 'registered accounts';
+        if (name === 'Trips') return 'planned itineraries';
+        if (name === 'Shares') return 'shared gallery items';
+        if (name === 'Cities') return 'destination cities';
+        return 'curated things to do';
+      };
+      
       return (
-        <div className="glass-card border border-slate-850 p-3 rounded-xl text-xs shadow-2xl bg-slate-950/90 backdrop-blur-md">
-          <p className="font-bold text-slate-200">{payload[0].name}</p>
-          <p className="text-brand-400 font-extrabold mt-0.5">
-            Total Record Count: <span className="text-white font-black">{payload[0].value}</span>
-          </p>
+        <div className="glass-card border border-slate-800/80 p-3.5 rounded-2xl text-xs shadow-2xl bg-slate-950/95 backdrop-blur-md min-w-[160px] space-y-1 animate-fade-in">
+          <div className="flex items-center space-x-2">
+            <span className="w-2.5 h-2.5 rounded-full shadow-glow" style={{ backgroundColor: data.fill }}></span>
+            <p className="font-black text-slate-205 text-sm tracking-tight">{data.name}</p>
+          </div>
+          <div className="pt-1.5 border-t border-slate-900 space-y-0.5">
+            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Database Count</p>
+            <p className="text-white font-extrabold text-base flex items-baseline gap-1.5">
+              <span>{payload[0].value}</span>
+              <span className="text-[10px] text-slate-500 font-normal normal-case">{getUnitLabel(data.name)}</span>
+            </p>
+          </div>
         </div>
       );
     }
@@ -194,8 +210,9 @@ export const AdminDashboardPage = () => {
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.01}/>
                 </linearGradient>
               </defs>
-              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <CartesianGrid stroke="rgba(51, 65, 85, 0.12)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#475569', strokeWidth: 1, strokeDasharray: '4 4' }} />
               <Area type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#colorCount)" />
             </AreaChart>
@@ -205,8 +222,9 @@ export const AdminDashboardPage = () => {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 10, right: 15, left: -25, bottom: 0 }}>
-              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <CartesianGrid stroke="rgba(51, 65, 85, 0.12)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#475569', strokeWidth: 1 }} />
               <Line type="monotone" dataKey="count" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 4, stroke: '#8b5cf6', strokeWidth: 2, fill: '#0f172a' }} activeDot={{ r: 6 }} />
             </LineChart>
@@ -216,14 +234,38 @@ export const AdminDashboardPage = () => {
       default:
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 15, left: -25, bottom: 0 }}>
-              <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-              <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
+            <BarChart data={chartData} margin={{ top: 10, right: 15, left: -25, bottom: 0 }} barSize={28}>
+              <defs>
+                <linearGradient id="gradUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.85}/>
+                  <stop offset="100%" stopColor="#1d4ed8" stopOpacity={0.2}/>
+                </linearGradient>
+                <linearGradient id="gradTrips" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.85}/>
+                  <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.2}/>
+                </linearGradient>
+                <linearGradient id="gradShares" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.85}/>
+                  <stop offset="100%" stopColor="#047857" stopOpacity={0.2}/>
+                </linearGradient>
+                <linearGradient id="gradCities" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.85}/>
+                  <stop offset="100%" stopColor="#b45309" stopOpacity={0.2}/>
+                </linearGradient>
+                <linearGradient id="gradActivities" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ec4899" stopOpacity={0.85}/>
+                  <stop offset="100%" stopColor="#be185d" stopOpacity={0.2}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(51, 65, 85, 0.12)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.015)' }} />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                {chartData.map((entry, index) => {
+                  const grads = ['url(#gradUsers)', 'url(#gradTrips)', 'url(#gradShares)', 'url(#gradCities)', 'url(#gradActivities)'];
+                  return <Cell key={`cell-${index}`} fill={grads[index]} stroke={entry.fill} strokeWidth={1} />;
+                })}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
