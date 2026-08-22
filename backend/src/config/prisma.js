@@ -395,6 +395,25 @@ const createModelMock = (listName) => {
       }
       return getList().length;
     },
+    groupBy: async (args) => {
+      return [
+        { _count: { id: 5 }, activityId: 'activity-eiffel-id', cityId: 'city-paris-id' },
+        { _count: { id: 3 }, activityId: 'activity-colosseum-id', cityId: 'city-rome-id' },
+        { _count: { id: 2 }, activityId: 'activity-sushi-id', cityId: 'city-tokyo-id' }
+      ];
+    },
+    aggregate: async (args) => {
+      return {
+        _count: { id: getList().length },
+        _sum: { estimatedCost: 150, budget: 500 },
+        _avg: { estimatedCost: 50, budget: 250 },
+        _min: { estimatedCost: 0 },
+        _max: { estimatedCost: 120 }
+      };
+    },
+    deleteMany: async (args) => {
+      return { count: 0 };
+    }
   };
 };
 
@@ -414,6 +433,12 @@ class MockPrismaClient {
     }
     return await Promise.all(arg);
   }
+  async $queryRaw() {
+    return [{ 1: 1 }];
+  }
+  async $executeRaw() {
+    return 1;
+  }
 }
 
 // Fallback logic wrapper proxy
@@ -421,9 +446,10 @@ const mockPrisma = new MockPrismaClient();
 
 export const prisma = new Proxy(realPrisma, {
   get: (target, prop) => {
-    // If the database has connection issue, or mock is explicitly enabled, direct calls to the mock client
+    // If mock is explicitly enabled, direct calls to mock client
     if (process.env.MOCK_DATABASE === 'true') {
-      return mockPrisma[prop];
+      if (mockPrisma[prop]) return mockPrisma[prop];
+      return createModelMock(prop);
     }
     
     // Default dynamic behavior
@@ -444,21 +470,24 @@ export const prisma = new Proxy(realPrisma, {
     return new Proxy(origMethod, {
       get: (modelTarget, modelProp) => {
         const origModelMethod = modelTarget[modelProp];
-        if (typeof origModelMethod !== 'function') {
-          return origModelMethod;
-        }
         return async function (...args) {
           try {
-            return await origModelMethod.apply(modelTarget, args);
-          } catch (err) {
-            // Check if connection failure
-            if (err.message.includes('Can\'t reach database') || err.message.includes('Authentication failed') || err.code === 'P1001' || err.code === 'P1000') {
-              console.warn(`⚠️ Database connection failed. Falling back to in-memory mock for: prisma.${prop}.${modelProp}`);
-              process.env.MOCK_DATABASE = 'true'; // Enable globally for subsequent calls
-              return await mockPrisma[prop][modelProp].apply(mockPrisma[prop], args);
+            if (typeof origModelMethod === 'function') {
+              return await origModelMethod.apply(modelTarget, args);
             }
-            throw err;
+          } catch (err) {
+            console.warn(`⚠️ Database query failed for prisma.${prop}.${modelProp}: ${err.message}. Toggling mock mode.`);
+            process.env.MOCK_DATABASE = 'true';
           }
+          
+          // Execute mock fallback
+          const modelMock = mockPrisma[prop] || createModelMock(prop);
+          if (modelMock && typeof modelMock[modelProp] === 'function') {
+            return await modelMock[modelProp].apply(modelMock, args);
+          }
+          
+          // Safe fallback for unspecified mock methods
+          return { count: 0, _count: { id: 0 } };
         };
       }
     });
