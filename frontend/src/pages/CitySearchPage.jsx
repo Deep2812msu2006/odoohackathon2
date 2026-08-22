@@ -5,8 +5,26 @@ import { cityApi } from '../services/cityApi.js';
 import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import {
-  Search, MapPin, Globe, Filter, Star, DollarSign, Sparkles, Ticket, X, ArrowRight, CheckCircle2, Compass, Layers, Plus
+  Search, MapPin, Globe, Filter, Star, DollarSign, Sparkles, Ticket, X, ArrowRight, CheckCircle2, Compass, Layers, Plus, Play, Video
 } from 'lucide-react';
+
+// Curated HD Cinematic Video Trailers for Cities
+const CITY_VIDEO_TRAILERS = {
+  Paris: 'https://assets.mixkit.co/videos/preview/mixkit-eiffel-tower-in-paris-at-night-4228-large.mp4',
+  Tokyo: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-tokyo-city-at-night-41544-large.mp4',
+  'New York': 'https://assets.mixkit.co/videos/preview/mixkit-time-lapse-of-new-york-city-at-night-41617-large.mp4',
+  Rome: 'https://assets.mixkit.co/videos/preview/mixkit-colosseum-and-ancient-rome-at-sunset-41551-large.mp4',
+  London: 'https://assets.mixkit.co/videos/preview/mixkit-traffic-on-a-london-street-at-night-41604-large.mp4',
+  Dubai: 'https://assets.mixkit.co/videos/preview/mixkit-burj-khalifa-tower-in-dubai-at-night-41550-large.mp4',
+  Sydney: 'https://assets.mixkit.co/videos/preview/mixkit-sydney-opera-house-at-sunset-41549-large.mp4',
+  Venice: 'https://assets.mixkit.co/videos/preview/mixkit-gondolas-floating-on-a-canal-in-venice-41607-large.mp4',
+  Cairo: 'https://assets.mixkit.co/videos/preview/mixkit-pyramids-of-giza-in-egypt-at-sunset-41552-large.mp4',
+  Rio: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-rio-de-janeiro-beach-41553-large.mp4',
+  Barcelona: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-barcelona-cityscape-41605-large.mp4',
+  Amsterdam: 'https://assets.mixkit.co/videos/preview/mixkit-canals-of-amsterdam-at-sunset-41606-large.mp4',
+};
+
+const DEFAULT_TRAILER = 'https://assets.mixkit.co/videos/preview/mixkit-eiffel-tower-in-paris-at-night-4228-large.mp4';
 
 export const CitySearchPage = () => {
   const navigate = useNavigate();
@@ -15,7 +33,7 @@ export const CitySearchPage = () => {
 
   const [search, setSearch] = useState(urlSearchParam);
   const [regionFilter, setRegionFilter] = useState('');
-  const [costFilter, setCostFilter] = useState('all'); // all, budget, moderate, premium
+  const [costFilter, setCostFilter] = useState('all');
   const [sortBy, setSortBy] = useState('popularityScore');
   const [selectedCityModal, setSelectedCityModal] = useState(null);
 
@@ -113,7 +131,7 @@ export const CitySearchPage = () => {
         <div className="relative z-10 space-y-4">
           <div className="inline-flex items-center space-x-2 px-3 py-1 bg-gradient-to-r from-brand-500/20 to-purple-500/20 text-brand-300 border border-brand-500/30 rounded-full text-xs font-bold shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Global Destination Database</span>
+            <span>Global Destination Database & Video Trailers</span>
           </div>
 
           <h1 className="font-display font-black text-3xl sm:text-5xl text-white tracking-tight leading-tight">
@@ -121,7 +139,7 @@ export const CitySearchPage = () => {
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-            Browse 16+ curated destination cities across 5 continents with real-time popularity ratings, cost multipliers, and activity itineraries.
+            Experience HD video trailers of top destinations, popularity ratings, cost multipliers, and activity itineraries.
           </p>
 
           {/* Quick Stats Counter Row */}
@@ -131,8 +149,8 @@ export const CitySearchPage = () => {
               <span><strong>16</strong> Cities Available</span>
             </div>
             <div className="px-3.5 py-1.5 glass-card rounded-xl border border-slate-800 flex items-center space-x-2 text-slate-300">
-              <Layers className="w-4 h-4 text-purple-400" />
-              <span><strong>5</strong> Global Continents</span>
+              <Video className="w-4 h-4 text-pink-400" />
+              <span><strong>HD Video</strong> Trailers Included</span>
             </div>
             <div className="px-3.5 py-1.5 glass-card rounded-xl border border-slate-800 flex items-center space-x-2 text-slate-300">
               <Ticket className="w-4 h-4 text-emerald-400" />
@@ -233,14 +251,22 @@ export const CitySearchPage = () => {
                 key={city.id}
                 className="glass-card glass-card-hover rounded-3xl overflow-hidden border border-slate-800/90 flex flex-col justify-between group shadow-xl"
               >
-                {/* City Cover Image Container */}
-                <div className="h-52 relative overflow-hidden">
+                {/* City Cover Image Container with Video Play Overlay */}
+                <div className="h-52 relative overflow-hidden cursor-pointer" onClick={() => setSelectedCityModal(city)}>
                   <img
                     src={city.imageUrl || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80'}
                     alt={city.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+
+                  {/* Play Video Trailer Badge Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-slate-950/40 backdrop-blur-xs">
+                    <div className="px-4 py-2 bg-gradient-to-r from-brand-600 to-pink-600 text-white text-xs font-extrabold rounded-2xl shadow-2xl flex items-center space-x-2 transform group-hover:scale-105 transition-transform border border-white/20">
+                      <Play className="w-4 h-4 fill-white" />
+                      <span>Watch Video Trailer</span>
+                    </div>
+                  </div>
 
                   {/* Popularity Badge */}
                   <span className="absolute top-3 right-3 px-2.5 py-1 bg-slate-950/85 backdrop-blur-md text-amber-400 text-xs font-black rounded-xl border border-amber-500/30 flex items-center space-x-1 shadow-lg">
@@ -288,9 +314,10 @@ export const CitySearchPage = () => {
                   <div className="pt-3 border-t border-slate-800/80 flex items-center space-x-2">
                     <button
                       onClick={() => setSelectedCityModal(city)}
-                      className="flex-1 py-2 bg-slate-800/90 hover:bg-slate-700 text-brand-300 font-bold text-xs rounded-xl transition-colors border border-slate-700/60"
+                      className="flex-1 py-2 bg-slate-800/90 hover:bg-slate-700 text-cyan-300 font-bold text-xs rounded-xl transition-colors border border-slate-700/60 flex items-center justify-center space-x-1.5"
                     >
-                      View Activities
+                      <Play className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400" />
+                      <span>View Trailer & Details</span>
                     </button>
                     <button
                       onClick={() => navigate('/trips/new')}
@@ -307,30 +334,40 @@ export const CitySearchPage = () => {
         </div>
       )}
 
-      {/* City Detail & Activities Preview Modal */}
+      {/* City Detail & Live HD Video Trailer Preview Modal */}
       {selectedCityModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
           <div className="glass-card rounded-3xl max-w-2xl w-full border border-slate-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            {/* Modal Cover Header */}
-            <div className="relative h-48 flex-shrink-0">
-              <img
-                src={selectedCityModal.imageUrl || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80'}
-                alt={selectedCityModal.name}
+            {/* Modal Live Cinematic HD Video Header */}
+            <div className="relative h-60 flex-shrink-0 overflow-hidden bg-slate-950">
+              <video
+                src={CITY_VIDEO_TRAILERS[selectedCityModal.name] || DEFAULT_TRAILER}
+                autoPlay
+                loop
+                muted
+                playsInline
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+
+              {/* Video Badge */}
+              <div className="absolute top-4 left-4 px-3 py-1.5 bg-brand-600/90 backdrop-blur-md text-white text-[10px] font-black uppercase rounded-xl flex items-center space-x-1.5 shadow-lg border border-white/20 tracking-wider">
+                <Play className="w-3.5 h-3.5 fill-white" />
+                <span>Live Cinematic Teaser</span>
+              </div>
+
               <button
                 onClick={handleCloseModal}
-                className="absolute top-4 right-4 p-2 bg-slate-950/80 text-slate-300 hover:text-white rounded-full border border-slate-700"
+                className="absolute top-4 right-4 p-2 bg-slate-950/80 text-slate-300 hover:text-white rounded-full border border-slate-700 z-10"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="absolute bottom-4 left-6 right-6 flex justify-between items-end">
                 <div>
-                  <h3 className="font-display font-black text-3xl text-white">{selectedCityModal.name}</h3>
-                  <p className="text-xs text-slate-300 font-semibold flex items-center space-x-1.5 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-brand-400" />
+                  <h3 className="font-display font-black text-3xl text-white drop-shadow-md">{selectedCityModal.name}</h3>
+                  <p className="text-xs text-slate-200 font-bold flex items-center space-x-1.5 mt-0.5">
+                    <MapPin className="w-3.5 h-3.5 text-cyan-400" />
                     <span>{selectedCityModal.country} • {selectedCityModal.region}</span>
                   </p>
                 </div>
