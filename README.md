@@ -107,6 +107,14 @@ Whether generating a **10-day multi-city tourist plan**, scheduling a **Tsukiji 
 
 <div align="center">
 
+<img src="frontend/public/Flowchart.png" alt="GlobeTrotter - System Architecture Flowchart" width="100%"/>
+
+<br/><br/>
+
+*GlobeTrotter System Architecture & Data Flow Pipeline*
+
+<br/><br/>
+
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                  Frontend (React 18 + Vite 5 + Tailwind)              │
