@@ -34,10 +34,9 @@ export const CreateTripPage = () => {
     { city: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80' },
   ];
 
-  // Auto-select city cover photo & title when navigating with ?city=Name
+  // Auto-select city cover photo when navigating with ?city=Name
   useEffect(() => {
     if (cityParam) {
-      setName(`${cityParam} Escapade`);
       const matched = sampleCovers.find(c =>
         c.city.toLowerCase() === cityParam.toLowerCase() ||
         cityParam.toLowerCase().includes(c.city.toLowerCase())
