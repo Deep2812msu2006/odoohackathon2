@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { activityApi } from '../services/activityApi.js';
+import { tripApi } from '../services/tripApi.js';
 import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import { 
   Search, Ticket, Clock, MapPin, DollarSign, Filter, Star, Sparkles, 
   Heart, Compass, CheckCircle2, X, Calendar, Flame, ChevronRight, ChevronLeft, Eye,
-  Play, Pause, Image as ImageIcon, Volume2, VolumeX
+  Play, Pause, Image as ImageIcon, Volume2, VolumeX, ArrowLeft
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -368,23 +370,128 @@ export const ActivitySearchPage = () => {
     }
   };
 
-  const handleBookActivity = (e) => {
-    e.preventDefault();
-    if (!bookingDate) {
-      toast.error('Please select a travel date.');
-      return;
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tripIdParam = searchParams.get('tripId');
+  const categoryParam = searchParams.get('category');
+  const dateParam = searchParams.get('date');
+  const timeParam = searchParams.get('time');
+  const placeParam = searchParams.get('place');
+
+  useEffect(() => {
+    if (categoryParam) setCategoryFilter(categoryParam);
+    if (placeParam) setSearch(placeParam);
+    if (dateParam) setBookingDate(dateParam);
+    if (timeParam) setBookingTime(timeParam);
+  }, [categoryParam, placeParam, dateParam, timeParam]);
+
+  // When opening modal for selected activity, auto-fill date & time from params
+  useEffect(() => {
+    if (selectedActivity) {
+      if (dateParam) setBookingDate(dateParam);
+      if (timeParam) setBookingTime(timeParam);
     }
+  }, [selectedActivity, dateParam, timeParam]);
+
+  const handleBookActivity = async (e) => {
+    e.preventDefault();
+    const dateToUse = bookingDate || dateParam || new Date().toISOString().split('T')[0];
+    const timeToUse = bookingTime || timeParam || '10:00';
     setIsSubmittingBooking(true);
-    setTimeout(() => {
+
+    try {
+      if (tripIdParam) {
+        // Fetch trip details to find target stop matching the activity's cityId
+        const tripRes = await tripApi.getTripById(tripIdParam);
+        const tripData = tripRes.data.trip;
+
+        const actCityId = selectedActivity.cityId || selectedActivity.city?.id;
+        const actCityName = (selectedActivity.city?.name || '').toLowerCase();
+
+        // 1. Look for existing stop matching the activity's cityId or city name
+        let targetStop = tripData?.stops?.find(s => 
+          s.cityId === actCityId || 
+          (s.city?.name && s.city.name.toLowerCase() === actCityName)
+        );
+
+        let targetStopId = targetStop?.id;
+
+        // 2. If no stop for this city exists on the trip yet, automatically create a new stop for this city!
+        if (!targetStopId) {
+          const stopRes = await tripApi.addStop(tripIdParam, {
+            cityId: actCityId,
+            arrivalDate: dateToUse,
+            departureDate: dateToUse,
+            notes: `Auto-added destination stop for ${selectedActivity.name}`,
+          });
+          targetStopId = stopRes.data.stop.id;
+        } else {
+          // 3. Verify if dateToUse falls between targetStop's arrivalDate and departureDate
+          const arrStr = targetStop.arrivalDate ? new Date(targetStop.arrivalDate).toISOString().split('T')[0] : dateToUse;
+          const depStr = targetStop.departureDate ? new Date(targetStop.departureDate).toISOString().split('T')[0] : dateToUse;
+
+          // If scheduled date is outside existing stop dates, expand stop date range automatically
+          if (dateToUse < arrStr || dateToUse > depStr) {
+            await tripApi.updateStop(tripIdParam, targetStopId, {
+              arrivalDate: dateToUse < arrStr ? dateToUse : arrStr,
+              departureDate: dateToUse > depStr ? dateToUse : depStr,
+            });
+          }
+        }
+
+        // 4. Add activity to matching city stop
+        await tripApi.addActivityToStop(tripIdParam, targetStopId, {
+          activityId: selectedActivity.id,
+          scheduledDate: dateToUse,
+          scheduledTime: timeToUse,
+          customCost: selectedActivity.estimatedCost || 45,
+        });
+
+        toast.success(`Added "${selectedActivity.name}" to trip schedule & budget! Redirecting... 🎉`, { icon: '✨' });
+        setTimeout(() => {
+          setIsSubmittingBooking(false);
+          setSelectedActivity(null);
+          navigate(`/trips/${tripIdParam}`);
+        }, 1200);
+        return;
+      }
+
+      setTimeout(() => {
+        setIsSubmittingBooking(false);
+        setSelectedActivity(null);
+        toast.success(`Successfully planned "${selectedActivity.name}" for your trip! 🎉`);
+        setBookingDate('');
+      }, 1200);
+    } catch (err) {
       setIsSubmittingBooking(false);
-      setSelectedActivity(null);
-      toast.success(`Successfully planned "${selectedActivity.name}" for your trip! 🎉`);
-      setBookingDate('');
-    }, 1500);
+      toast.error(err.message || 'Failed to add activity to trip.');
+    }
   };
 
   return (
     <div className="space-y-10 max-w-7xl mx-auto animate-fade-in relative pb-16">
+      {/* Active Trip Context Banner with Pre-filled Info Callout */}
+      {tripIdParam && (
+        <div className="p-5 bg-gradient-to-r from-brand-950/80 via-slate-950 to-cyan-950/40 border border-brand-500/40 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-brand-300 shadow-2xl">
+          <div className="flex items-center space-x-3">
+            <Sparkles className="w-7 h-7 text-cyan-400 animate-pulse shrink-0" />
+            <div className="space-y-0.5">
+              <p className="font-extrabold text-white text-sm">Auto-Filing Experience Details for Trip Schedule</p>
+              <p className="text-xs text-slate-300">
+                Target Date: <strong className="text-amber-400">{dateParam || 'Trip Date'}</strong> • Time Slot: <strong className="text-emerald-400">{timeParam || '10:00 AM'}</strong> • Location: <strong className="text-cyan-400">{placeParam || 'Destination'}</strong>
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate(`/trips/${tripIdParam}`)}
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 shrink-0 flex items-center space-x-1.5 shadow-lg"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Trip Page</span>
+          </button>
+        </div>
+      )}
       
       {/* 1. Header Showcase Banner */}
       <div className="relative rounded-3xl overflow-hidden glass-card border border-slate-800/80 p-8 md:p-12 bg-gradient-to-br from-slate-900 via-slate-900/90 to-brand-950/20 shadow-2xl">
