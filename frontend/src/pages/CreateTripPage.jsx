@@ -39,6 +39,13 @@ export const CreateTripPage = () => {
     { city: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80' },
   ];
 
+  // Ensure ownerName always defaults to logged in user's name
+  useEffect(() => {
+    if (user?.name) {
+      setOwnerName((prev) => prev || user.name);
+    }
+  }, [user]);
+
   // Auto-select city cover photo when navigating with ?city=Name
   useEffect(() => {
     if (cityParam) {
