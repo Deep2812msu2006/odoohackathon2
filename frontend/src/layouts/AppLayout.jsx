@@ -55,8 +55,8 @@ export const AppLayout = () => {
 
       {/* 2. Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        {/* Top Navbar */}
-        <header className="h-16 shrink-0 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl px-6 flex items-center justify-between z-20">
+        {/* Transparent Glass Top Navbar */}
+        <header className="h-16 shrink-0 border-b border-slate-800/60 bg-slate-950/30 backdrop-blur-md px-6 flex items-center justify-between z-20">
           <TopHeader
             onToggleSidebar={handleToggleSidebar}
             collapsed={sidebarCollapsed}

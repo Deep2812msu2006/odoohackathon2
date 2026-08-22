@@ -102,18 +102,31 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
 
   return (
     <div className="w-full flex items-center justify-between">
-      {/* Left Action Area: Mobile Drawer Toggle & Search */}
+      {/* Left Action Area: Sidebar Toggles & Search */}
       <div className="flex items-center space-x-3">
+        {/* Desktop Sidebar Toggle Button */}
+        <button
+          onClick={onToggleSidebar}
+          title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all border border-slate-800/50 hidden md:flex items-center justify-center hover:border-slate-700"
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="w-5 h-5 text-brand-400 animate-pulse" />
+          ) : (
+            <PanelLeftClose className="w-5 h-5 text-slate-400 hover:text-brand-400 transition-colors" />
+          )}
+        </button>
+
         {/* Mobile Drawer Toggle Button */}
         <button
           onClick={onToggleSidebar}
           title="Open Menu"
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all border border-slate-800/50 md:hidden flex items-center justify-center"
+          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all border border-slate-800/50 md:hidden flex items-center justify-center"
         >
           <Menu className="w-5 h-5 text-brand-400" />
         </button>
 
-        {/* Global Interactive Direct Search Input */}
+        {/* Transparent Glass Search Input */}
         <div className="relative w-72 sm:w-80 hidden sm:block" ref={searchRef}>
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3.5 top-3 text-cyan-400" />
@@ -127,7 +140,7 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
               onKeyDown={handleKeyDown}
               onFocus={() => setResultsOpen(true)}
               placeholder="Quick search (press Enter to go directly)..."
-              className="w-full pl-10 pr-9 py-2 bg-slate-900/60 hover:bg-slate-900/90 focus:bg-slate-950 text-xs text-slate-100 rounded-xl border border-slate-800 focus:border-cyan-500/60 outline-none transition-all placeholder-slate-500 shadow-inner"
+              className="w-full pl-10 pr-9 py-2 bg-slate-950/30 hover:bg-slate-950/50 focus:bg-slate-950/80 text-xs text-slate-100 rounded-xl border border-slate-800/60 focus:border-cyan-500/60 outline-none transition-all placeholder-slate-500 backdrop-blur-sm shadow-inner"
             />
             {searchTerm && (
               <button
