@@ -262,8 +262,8 @@ export const Sidebar = ({
       <aside 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`hidden md:flex flex-col h-full bg-gradient-to-b from-slate-950/60 via-slate-950/40 to-slate-950/60 backdrop-blur-xl border-r border-slate-800/60 p-4 transition-all duration-300 ease-in-out shrink-0 select-none z-30 overflow-x-hidden relative ${
-          collapsed ? 'w-20' : 'w-64 shadow-2xl shadow-brand-500/10'
+        className={`hidden md:flex flex-col h-full backdrop-blur-xl transition-all duration-300 ease-out shrink-0 select-none z-30 overflow-hidden scrollbar-none relative ${
+          collapsed ? 'w-16 bg-transparent border-0 p-2' : 'w-64 bg-gradient-to-b from-slate-950/60 via-slate-950/40 to-slate-950/60 border-r border-slate-800/60 p-4 shadow-2xl shadow-brand-500/10'
         }`}
       >
         {/* Sidebar Glow Effect */}
