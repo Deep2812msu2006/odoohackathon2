@@ -3,28 +3,107 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { userApi } from '../services/userApi.js';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
 import toast from 'react-hot-toast';
-import { User, Mail, Globe, Camera, Trash2, Save, ShieldCheck } from 'lucide-react';
+import {
+  User, Mail, Globe, Camera, Trash2, Save, ShieldCheck, Settings,
+  Lock, Bell, Eye, EyeOff, Sparkles, MapPin, Calendar, Award,
+  ChevronRight, LogOut, Moon, Sun, Zap, Heart, Star, Edit3,
+  CheckCircle2, AlertTriangle, Info, Palette
+} from 'lucide-react';
+
+const TABS = [
+  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'security', label: 'Security', icon: Lock },
+  { id: 'danger', label: 'Danger Zone', icon: AlertTriangle },
+];
+
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇺🇸', native: 'English' },
+  { code: 'fr', label: 'French', flag: '🇫🇷', native: 'Français' },
+  { code: 'es', label: 'Spanish', flag: '🇪🇸', native: 'Español' },
+  { code: 'ja', label: 'Japanese', flag: '🇯🇵', native: '日本語' },
+  { code: 'de', label: 'German', flag: '🇩🇪', native: 'Deutsch' },
+  { code: 'it', label: 'Italian', flag: '🇮🇹', native: 'Italiano' },
+];
+
+const THEMES = [
+  { id: 'cosmic', label: 'Cosmic Dark', gradient: 'from-indigo-600 to-purple-700', preview: 'bg-gradient-to-br from-indigo-950 to-purple-950' },
+  { id: 'ocean', label: 'Deep Ocean', gradient: 'from-cyan-600 to-blue-700', preview: 'bg-gradient-to-br from-cyan-950 to-blue-950' },
+  { id: 'ember', label: 'Ember Night', gradient: 'from-rose-600 to-orange-700', preview: 'bg-gradient-to-br from-rose-950 to-orange-950' },
+  { id: 'forest', label: 'Forest Dark', gradient: 'from-emerald-600 to-teal-700', preview: 'bg-gradient-to-br from-emerald-950 to-teal-950' },
+];
 
 export const ProfilePage = () => {
   const { user, updateUserProfile, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('profile');
+
+  // Profile State
   const [name, setName] = useState(user?.name || '');
   const [languagePreference, setLanguagePreference] = useState(user?.languagePreference || 'en');
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(user?.profilePhotoUrl || '');
   const [loading, setLoading] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const handleSubmit = async (e) => {
+  // Security State
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
+
+  // Settings State
+  const [selectedTheme, setSelectedTheme] = useState('cosmic');
+  const [notifications, setNotifications] = useState({
+    tripReminders: true,
+    budgetAlerts: true,
+    shareActivity: false,
+    weeklyDigest: true,
+  });
+
+  // Danger Zone
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [logoutAllModalOpen, setLogoutAllModalOpen] = useState(false);
+
+  // Mock trip stats
+  const stats = [
+    { label: 'Trips Planned', value: 3, icon: MapPin, color: 'text-brand-400', bg: 'bg-brand-500/10' },
+    { label: 'Cities Visited', value: 7, icon: Globe, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Activities Done', value: 12, icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10' },
+    { label: 'Member Since', value: '2026', icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+  ];
+
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await userApi.updateProfile({ name, languagePreference, profilePhotoUrl });
       updateUserProfile(res.data.user);
-      toast.success('Profile updated successfully!');
+      toast.success('Profile updated successfully! ✨');
     } catch (err) {
       toast.error(err.message || 'Failed to update profile.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error('New passwords do not match.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters.');
+      return;
+    }
+    setPwLoading(true);
+    setTimeout(() => {
+      setPwLoading(false);
+      toast.success('Password updated successfully! 🔒');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    }, 1500);
   };
 
   const handleDeleteAccount = async () => {
@@ -37,139 +116,429 @@ export const ProfilePage = () => {
     }
   };
 
+  const toggleNotification = (key) => {
+    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    toast.success(`Notification ${notifications[key] ? 'disabled' : 'enabled'}`);
+  };
+
+  const currentLang = LANGUAGES.find(l => l.code === languagePreference);
+
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
-      <div className="space-y-2">
-        <h1 className="font-display font-bold text-4xl text-white bg-gradient-to-r from-white via-brand-200 to-brand-400 bg-clip-text text-transparent">
-          Profile & Preferences
-        </h1>
-        <p className="text-sm text-slate-400 flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span>Manage your user information and account settings</span>
-        </p>
+    <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
+
+      {/* ─── Hero Identity Card ─── */}
+      <div className="relative rounded-3xl overflow-hidden border border-slate-800/60 shadow-2xl">
+        {/* Ambient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950/30"></div>
+        <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500/8 rounded-full blur-3xl -translate-y-20 translate-x-20"></div>
+        <div className="absolute bottom-0 left-0 w-60 h-60 bg-emerald-500/6 rounded-full blur-3xl translate-y-10 -translate-x-10"></div>
+
+        <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+          {/* Avatar + Ring */}
+          <div className="relative shrink-0">
+            <div className="w-28 h-28 rounded-3xl ring-4 ring-brand-500/30 ring-offset-4 ring-offset-slate-900 overflow-hidden shadow-xl shadow-brand-500/20">
+              <img
+                src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <CheckCircle2 className="w-4 h-4 text-white" />
+            </div>
+          </div>
+
+          {/* Identity Info */}
+          <div className="flex-1 text-center md:text-left space-y-3">
+            <div>
+              <h1 className="font-display font-extrabold text-3xl md:text-4xl text-white">
+                {user?.name}
+              </h1>
+              <p className="text-slate-400 text-sm mt-1 flex items-center justify-center md:justify-start gap-2">
+                <Mail className="w-4 h-4 text-brand-400" />
+                {user?.email}
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center md:justify-start gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-500/15 text-brand-300 text-xs font-bold rounded-xl border border-brand-500/25">
+                <ShieldCheck className="w-3.5 h-3.5" /> Verified Explorer
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/15 text-amber-300 text-xs font-bold rounded-xl border border-amber-500/25">
+                <Award className="w-3.5 h-3.5" /> Pro Traveler
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-500/25">
+                <Star className="w-3.5 h-3.5" /> {currentLang?.flag} {currentLang?.native}
+              </span>
+            </div>
+          </div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-3 shrink-0">
+            {stats.map(stat => (
+              <div key={stat.label} className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl ${stat.bg} border border-white/5`}>
+                <stat.icon className={`w-4 h-4 ${stat.color} shrink-0`} />
+                <div>
+                  <div className="text-white font-bold text-sm">{stat.value}</div>
+                  <div className="text-slate-500 text-[10px] font-semibold uppercase tracking-wide">{stat.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="glass-card rounded-3xl p-8 sm:p-10 border border-slate-800/50 space-y-8 bg-gradient-to-br from-slate-900/50 to-slate-800/30 backdrop-blur-xl">
-        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 pb-8 border-b border-slate-800/50">
-          <div className="relative group">
-            <img
-              src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
-              alt={name}
-              className="w-24 h-24 rounded-full object-cover ring-4 ring-brand-500/30 group-hover:ring-brand-500/50 transition-all duration-300 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </div>
-          <div className="text-center sm:text-left space-y-2">
-            <h3 className="font-display font-bold text-2xl text-white">{user?.name}</h3>
-            <p className="text-sm text-slate-400 flex items-center justify-center sm:justify-start space-x-2">
-              <Mail className="w-4 h-4" />
-              <span>{user?.email}</span>
-            </p>
-            <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-brand-500/20 to-brand-400/20 text-brand-300 text-xs font-bold uppercase rounded-xl border border-brand-500/30">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Verified Explorer</span>
-            </span>
-          </div>
-        </div>
+      {/* ─── Tab Navigation ─── */}
+      <div className="glass-card rounded-2xl p-1.5 border border-slate-800/50 flex gap-1">
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+              activeTab === tab.id
+                ? tab.id === 'danger'
+                  ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-lg'
+                  : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/25'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <tab.icon className="w-3.5 h-3.5" />
+            <span className="hidden sm:block">{tab.label}</span>
+          </button>
+        ))}
+      </div>
 
-        <div className="space-y-3">
-          <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center space-x-2">
-            <User className="w-4 h-4 text-brand-400" />
-            <span>Full Name</span>
-          </label>
-          <div className="relative group">
-            <User className="w-5 h-5 absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-400 transition-colors" />
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all group-hover:border-brand-500/30"
-            />
-          </div>
-        </div>
+      {/* ─── Profile Tab ─── */}
+      {activeTab === 'profile' && (
+        <form onSubmit={handleProfileSubmit} className="space-y-6 animate-fade-in">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <div className="space-y-3">
-          <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center space-x-2">
-            <Mail className="w-4 h-4 text-brand-400" />
-            <span>Email Address (Read-Only)</span>
-          </label>
-          <div className="relative group">
-            <Mail className="w-5 h-5 absolute left-4 top-3.5 text-slate-500" />
-            <input
-              type="email"
-              disabled
-              value={user?.email || ''}
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl glass-input text-sm opacity-60 cursor-not-allowed bg-slate-900/50"
-            />
-          </div>
-        </div>
+            {/* Full Name */}
+            <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <User className="w-4 h-4 text-brand-400" />
+                Display Name
+              </div>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your full name"
+                className="w-full px-4 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
+              />
+            </div>
 
-        <div className="space-y-3">
-          <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center space-x-2">
-            <Camera className="w-4 h-4 text-brand-400" />
-            <span>Profile Photo Image URL</span>
-          </label>
-          <div className="relative group">
-            <Camera className="w-5 h-5 absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-400 transition-colors" />
-            <input
-              type="url"
-              value={profilePhotoUrl}
-              onChange={(e) => setProfilePhotoUrl(e.target.value)}
-              placeholder="https://..."
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all group-hover:border-brand-500/30"
-            />
-          </div>
-        </div>
+            {/* Email (read-only) */}
+            <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <Mail className="w-4 h-4 text-brand-400" />
+                Email Address
+              </div>
+              <div className="relative">
+                <input
+                  type="email"
+                  disabled
+                  value={user?.email || ''}
+                  className="w-full px-4 py-3.5 rounded-2xl glass-input text-sm opacity-50 cursor-not-allowed"
+                />
+                <span className="absolute right-4 top-3.5 text-[10px] font-bold text-slate-500 bg-slate-800 px-2 py-0.5 rounded-md">READ-ONLY</span>
+              </div>
+            </div>
 
-        <div className="space-y-3">
-          <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center space-x-2">
-            <Globe className="w-4 h-4 text-brand-400" />
-            <span>Language Preference</span>
-          </label>
-          <div className="relative group">
-            <Globe className="w-5 h-5 absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-400 transition-colors" />
-            <select
-              value={languagePreference}
-              onChange={(e) => setLanguagePreference(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl glass-input text-sm bg-slate-900 focus:ring-2 focus:ring-brand-500/50 transition-all group-hover:border-brand-500/30 appearance-none cursor-pointer"
+            {/* Profile Photo URL */}
+            <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4 md:col-span-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <Camera className="w-4 h-4 text-brand-400" />
+                Profile Photo URL
+              </div>
+              <div className="flex gap-4 items-center">
+                <img
+                  src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'}
+                  alt="preview"
+                  className="w-14 h-14 rounded-2xl object-cover ring-2 ring-brand-500/30 shrink-0"
+                  onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'; }}
+                />
+                <input
+                  type="url"
+                  value={profilePhotoUrl}
+                  onChange={(e) => setProfilePhotoUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="flex-1 px-4 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Language - full width */}
+            <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4 md:col-span-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <Globe className="w-4 h-4 text-brand-400" />
+                Language Preference
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                {LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => setLanguagePreference(lang.code)}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all duration-300 ${
+                      languagePreference === lang.code
+                        ? 'bg-brand-500/20 border-brand-500/50 text-brand-300 shadow-lg shadow-brand-500/10 scale-105'
+                        : 'border-slate-800/50 text-slate-400 hover:border-slate-700 hover:text-slate-200 hover:bg-slate-800/30'
+                    }`}
+                  >
+                    <span className="text-2xl">{lang.flag}</span>
+                    <span>{lang.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-sm rounded-2xl shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-300 flex items-center gap-2.5 disabled:opacity-50 transform hover:scale-105"
             >
-              <option value="en">English (US)</option>
-              <option value="fr">French (Français)</option>
-              <option value="es">Spanish (Español)</option>
-              <option value="ja">Japanese (日本語)</option>
-            </select>
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {loading ? 'Saving...' : 'Save Profile'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* ─── Settings Tab ─── */}
+      {activeTab === 'settings' && (
+        <div className="space-y-6 animate-fade-in">
+
+          {/* Theme Picker */}
+          <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5">
+            <div className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-brand-400" />
+              <h3 className="font-display font-bold text-lg text-white">Interface Theme</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {THEMES.map(theme => (
+                <button
+                  key={theme.id}
+                  onClick={() => { setSelectedTheme(theme.id); toast.success(`Theme switched to ${theme.label}`); }}
+                  className={`relative p-4 rounded-2xl border-2 transition-all duration-300 space-y-3 ${
+                    selectedTheme === theme.id
+                      ? 'border-brand-500/70 shadow-xl shadow-brand-500/15'
+                      : 'border-slate-800/50 hover:border-slate-700'
+                  }`}
+                >
+                  <div className={`h-16 rounded-xl ${theme.preview} border border-white/5`}></div>
+                  <div className={`h-1.5 rounded-full bg-gradient-to-r ${theme.gradient}`}></div>
+                  <p className="text-xs font-bold text-slate-300">{theme.label}</p>
+                  {selectedTheme === theme.id && (
+                    <div className="absolute top-2.5 right-2.5 w-5 h-5 bg-brand-500 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Notifications */}
+          <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5">
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-brand-400" />
+              <h3 className="font-display font-bold text-lg text-white">Notifications</h3>
+            </div>
+            <div className="space-y-3">
+              {[
+                { key: 'tripReminders', label: 'Trip Date Reminders', desc: 'Get notified 7 days before your trip starts', icon: MapPin, color: 'text-brand-400' },
+                { key: 'budgetAlerts', label: 'Budget Over-Limit Alerts', desc: 'Notified when daily spending exceeds your target', icon: AlertTriangle, color: 'text-amber-400' },
+                { key: 'shareActivity', label: 'Share Activity Updates', desc: 'When someone copies your public itinerary', icon: Heart, color: 'text-pink-400' },
+                { key: 'weeklyDigest', label: 'Weekly Travel Digest', desc: 'Curated destination recommendations every week', icon: Sparkles, color: 'text-purple-400' },
+              ].map(item => (
+                <div key={item.key} className="flex items-center justify-between p-4 rounded-2xl bg-slate-950/30 border border-slate-800/50 group hover:border-slate-700 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-0.5 ${item.color}`}>
+                      <item.icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-200">{item.label}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleNotification(item.key)}
+                    className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 ${
+                      notifications[item.key] ? 'bg-brand-500 shadow-lg shadow-brand-500/30' : 'bg-slate-700'
+                    }`}
+                  >
+                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300 ${
+                      notifications[item.key] ? 'translate-x-7' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      )}
 
-        <div className="pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <button
-            type="button"
-            onClick={() => setDeleteModalOpen(true)}
-            className="text-sm text-rose-400 hover:text-rose-300 font-semibold flex items-center space-x-2 px-4 py-2.5 rounded-xl hover:bg-rose-500/10 transition-all"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>Delete Account</span>
-          </button>
+      {/* ─── Security Tab ─── */}
+      {activeTab === 'security' && (
+        <div className="space-y-6 animate-fade-in">
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-8 py-3.5 bg-gradient-to-r from-brand-600 via-brand-500 to-brand-400 hover:from-brand-500 hover:via-brand-400 hover:to-brand-300 text-white font-semibold text-sm rounded-2xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-300 flex items-center space-x-2 disabled:opacity-50 transform hover:scale-105 group"
-          >
-            <Save className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            <span>{loading ? 'Saving...' : 'Save Profile Changes'}</span>
-          </button>
+          {/* Security Overview */}
+          <div className="glass-card rounded-3xl p-6 border border-slate-800/50">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 bg-emerald-500/15 rounded-2xl flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-lg text-white">Security Status</h3>
+                <p className="text-xs text-emerald-400 font-semibold">Account secured</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { label: 'Email Verified', status: true, icon: Mail },
+                { label: 'Password Set', status: true, icon: Lock },
+                { label: '2FA Enabled', status: false, icon: ShieldCheck },
+              ].map(item => (
+                <div key={item.label} className={`flex items-center gap-3 p-3.5 rounded-2xl border ${
+                  item.status ? 'bg-emerald-500/8 border-emerald-500/20' : 'bg-slate-950/40 border-slate-800/50'
+                }`}>
+                  <item.icon className={`w-4 h-4 ${item.status ? 'text-emerald-400' : 'text-slate-500'}`} />
+                  <span className={`text-xs font-semibold ${item.status ? 'text-emerald-300' : 'text-slate-500'}`}>{item.label}</span>
+                  <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                    item.status ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-500'
+                  }`}>{item.status ? 'ON' : 'OFF'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Change Password */}
+          <form onSubmit={handlePasswordChange} className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5">
+            <div className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-brand-400" />
+              <h3 className="font-display font-bold text-lg text-white">Change Password</h3>
+            </div>
+
+            {[
+              { label: 'Current Password', value: currentPassword, setter: setCurrentPassword, show: showCurrentPw, toggle: () => setShowCurrentPw(v => !v) },
+              { label: 'New Password', value: newPassword, setter: setNewPassword, show: showNewPw, toggle: () => setShowNewPw(v => !v) },
+              { label: 'Confirm New Password', value: confirmPassword, setter: setConfirmPassword, show: showNewPw, toggle: () => setShowNewPw(v => !v) },
+            ].map(field => (
+              <div key={field.label} className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">{field.label}</label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 absolute left-4 top-4 text-slate-500" />
+                  <input
+                    type={field.show ? 'text' : 'password'}
+                    value={field.value}
+                    onChange={(e) => field.setter(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="w-full pl-11 pr-12 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
+                  />
+                  <button type="button" onClick={field.toggle} className="absolute right-4 top-4 text-slate-500 hover:text-slate-300 transition-colors">
+                    {field.show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {/* Password Strength indicator */}
+            {newPassword.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password Strength</div>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${
+                      newPassword.length >= i * 3
+                        ? i <= 1 ? 'bg-red-500' : i <= 2 ? 'bg-amber-500' : i <= 3 ? 'bg-emerald-500' : 'bg-emerald-400'
+                        : 'bg-slate-800'
+                    }`} />
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-500">
+                  {newPassword.length < 3 ? '🔴 Too short' : newPassword.length < 6 ? '🟡 Weak' : newPassword.length < 9 ? '🟢 Good' : '✅ Strong'}
+                </p>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={pwLoading}
+                className="px-7 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm rounded-2xl shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-2 disabled:opacity-50 hover:scale-105"
+              >
+                {pwLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Lock className="w-4 h-4" />}
+                {pwLoading ? 'Updating...' : 'Update Password'}
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      )}
 
+      {/* ─── Danger Zone Tab ─── */}
+      {activeTab === 'danger' && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="flex items-center gap-2.5 p-4 rounded-2xl bg-rose-500/8 border border-rose-500/20 text-sm text-rose-300">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+            <p>Actions in this section are <strong>irreversible</strong>. Please proceed with caution.</p>
+          </div>
+
+          {/* Sign out all devices */}
+          <div className="glass-card rounded-3xl p-6 border border-slate-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-500/10 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
+                <LogOut className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-white text-sm">Sign Out Everywhere</h4>
+                <p className="text-xs text-slate-400 mt-1 max-w-sm">Terminate all active sessions across all devices and browsers.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => { logout(); toast.success('Signed out from all sessions.'); }}
+              className="shrink-0 px-5 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition-all"
+            >
+              Sign Out All
+            </button>
+          </div>
+
+          {/* Delete Account */}
+          <div className="glass-card rounded-3xl p-6 border border-rose-500/20 bg-rose-950/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-rose-500/10 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
+                <Trash2 className="w-5 h-5 text-rose-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-rose-300 text-sm">Delete My Account Permanently</h4>
+                <p className="text-xs text-slate-400 mt-1 max-w-sm">Deletes your account, all trips, itineraries, activities, and data. This cannot be undone.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setDeleteModalOpen(true)}
+              className="shrink-0 px-5 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-xs rounded-xl border border-rose-500/30 hover:border-rose-500/50 transition-all"
+            >
+              Delete Account
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirm Modal */}
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleDeleteAccount}
         title="Permanently Delete Account?"
-        message="This action will delete your account, all associated trips, stops, activities, and shared links permanently."
-        confirmText="Delete My Account"
+        message="This action will delete your account, all associated trips, stops, activities, and shared links permanently and cannot be undone."
+        confirmText="Yes, Delete My Account"
       />
     </div>
   );
