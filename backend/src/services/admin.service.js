@@ -20,7 +20,7 @@ export const getAdminAnalytics = async () => {
     prisma.city.findMany({
       orderBy: { popularityScore: 'desc' },
       take: 5,
-      select: { id: true, name: true, country: true, popularityScore: true, imageUrl: true },
+      select: { id: true, name: true, country: true, region: true, costIndex: true, popularityScore: true, imageUrl: true },
     }),
     prisma.tripStopActivity.groupBy({
       by: ['activityId'],
