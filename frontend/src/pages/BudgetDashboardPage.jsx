@@ -6,7 +6,7 @@ import { formatCurrency } from '../utils/formatters.js';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ReferenceLine
 } from 'recharts';
-import { DollarSign, AlertTriangle, ArrowLeft, Calendar, Building2, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
+import { DollarSign, AlertTriangle, ArrowLeft, Calendar, Building2, CheckCircle2, TrendingUp, Sparkles, PlusCircle } from 'lucide-react';
 
 export const BudgetDashboardPage = () => {
   const { id: tripId } = useParams();
@@ -39,9 +39,11 @@ export const BudgetDashboardPage = () => {
     dailyAverage,
     isOverallOverBudget,
     overBudgetDaysCount,
-    cityBreakdown,
-    dailySpending,
+    cityBreakdown = [],
+    dailySpending = [],
   } = budgetData;
+
+  const hasExpenses = categories.total > 0 || (cityBreakdown && cityBreakdown.length > 0);
 
   const pieData = [
     { name: 'Activities', value: categories.activities, color: '#36a9f7' },
@@ -76,7 +78,7 @@ export const BudgetDashboardPage = () => {
       </div>
 
       {/* Warning Alert if Over Budget */}
-      {isOverallOverBudget && (
+      {isOverallOverBudget && hasExpenses && (
         <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center space-x-3 text-amber-300 shadow-lg">
           <AlertTriangle className="w-6 h-6 text-amber-400 flex-shrink-0 animate-bounce" />
           <div className="text-xs">
@@ -84,6 +86,31 @@ export const BudgetDashboardPage = () => {
             <p className="text-slate-300 mt-0.5">
               Calculated daily average ({formatCurrency(dailyAverage)}) exceeds your target daily budget ({formatCurrency(targetBudgetInput)}). {overBudgetDaysCount} day(s) exceed target threshold.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Empty State Banner if No City Stops / Activities Recorded */}
+      {!hasExpenses && (
+        <div className="glass-card rounded-3xl p-8 sm:p-10 border border-purple-500/30 bg-gradient-to-r from-slate-950 via-purple-950/30 to-slate-950 text-center space-y-4 shadow-2xl">
+          <div className="p-4 bg-purple-500/10 text-purple-400 rounded-2xl w-fit mx-auto border border-purple-500/20 shadow-glow">
+            <PieChart className="w-10 h-10 animate-pulse" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-display font-black text-2xl text-white">No Expense Data Recorded Yet</h3>
+            <p className="text-slate-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+              Add city stops and scheduled activities to your trip builder to automatically compute daily budgets, category breakdowns, and expense analytics!
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <Link
+              to={`/trips/${tripId}/builder`}
+              className="px-6 py-3 bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-extrabold text-xs rounded-2xl shadow-glow inline-flex items-center space-x-2 transform hover:scale-105 transition-all"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Add City Stops & Activities Now</span>
+            </Link>
           </div>
         </div>
       )}
@@ -110,8 +137,8 @@ export const BudgetDashboardPage = () => {
 
         <div className="glass-card glass-card-hover rounded-2xl p-5 border border-slate-800">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Budget Status</p>
-          <p className={`font-display text-xl font-black mt-1 ${isOverallOverBudget ? 'text-amber-400' : 'text-emerald-400'}`}>
-            {isOverallOverBudget ? 'Exceeds Target' : 'Within Target'}
+          <p className={`font-display text-xl font-black mt-1 ${isOverallOverBudget && hasExpenses ? 'text-amber-400' : 'text-emerald-400'}`}>
+            {isOverallOverBudget && hasExpenses ? 'Exceeds Target' : 'Within Target'}
           </p>
           <p className="text-[10px] text-slate-500 font-medium mt-1">{overBudgetDaysCount} peak spending days</p>
         </div>
@@ -126,7 +153,7 @@ export const BudgetDashboardPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={pieData}
+                  data={pieData.length > 0 ? pieData : [{ name: 'No Expenses', value: 1, color: '#334155' }]}
                   cx="50%"
                   cy="50%"
                   innerRadius={65}
@@ -134,7 +161,7 @@ export const BudgetDashboardPage = () => {
                   paddingAngle={6}
                   dataKey="value"
                 >
-                  {pieData.map((entry, index) => (
+                  {(pieData.length > 0 ? pieData : [{ name: 'No Expenses', value: 1, color: '#334155' }]).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -176,37 +203,39 @@ export const BudgetDashboardPage = () => {
       </div>
 
       {/* City Breakdown Table */}
-      <div className="glass-card rounded-3xl p-6 border border-slate-800 space-y-4">
-        <h3 className="font-display font-bold text-lg text-white">City-by-City Expense Breakdown</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
-              <tr>
-                <th className="py-3.5 px-4">City</th>
-                <th className="py-3.5 px-4">Duration</th>
-                <th className="py-3.5 px-4">Activities</th>
-                <th className="py-3.5 px-4">Accommodation</th>
-                <th className="py-3.5 px-4">Transport</th>
-                <th className="py-3.5 px-4">Meals</th>
-                <th className="py-3.5 px-4 text-right">City Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/80">
-              {cityBreakdown.map((city) => (
-                <tr key={city.cityId} className="hover:bg-slate-900/60 transition-colors">
-                  <td className="py-3.5 px-4 font-extrabold text-white">{city.cityName} ({city.country})</td>
-                  <td className="py-3.5 px-4 font-semibold">{city.stopDays} days</td>
-                  <td className="py-3.5 px-4 font-medium">{formatCurrency(city.activitiesCost)}</td>
-                  <td className="py-3.5 px-4 font-medium">{formatCurrency(city.accommodationCost)}</td>
-                  <td className="py-3.5 px-4 font-medium">{formatCurrency(city.transportCost)}</td>
-                  <td className="py-3.5 px-4 font-medium">{formatCurrency(city.mealsCost)}</td>
-                  <td className="py-3.5 px-4 text-right font-black text-emerald-400">{formatCurrency(city.cityTotal)}</td>
+      {cityBreakdown.length > 0 && (
+        <div className="glass-card rounded-3xl p-6 border border-slate-800 space-y-4">
+          <h3 className="font-display font-bold text-lg text-white">City-by-City Expense Breakdown</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-300">
+              <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="py-3.5 px-4">City</th>
+                  <th className="py-3.5 px-4">Duration</th>
+                  <th className="py-3.5 px-4">Activities</th>
+                  <th className="py-3.5 px-4">Accommodation</th>
+                  <th className="py-3.5 px-4">Transport</th>
+                  <th className="py-3.5 px-4">Meals</th>
+                  <th className="py-3.5 px-4 text-right">City Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-800/80">
+                {cityBreakdown.map((city) => (
+                  <tr key={city.cityId} className="hover:bg-slate-900/60 transition-colors">
+                    <td className="py-3.5 px-4 font-extrabold text-white">{city.cityName} ({city.country})</td>
+                    <td className="py-3.5 px-4 font-semibold">{city.stopDays} days</td>
+                    <td className="py-3.5 px-4 font-medium">{formatCurrency(city.activitiesCost)}</td>
+                    <td className="py-3.5 px-4 font-medium">{formatCurrency(city.accommodationCost)}</td>
+                    <td className="py-3.5 px-4 font-medium">{formatCurrency(city.transportCost)}</td>
+                    <td className="py-3.5 px-4 font-medium">{formatCurrency(city.mealsCost)}</td>
+                    <td className="py-3.5 px-4 text-right font-black text-emerald-400">{formatCurrency(city.cityTotal)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
