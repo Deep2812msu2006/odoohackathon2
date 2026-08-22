@@ -7,14 +7,14 @@ import { formatDate, formatDateRange, formatCurrency } from '../utils/formatters
 import { 
   Calendar, MapPin, Clock, Ticket, PieChart, Edit3, Share2, Compass, 
   CheckCircle2, FileText, PlusCircle, Sparkles, Building2, Utensils, 
-  Hotel, Coffee, Award, ShieldCheck, Printer, Plane, Key, QrCode, Zap
+  Hotel, Coffee, Award, ShieldCheck, Printer, Plane, Key, QrCode, Zap, ExternalLink, Navigation, DollarSign
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const ItineraryViewPage = () => {
   const { id: tripId } = useParams();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState('vouchers'); // vouchers, list, timeline
+  const [activeTab, setActiveTab] = useState('vouchers'); // vouchers, days, list, timeline
 
   const { data: trip, isLoading } = useQuery({
     queryKey: ['trip', tripId],
@@ -43,7 +43,7 @@ export const ItineraryViewPage = () => {
     toast.success('Public share link activated & copied to clipboard!');
   };
 
-  // Single Direct PDF Save Trigger (Switches tab to vouchers & triggers print dialog)
+  // Single Direct PDF Save Trigger
   const handlePrintVoucher = () => {
     setActiveTab('vouchers');
     toast.success('Opening print dialog... Select "Save as PDF" to download your complete pass!', { icon: '📄' });
@@ -98,7 +98,7 @@ export const ItineraryViewPage = () => {
     return (
       <div className="py-16 text-center text-slate-400 space-y-3">
         <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="font-semibold text-slate-300">Generating attractive boarding passes, hotel vouchers & tickets...</p>
+        <p className="font-semibold text-slate-300">Generating attractive boarding passes, hotel vouchers & day-by-day plan...</p>
       </div>
     );
   }
@@ -199,6 +199,92 @@ export const ItineraryViewPage = () => {
 
   const displayStops = hasStops ? trip.stops : [defaultPackageStop];
 
+  // Calculate total days count of the trip (e.g. 4 days, 7 days, 10 days)
+  const calculateTotalDays = (start, end) => {
+    if (!start || !end) return 4;
+    const d1 = new Date(start);
+    const d2 = new Date(end);
+    const diffTime = Math.abs(d2 - d1);
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : 4;
+  };
+
+  const totalDaysCount = calculateTotalDays(trip.startDate, trip.endDate);
+
+  // Master Day-by-Day Tourist Plan Generator for N Days (Day 1 to Day N)
+  const generateDayByDaySchedule = (stopsList, totalDays, startDateStr) => {
+    const schedule = [];
+    const baseDate = startDateStr ? new Date(startDateStr) : new Date();
+
+    for (let dayNum = 1; dayNum <= totalDays; dayNum++) {
+      const currentDate = new Date(baseDate);
+      currentDate.setDate(baseDate.getDate() + (dayNum - 1));
+      const formattedDayDate = currentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+      // Associate with city stop in sequence or cycle
+      const stopIndex = (dayNum - 1) % (stopsList.length || 1);
+      const currentStop = stopsList[stopIndex] || displayStops[0];
+      const cityName = currentStop.city?.name || mainCityName;
+      const countryName = currentStop.city?.country || mainCountry;
+
+      const hotelName = `Grand ${cityName} Luxury Resort & Spa`;
+      const hotelAddress = `Central Luxury Boulevard, ${cityName}, ${countryName}`;
+      const hotelBookingLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotelName + ' ' + cityName)}`;
+
+      // Distinct daily activities
+      const morningActivities = [
+        `Arrival & Airport Chauffeur Transfer to ${hotelName} (Welcome Drinks & Priority Suite Keys)`,
+        `Guided Landmark Sightseeing Tour of ${cityName} (Panoramic Skydeck Pass Included)`,
+        `Historic Cultural Temple & Monument Guided Walking Tour`,
+        `Scenic River & Old Town Coastal Morning Tour`,
+        `Artisan Quarter Walk & Local Heritage Discovery`
+      ];
+
+      const afternoonActivities = [
+        `Gourmet Local Food Market Tasting & Artisan Bistro Lunch`,
+        `Famous Fine Art Museum & Heritage Gallery Guided Visit`,
+        `Panoramic Skydeck Observatory & City Landmark Photo Stop`,
+        `Luxury Promenade Shopping & High-End Boutique Tour`,
+        `Botanical Gardens & Botanical Heritage Stroll`
+      ];
+
+      const eveningActivities = [
+        `3-Course Regional Specialty Dinner & Fine Wine Pairing`,
+        `Sunset Skyline Cruise & Evening City Illumination Walk`,
+        `Traditional Cultural Performance & Gala Dinner Night`,
+        `Rooftop Cocktail Tasting & Night City View`,
+        `Chef's Table Gourmet Culinary Dining Experience`
+      ];
+
+      schedule.push({
+        dayNumber: dayNum,
+        dateStr: formattedDayDate,
+        cityName,
+        countryName,
+        hotelName,
+        hotelAddress,
+        hotelBookingLink,
+        roomType: 'Executive Deluxe Suite with City Skyline View',
+        checkIn: '14:00 PM',
+        checkOut: '11:00 AM',
+        morning: morningActivities[(dayNum - 1) % morningActivities.length],
+        afternoon: afternoonActivities[(dayNum - 1) % afternoonActivities.length],
+        evening: eveningActivities[(dayNum - 1) % eveningActivities.length],
+        dailyBudget: {
+          stay: 140,
+          food: 65,
+          activities: 45,
+          transport: 20,
+          total: 270
+        }
+      });
+    }
+    return schedule;
+  };
+
+  const dayByDayPlan = generateDayByDaySchedule(displayStops, totalDaysCount, trip.startDate);
+  const totalTripCalculatedBudget = totalDaysCount * 270;
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto animate-fade-in print:p-0 print:m-0">
       {/* Cover Header */}
@@ -222,16 +308,16 @@ export const ItineraryViewPage = () => {
               </div>
               <div className="flex items-center space-x-2 text-xs font-semibold text-brand-300 bg-slate-950/70 backdrop-blur-md rounded-full px-3.5 py-1.5 border border-slate-700/50">
                 <Calendar className="w-3.5 h-3.5 text-brand-400" />
-                <span>{formatDateRange(trip.startDate, trip.endDate)}</span>
+                <span>{formatDateRange(trip.startDate, trip.endDate)} ({totalDaysCount} Days)</span>
               </div>
             </div>
 
             <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-white drop-shadow-lg tracking-tight">{trip.name}</h1>
-            <p className="text-sm text-slate-200 mt-1 max-w-xl leading-relaxed font-medium">{trip.description || 'Confirmed all-inclusive trip package with vehicle boarding passes, hotel room vouchers, dining plans & activities.'}</p>
+            <p className="text-sm text-slate-200 mt-1 max-w-xl leading-relaxed font-medium">{trip.description || 'Confirmed all-inclusive trip package with vehicle boarding passes, hotel room vouchers, dining plans & day-by-day plan.'}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* PHOTO 2 BUTTON: MAIN DIRECT PRINT / SAVE PDF PASS BUTTON */}
+            {/* MAIN DIRECT PRINT / SAVE PDF PASS BUTTON */}
             <button
               onClick={handlePrintVoucher}
               className="px-6 py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center space-x-2.5 transition-all transform hover:scale-105"
@@ -259,11 +345,12 @@ export const ItineraryViewPage = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs Bar with High-Contrast Visible Buttons */}
+      {/* Navigation Tabs Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-2 bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-xl print:hidden">
         <div className="flex flex-wrap items-center gap-2">
           {[
             { id: 'vouchers', label: '🎫 Boarding Passes & Vouchers' },
+            { id: 'days', label: `🗓️ Day-by-Day Plan (${totalDaysCount} Days)` },
             { id: 'list', label: '📋 Detailed Itinerary' },
             { id: 'timeline', label: '⏱️ Daily Timeline' },
           ].map((tab) => (
@@ -315,7 +402,7 @@ export const ItineraryViewPage = () => {
         </div>
       )}
 
-      {/* TAB 1: 🎫 BOARDING PASSES & TRAVEL VOUCHERS (PERFECT FULL-PAGE PDF FORMAT) */}
+      {/* TAB 1: 🎫 BOARDING PASSES & TRAVEL VOUCHERS */}
       {activeTab === 'vouchers' && (
         <div className="space-y-8 print:space-y-6">
           <div className="text-center space-y-1 print:hidden">
@@ -372,7 +459,6 @@ export const ItineraryViewPage = () => {
                       <p className="text-xs text-slate-400 print:text-slate-700">Passenger: <strong className="text-white print:text-slate-900">Trip Booker</strong></p>
                     </div>
 
-                    {/* Barcode & Scan Box */}
                     <div className="p-3 bg-slate-900 rounded-2xl border border-slate-800 text-center space-y-1 print:bg-slate-100 print:border-slate-400">
                       <div className="font-mono text-xs font-black tracking-widest text-slate-300 print:text-slate-900 select-all">
                         ||| | |||| ||||| || |||| |||
@@ -424,7 +510,7 @@ export const ItineraryViewPage = () => {
                   </div>
                 </div>
 
-                {/* 3. 🍽️ ALL-INCLUSIVE DINING & CULINARY PASS STUB (PERFECT NO-CUTOFF CONTAINER) */}
+                {/* 3. 🍽️ ALL-INCLUSIVE DINING & CULINARY PASS STUB */}
                 <div className="printable-stub glass-card rounded-3xl overflow-hidden border border-amber-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/40 shadow-2xl break-inside-avoid page-break-inside-avoid">
                   <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-500 p-4 text-slate-950 flex items-center justify-between print:bg-amber-100 print:text-slate-950">
                     <div className="flex items-center space-x-3">
@@ -490,7 +576,166 @@ export const ItineraryViewPage = () => {
         </div>
       )}
 
-      {/* TAB 2: DETAILED ITINERARY LIST */}
+      {/* TAB 2: 🗓️ MASTER DAY-BY-DAY TOURIST PLAN (EXACT DETAILS FOR N DAYS WITH HOTEL PREVIEW & BUDGET) */}
+      {activeTab === 'days' && (
+        <div className="space-y-6">
+          <div className="glass-card rounded-3xl p-6 border border-brand-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-purple-950/40 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xl">
+            <div className="space-y-1">
+              <h2 className="font-display font-black text-2xl text-white flex items-center gap-2">
+                <span>🗓️ Complete Day-by-Day Master Tourist Itinerary</span>
+                <span className="text-xs text-brand-400 font-extrabold bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
+                  {totalDaysCount} Days Planned
+                </span>
+              </h2>
+              <p className="text-xs text-slate-300">Detailed schedule for every single day: hotel links, morning/afternoon/evening visits & daily costs</p>
+            </div>
+
+            <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 text-right space-y-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Calculated {totalDaysCount}-Day Budget</p>
+              <p className="font-display font-black text-2xl text-emerald-400">{formatCurrency(totalTripCalculatedBudget)}</p>
+              <p className="text-[10px] text-slate-500">Average: $270.00 / day</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {dayByDayPlan.map((day) => (
+              <div key={day.dayNumber} className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-6 hover:border-brand-500/40 transition-all shadow-2xl bg-slate-900/90">
+                {/* Day Header Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 via-purple-600 to-cyan-500 text-white font-black text-base flex items-center justify-center shadow-lg shadow-brand-500/30">
+                      Day {day.dayNumber}
+                    </div>
+                    <div>
+                      <h3 className="font-display font-black text-2xl text-white flex items-center gap-2">
+                        <span>{day.cityName}</span>
+                        <span className="text-sm text-slate-400 font-semibold">({day.countryName})</span>
+                      </h3>
+                      <p className="text-xs text-brand-300 font-bold flex items-center gap-1.5 mt-0.5">
+                        <Calendar className="w-3.5 h-3.5 text-brand-400" />
+                        <span>{day.dateStr}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3 bg-slate-950/80 p-2.5 rounded-2xl border border-slate-800 text-xs">
+                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase block">Day {day.dayNumber} Total</span>
+                      <span className="font-black text-emerald-400 text-sm">{formatCurrency(day.dailyBudget.total)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hotel Preview & Location Section */}
+                <div className="glass-card p-5 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-950/30 via-slate-950 to-slate-900 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                    <div>
+                      <h4 className="text-xs font-black uppercase text-purple-300 flex items-center space-x-2">
+                        <Hotel className="w-4 h-4 text-purple-400" />
+                        <span>Where Tourist Stays (Hotel & Suite Info)</span>
+                      </h4>
+                      <p className="text-white font-black text-base mt-1">{day.hotelName}</p>
+                      <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3.5 h-3.5 text-purple-400" />
+                        <span>{day.hotelAddress}</span>
+                      </p>
+                    </div>
+
+                    <a
+                      href={day.hotelBookingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs rounded-xl border border-purple-500/40 flex items-center space-x-2 transition-all w-fit shrink-0 shadow-lg"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>🌐 Preview Hotel & Location Map</span>
+                    </a>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Room Category</span>
+                      <span className="font-extrabold text-white text-[11px]">{day.roomType}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Check-in</span>
+                      <span className="font-bold text-emerald-400 text-[11px]">{day.checkIn}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Check-out</span>
+                      <span className="font-bold text-rose-400 text-[11px]">{day.checkOut}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Hotel Stay Cost</span>
+                      <span className="font-extrabold text-purple-400 text-[11px]">{formatCurrency(day.dailyBudget.stay)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Where Tourist Goes Today: Morning, Afternoon, Evening Schedule */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-black uppercase text-cyan-300 flex items-center space-x-2">
+                    <Navigation className="w-4 h-4 text-cyan-400" />
+                    <span>Where Tourist Goes (Full Day Schedule)</span>
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    {/* Morning */}
+                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span className="font-extrabold text-amber-400 flex items-center gap-1.5">
+                          <Coffee className="w-4 h-4" /> 🌅 Morning (08:30 AM)
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-400">Sightseeing</span>
+                      </div>
+                      <p className="text-slate-200 leading-relaxed font-semibold">{day.morning}</p>
+                    </div>
+
+                    {/* Afternoon */}
+                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span className="font-extrabold text-emerald-400 flex items-center gap-1.5">
+                          <Utensils className="w-4 h-4" /> ☀️ Afternoon (12:30 PM)
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-400">Lunch & Culture</span>
+                      </div>
+                      <p className="text-slate-200 leading-relaxed font-semibold">{day.afternoon}</p>
+                    </div>
+
+                    {/* Evening */}
+                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span className="font-extrabold text-purple-400 flex items-center gap-1.5">
+                          <Sparkles className="w-4 h-4" /> 🌙 Evening (19:30 PM)
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-400">Gourmet Dinner</span>
+                      </div>
+                      <p className="text-slate-200 leading-relaxed font-semibold">{day.evening}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Day N Expense Breakdown Bar */}
+                <div className="p-4 bg-slate-950/90 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <span className="font-bold text-slate-300">Day {day.dayNumber} Estimated Expenses:</span>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className="text-slate-400">Hotel: <strong className="text-white">{formatCurrency(day.dailyBudget.stay)}</strong></span>
+                    <span className="text-slate-400">Food: <strong className="text-white">{formatCurrency(day.dailyBudget.food)}</strong></span>
+                    <span className="text-slate-400">Activities: <strong className="text-white">{formatCurrency(day.dailyBudget.activities)}</strong></span>
+                    <span className="text-slate-400">Transport: <strong className="text-white">{formatCurrency(day.dailyBudget.transport)}</strong></span>
+                    <span className="text-emerald-400 font-black text-sm bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/20">
+                      Day Total: {formatCurrency(day.dailyBudget.total)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: DETAILED ITINERARY LIST */}
       {activeTab === 'list' && (
         <div className="space-y-8">
           {displayStops.map((stop, idx) => {
@@ -526,7 +771,7 @@ export const ItineraryViewPage = () => {
         </div>
       )}
 
-      {/* TAB 3: DAILY TIMELINE */}
+      {/* TAB 4: DAILY TIMELINE */}
       {activeTab === 'timeline' && (
         <div className="relative pl-8 border-l-2 border-brand-500 space-y-10 my-8">
           {displayStops.map((stop, idx) => (
