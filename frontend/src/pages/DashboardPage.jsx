@@ -10,6 +10,44 @@ import { EmptyState } from '../components/EmptyState.jsx';
 import { formatDateRange, formatCurrency } from '../utils/formatters.js';
 import { Compass, Map, Building2, Globe, Plus, ArrowRight, Share2, Sparkles, Calendar, Star, CheckCircle2, Ticket } from 'lucide-react';
 
+export const CITY_DATABASE = {
+  tokyo: { name: 'Tokyo', country: 'Japan', flag: '🇯🇵', photo: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop&q=80' },
+  paris: { name: 'Paris', country: 'France', flag: '🇫🇷', photo: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80' },
+  rome: { name: 'Rome', country: 'Italy', flag: '🇮🇹', photo: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80' },
+  'new york': { name: 'New York', country: 'United States', flag: '🇺🇸', photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop&q=80' },
+  london: { name: 'London', country: 'United Kingdom', flag: '🇬🇧', photo: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop&q=80' },
+  dubai: { name: 'Dubai', country: 'United Arab Emirates', flag: '🇦🇪', photo: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80' },
+  sydney: { name: 'Sydney', country: 'Australia', flag: '🇦🇺', photo: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80' },
+  venice: { name: 'Venice', country: 'Italy', flag: '🇮🇹', photo: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=800&auto=format&fit=crop&q=80' },
+  cairo: { name: 'Cairo', country: 'Egypt', flag: '🇪🇬', photo: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&auto=format&fit=crop&q=80' },
+  rio: { name: 'Rio de Janeiro', country: 'Brazil', flag: '🇧🇷', photo: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&auto=format&fit=crop&q=80' },
+  barcelona: { name: 'Barcelona', country: 'Spain', flag: '🇪🇸', photo: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&auto=format&fit=crop&q=80' },
+  amsterdam: { name: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', photo: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80' },
+  kyoto: { name: 'Kyoto', country: 'Japan', flag: '🇯🇵', photo: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80' },
+  bangkok: { name: 'Bangkok', country: 'Thailand', flag: '🇹🇭', photo: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80' },
+};
+
+export const getTripMainDestination = (trip) => {
+  const hasStops = trip?.stops && trip.stops.length > 0;
+  const lastStop = hasStops ? trip.stops[trip.stops.length - 1]?.city : null;
+  const firstStop = hasStops ? trip.stops[0]?.city : null;
+
+  const searchStr = `${trip?.name || ''} ${trip?.description || ''}`.toLowerCase();
+  const matchedKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
+  const matchedInfo = matchedKey ? CITY_DATABASE[matchedKey] : null;
+
+  const cityName = lastStop?.name || firstStop?.name || matchedInfo?.name || (trip?.name?.length > 2 ? trip.name : 'Tokyo');
+  const country = lastStop?.country || firstStop?.country || matchedInfo?.country || 'Japan';
+  const flag = matchedInfo?.flag || (country === 'Japan' ? '🇯🇵' : country === 'France' ? '🇫🇷' : country === 'Italy' ? '🇮🇹' : '📍');
+
+  const defaultGeneric = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80';
+  const photo = (trip?.coverPhotoUrl && trip.coverPhotoUrl !== defaultGeneric)
+    ? trip.coverPhotoUrl
+    : (lastStop?.imageUrl || matchedInfo?.photo || CITY_DATABASE.tokyo.photo);
+
+  return { cityName, country, flag, photo };
+};
+
 export const DashboardPage = () => {
   const { user } = useAuth();
 
@@ -160,30 +198,41 @@ export const DashboardPage = () => {
           <EmptyState />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {trips.slice(0, 3).map((trip) => (
-              <div key={trip.id} className="glass-card glass-card-hover rounded-3xl overflow-hidden flex flex-col justify-between border border-slate-800/80">
-                <div className="relative h-48 overflow-hidden group">
-                  <img
-                    src={trip.coverPhotoUrl || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80'}
-                    alt={trip.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
-                  
-                  {trip.isPublic && (
-                    <span className="absolute top-3 right-3 px-2.5 py-1 bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black uppercase rounded-xl tracking-wider shadow-lg">
-                      Public Link
-                    </span>
-                  )}
+            {trips.slice(0, 3).map((trip) => {
+              const dest = getTripMainDestination(trip);
+              return (
+                <div key={trip.id} className="glass-card glass-card-hover rounded-3xl overflow-hidden flex flex-col justify-between border border-slate-800/80">
+                  <div className="relative h-48 overflow-hidden group">
+                    <img
+                      src={dest.photo}
+                      alt={trip.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop&q=80';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
 
-                  <div className="absolute bottom-3 left-4 right-4">
-                    <h3 className="font-display font-bold text-xl text-white truncate">{trip.name}</h3>
-                    <p className="text-xs text-slate-300 flex items-center space-x-1.5 mt-0.5 font-medium">
-                      <Calendar className="w-3.5 h-3.5 text-brand-400" />
-                      <span>{formatDateRange(trip.startDate, trip.endDate)}</span>
-                    </p>
+                    {/* Main Destination Badge */}
+                    <div className="absolute top-3 left-3 flex items-center space-x-1.5 px-2.5 py-1 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black rounded-xl border border-white/20 shadow-lg z-10">
+                      <span className="text-xs">{dest.flag}</span>
+                      <span>{dest.cityName}{dest.country ? `, ${dest.country}` : ''}</span>
+                    </div>
+                    
+                    {trip.isPublic && (
+                      <span className="absolute top-3 right-3 px-2.5 py-1 bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black uppercase rounded-xl tracking-wider shadow-lg z-10">
+                        Public Link
+                      </span>
+                    )}
+
+                    <div className="absolute bottom-3 left-4 right-4">
+                      <h3 className="font-display font-bold text-xl text-white truncate">{trip.name}</h3>
+                      <p className="text-xs text-slate-300 flex items-center space-x-1.5 mt-0.5 font-medium">
+                        <Calendar className="w-3.5 h-3.5 text-brand-400" />
+                        <span>{formatDateRange(trip.startDate, trip.endDate)}</span>
+                      </p>
+                    </div>
                   </div>
-                </div>
 
                 <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
@@ -220,7 +269,8 @@ export const DashboardPage = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
         )}
       </div>

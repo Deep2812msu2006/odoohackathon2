@@ -6,6 +6,7 @@ import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { EmptyState } from '../components/EmptyState.jsx';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
 import { formatDateRange } from '../utils/formatters.js';
+import { getTripMainDestination } from './DashboardPage.jsx';
 import toast from 'react-hot-toast';
 import { 
   Plus, Search, Calendar, MapPin, Share2, Trash2, Edit3, Eye, Copy,
@@ -333,19 +334,30 @@ export const MyTripsPage = () => {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTrips.map((trip) => (
-            <div key={trip.id} className="glass-card glass-card-hover rounded-3xl overflow-hidden flex flex-col justify-between border border-slate-800/50 group hover:border-brand-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-500/10 transform hover:-translate-y-2">
-              {/* Visual Cover with Enhanced Effects */}
-              <div className="relative h-64 overflow-hidden">
-                <img
-                  src={trip.coverPhotoUrl || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80'}
-                  alt={trip.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                />
-                {/* Multi-layer gradient overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-500/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950/80"></div>
+          {filteredTrips.map((trip) => {
+            const dest = getTripMainDestination(trip);
+            return (
+              <div key={trip.id} className="glass-card glass-card-hover rounded-3xl overflow-hidden flex flex-col justify-between border border-slate-800/50 group hover:border-brand-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-500/10 transform hover:-translate-y-2">
+                {/* Visual Cover with Enhanced Effects */}
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={dest.photo}
+                    alt={trip.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop&q=80';
+                    }}
+                  />
+                  {/* Multi-layer gradient overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-brand-500/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950/80"></div>
+                  
+                  {/* Main Destination Badge */}
+                  <div className="absolute top-4 left-4 flex items-center space-x-1.5 px-3 py-1.5 bg-slate-950/85 backdrop-blur-xl text-white text-[11px] font-black rounded-xl border border-white/20 shadow-xl z-10">
+                    <span className="text-sm">{dest.flag}</span>
+                    <span>{dest.cityName}{dest.country ? `, ${dest.country}` : ''}</span>
+                  </div>
                 
                 {/* Animated shimmer effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -456,8 +468,8 @@ export const MyTripsPage = () => {
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
