@@ -57,7 +57,7 @@ export const Sidebar = ({
     const isMini = collapsed && !isMobile;
 
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full overflow-x-hidden">
         {/* Brand Header */}
         <div className={`flex items-center ${isMini ? 'justify-center px-0' : 'px-3'} py-4 mb-3`}>
           <Link to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
@@ -105,7 +105,7 @@ export const Sidebar = ({
         </Link>
 
         {/* Primary Navigation */}
-        <nav className="flex-1 space-y-1.5 overflow-y-auto scrollbar-none">
+        <nav className="flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden scrollbar-none">
           {!isMini && (
             <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-3 mb-2">
               Navigation Menu
@@ -198,7 +198,7 @@ export const Sidebar = ({
     <>
       {/* Desktop Sidebar: Smooth Collapsible Width */}
       <aside 
-        className={`hidden md:flex flex-col h-full bg-slate-950/40 backdrop-blur-xl border-r border-slate-800/60 p-4 transition-all duration-300 ease-in-out shrink-0 select-none z-30 ${
+        className={`hidden md:flex flex-col h-full bg-slate-950/40 backdrop-blur-xl border-r border-slate-800/60 p-4 transition-all duration-300 ease-in-out shrink-0 select-none z-30 overflow-x-hidden ${
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
