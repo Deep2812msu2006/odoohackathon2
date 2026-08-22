@@ -79,6 +79,59 @@ export const BudgetDashboardPage = () => {
     { name: 'Meals', value: categories.meals, color: '#10b981' },
   ].filter((item) => item.value > 0);
 
+  // Construct real-time daily spending data for BarChart
+  const customDailyMap = {};
+  customExpenses.forEach(exp => {
+    const d = exp.date || 'Today';
+    if (!customDailyMap[d]) {
+      customDailyMap[d] = { date: d, activities: 0, accommodation: 0, meals: 0, transport: 0 };
+    }
+    if (exp.category === 'activities') customDailyMap[d].activities += exp.cost;
+    if (exp.category === 'accommodation') customDailyMap[d].accommodation += exp.cost;
+    if (exp.category === 'meals') customDailyMap[d].meals += exp.cost;
+    if (exp.category === 'transport') customDailyMap[d].transport += exp.cost;
+  });
+
+  const serverDailyFiltered = (baseBudget.dailySpending || []).filter(
+    item => (item.activities || 0) + (item.accommodation || 0) + (item.meals || 0) + (item.transport || 0) > 0
+  );
+
+  const mergedDailyMap = {};
+  serverDailyFiltered.forEach(item => {
+    mergedDailyMap[item.date] = {
+      date: item.date,
+      activities: item.activities || 0,
+      accommodation: item.accommodation || 0,
+      meals: item.meals || 0,
+      transport: item.transport || 0,
+    };
+  });
+
+  Object.values(customDailyMap).forEach(item => {
+    if (!mergedDailyMap[item.date]) {
+      mergedDailyMap[item.date] = { ...item };
+    } else {
+      mergedDailyMap[item.date].activities += item.activities;
+      mergedDailyMap[item.date].accommodation += item.accommodation;
+      mergedDailyMap[item.date].meals += item.meals;
+      mergedDailyMap[item.date].transport += item.transport;
+    }
+  });
+
+  let realtimeDailySpending = Object.values(mergedDailyMap);
+
+  if (realtimeDailySpending.length === 0 && categories.total > 0) {
+    realtimeDailySpending = [
+      {
+        date: 'Today',
+        activities: categories.activities,
+        accommodation: categories.accommodation,
+        meals: categories.meals,
+        transport: categories.transport,
+      }
+    ];
+  }
+
   // Populate realistic sample trip expenses
   const handleAutoPopulateSample = () => {
     const today = new Date().toISOString().split('T')[0];
@@ -290,8 +343,8 @@ export const BudgetDashboardPage = () => {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={baseBudget.dailySpending.length > 0 ? baseBudget.dailySpending : [
-                { date: 'Day 1', activities: categories.activities, accommodation: categories.accommodation, meals: categories.meals, transport: categories.transport }
+              <BarChart data={realtimeDailySpending.length > 0 ? realtimeDailySpending : [
+                { date: 'Today', activities: 0, accommodation: 0, meals: 0, transport: 0 }
               ]}>
                 <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 10 }} />
                 <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
