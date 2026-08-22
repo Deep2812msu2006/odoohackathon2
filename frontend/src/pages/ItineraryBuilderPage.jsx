@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { tripApi } from '../services/tripApi.js';
@@ -9,11 +9,12 @@ import { formatDate, formatDateRange, formatCurrency, getCategoryBadgeColor } fr
 import toast from 'react-hot-toast';
 import {
   GripVertical, Plus, Calendar, MapPin, Ticket, Trash2, DollarSign,
-  ArrowRight, Check, X, Search, Clock, AlertCircle, Compass, PieChart, ShieldCheck, Sparkles
+  ArrowRight, Check, X, Search, Clock, AlertCircle, Compass, PieChart, ShieldCheck, Sparkles, CheckCircle2
 } from 'lucide-react';
 
 export const ItineraryBuilderPage = () => {
   const { id: tripId } = useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // Modals state
@@ -244,26 +245,49 @@ export const ItineraryBuilderPage = () => {
             <Plus className="w-4 h-4" />
             <span>Add City Stop</span>
           </button>
+          <button
+            onClick={() => {
+              toast.success('Trip itinerary saved! Redirecting to My Trips...', { icon: '🎉' });
+              navigate('/trips');
+            }}
+            className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 flex items-center space-x-2 transition-all transform hover:scale-105"
+            title="Finish itinerary building and view all trips"
+          >
+            <span>Next / Finish</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
       {/* Drag & Drop Stops List */}
       {trip.stops.length === 0 ? (
-        <div className="glass-card rounded-3xl p-12 text-center space-y-4 border border-slate-800 shadow-xl">
+        <div className="glass-card rounded-3xl p-12 text-center space-y-5 border border-slate-800 shadow-xl">
           <div className="w-16 h-16 bg-brand-500/10 text-brand-400 rounded-2xl flex items-center justify-center mx-auto border border-brand-500/20">
             <MapPin className="w-8 h-8 animate-bounce" />
           </div>
           <h3 className="font-display font-extrabold text-2xl text-white">No City Stops Added Yet</h3>
           <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome).
+            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome), or click finish to view your trip summary.
           </p>
-          <button
-            onClick={() => setAddStopModalOpen(true)}
-            className="px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white font-bold text-sm rounded-xl shadow-glow inline-flex items-center space-x-2 transition-transform transform hover:scale-105"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add First Stop</span>
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => setAddStopModalOpen(true)}
+              className="px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-500 text-white font-bold text-sm rounded-xl shadow-glow inline-flex items-center space-x-2 transition-transform transform hover:scale-105"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add First Stop</span>
+            </button>
+            <button
+              onClick={() => {
+                toast.success('Redirecting to My Trips...', { icon: '✈️' });
+                navigate('/trips');
+              }}
+              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-extrabold text-sm rounded-xl border border-emerald-500/30 inline-flex items-center space-x-2 transition-transform transform hover:scale-105 shadow-lg"
+            >
+              <span>Finish & Go to My Trips</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>

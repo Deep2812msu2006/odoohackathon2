@@ -32,18 +32,24 @@ export const getTripMainDestination = (trip) => {
   const lastStop = hasStops ? trip.stops[trip.stops.length - 1]?.city : null;
   const firstStop = hasStops ? trip.stops[0]?.city : null;
 
-  const searchStr = `${trip?.name || ''} ${trip?.description || ''}`.toLowerCase();
-  const matchedKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
-  const matchedInfo = matchedKey ? CITY_DATABASE[matchedKey] : null;
+  const coverUrl = (trip?.coverPhotoUrl || '').split('?')[0];
+  const matchedCoverKey = Object.keys(CITY_DATABASE).find(k => 
+    coverUrl && (CITY_DATABASE[k].photo.includes(coverUrl) || coverUrl.includes(CITY_DATABASE[k].photo.split('?')[0]))
+  );
 
-  const cityName = lastStop?.name || firstStop?.name || matchedInfo?.name || (trip?.name?.length > 2 ? trip.name : 'Tokyo');
-  const country = lastStop?.country || firstStop?.country || matchedInfo?.country || 'Japan';
-  const flag = matchedInfo?.flag || (country === 'Japan' ? '🇯🇵' : country === 'France' ? '🇫🇷' : country === 'Italy' ? '🇮🇹' : '📍');
+  const searchStr = `${trip?.name || ''} ${trip?.description || ''}`.toLowerCase();
+  const matchedTextKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
+
+  const matchedInfo = (matchedCoverKey ? CITY_DATABASE[matchedCoverKey] : null) || (matchedTextKey ? CITY_DATABASE[matchedTextKey] : null);
+
+  const cityName = lastStop?.name || firstStop?.name || matchedInfo?.name || (trip?.name && trip.name !== 'er' && trip.name !== 'asa' ? trip.name : 'Dubai');
+  const country = lastStop?.country || firstStop?.country || matchedInfo?.country || (matchedInfo ? matchedInfo.country : 'United Arab Emirates');
+  const flag = matchedInfo?.flag || (country === 'Japan' ? '🇯🇵' : country === 'France' ? '🇫🇷' : country === 'United Arab Emirates' ? '🇦🇪' : '📍');
 
   const defaultGeneric = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80';
   const photo = (trip?.coverPhotoUrl && trip.coverPhotoUrl !== defaultGeneric)
     ? trip.coverPhotoUrl
-    : (lastStop?.imageUrl || matchedInfo?.photo || CITY_DATABASE.tokyo.photo);
+    : (lastStop?.imageUrl || matchedInfo?.photo || CITY_DATABASE.dubai.photo);
 
   return { cityName, country, flag, photo };
 };
