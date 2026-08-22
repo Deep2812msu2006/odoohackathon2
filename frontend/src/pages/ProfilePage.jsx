@@ -452,49 +452,6 @@ export const ProfilePage = () => {
       {activeTab === 'settings' && (
         <div className="space-y-6 animate-fade-in">
 
-          {/* Theme Picker */}
-          <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5">
-            <div className="flex items-center gap-2">
-              <Palette className="w-5 h-5 text-brand-400" />
-              <h3 className="font-display font-bold text-lg text-white">Interface Theme</h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {THEMES.map(theme => (
-                <button
-                  key={theme.id}
-                  onClick={() => { 
-                    setSelectedTheme(theme.id); 
-                    applyTheme(theme.id);
-                    toast.success(`Theme switched to ${theme.label}`, { 
-                      icon: '🎨',
-                      style: {
-                        background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                        color: 'white'
-                      }
-                    }); 
-                  }}
-                  className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 space-y-3 overflow-hidden ${
-                    selectedTheme === theme.id
-                      ? 'border-brand-500/70 shadow-xl shadow-brand-500/25 transform scale-105'
-                      : 'border-slate-800/50 hover:border-slate-700 hover:scale-102'
-                  }`}
-                >
-                  {selectedTheme === theme.id && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 to-emerald-500/10 animate-pulse"></div>
-                  )}
-                  <div className={`h-16 rounded-xl ${theme.preview} border border-white/5 transform group-hover:scale-105 transition-transform`}></div>
-                  <div className={`h-1.5 rounded-full bg-gradient-to-r ${theme.gradient} transform group-hover:scale-x-110 transition-transform origin-left`}></div>
-                  <p className="text-xs font-bold text-slate-300 relative z-10">{theme.label}</p>
-                  {selectedTheme === theme.id && (
-                    <div className="absolute top-2.5 right-2.5 w-6 h-6 bg-gradient-to-r from-brand-500 to-brand-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Notifications */}
           <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5">
             <div className="flex items-center gap-2">
