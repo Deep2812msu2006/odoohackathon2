@@ -436,74 +436,7 @@ export const AdminDashboardPage = () => {
             </div>
           </div>
 
-          {/* Live Simulated SQL Log Console */}
-          <div className="glass-card rounded-3xl p-6 border border-slate-850 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2.5">
-                <div className="p-2 bg-slate-950 text-slate-400 border border-slate-850 rounded-xl">
-                  <Terminal className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-base text-white">Live Query Console Stream</h3>
-                  <p className="text-[10px] text-slate-500">Real-time database queries & REST API calls routed through Prisma Client</p>
-                </div>
-              </div>
 
-              {/* Log Controls */}
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setIsLogActive(!isLogActive)}
-                  className={`p-2 rounded-lg border text-xs font-semibold transition-all ${
-                    isLogActive 
-                      ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20' 
-                      : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
-                  }`}
-                  title={isLogActive ? 'Pause Log stream' : 'Resume Log stream'}
-                >
-                  {isLogActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  onClick={() => setLogs([])}
-                  className="p-2 bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/20 rounded-lg transition-all"
-                  title="Clear Console"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Terminal Window */}
-            <div className="bg-slate-950 rounded-2xl border border-slate-900 p-4 font-mono text-[11px] leading-relaxed text-slate-300 h-56 overflow-y-auto space-y-2.5 scrollbar-thin">
-              {logs.length === 0 ? (
-                <div className="text-center py-16 text-slate-650 italic">
-                  Console cleared. Waiting for database queries...
-                </div>
-              ) : (
-                logs.map((log) => (
-                  <div key={log.id} className="flex flex-col sm:flex-row sm:items-start justify-between border-b border-slate-900/60 pb-2 gap-1.5">
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-slate-500">[{log.time}]</span>
-                        <span className={`px-1.5 py-0.25 rounded text-[9px] font-bold ${
-                          log.method === 'GET' ? 'bg-blue-900/30 text-blue-400 border border-blue-500/15' : 'bg-purple-900/30 text-purple-400 border border-purple-500/15'
-                        }`}>
-                          {log.method}
-                        </span>
-                        <span className="text-slate-200 font-bold">{log.path}</span>
-                        <span className={`font-semibold ${log.status === 200 || log.status === 201 ? 'text-emerald-400' : 'text-rose-450'}`}>
-                          {log.status}
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 bg-slate-900/40 p-1.5 rounded border border-slate-900 font-mono overflow-x-auto select-all">
-                        {log.sql}
-                      </div>
-                    </div>
-                    <span className="text-slate-500 font-bold shrink-0">{log.latency}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
         </div>
       )}
 
