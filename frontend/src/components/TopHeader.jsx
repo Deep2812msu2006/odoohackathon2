@@ -122,19 +122,6 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
         </button>
 
-        {/* Desktop Sidebar Toggle Button */}
-        <button
-          onClick={onToggleSidebar}
-          title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all border border-slate-800/50 hidden md:flex items-center justify-center hover:border-slate-700 shrink-0"
-        >
-          {collapsed ? (
-            <PanelLeftOpen className="w-4 h-4 text-brand-400 animate-pulse" />
-          ) : (
-            <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-brand-400 transition-colors" />
-          )}
-        </button>
-
         {/* Mobile Drawer Toggle Button */}
         <button
           onClick={onToggleSidebar}
