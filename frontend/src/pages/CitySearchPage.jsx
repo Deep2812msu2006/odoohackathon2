@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cityApi } from '../services/cityApi.js';
 import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { formatCurrency } from '../utils/formatters.js';
@@ -10,11 +10,21 @@ import {
 
 export const CitySearchPage = () => {
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const urlSearchParam = searchParams.get('search') || '';
+
+  const [search, setSearch] = useState(urlSearchParam);
   const [regionFilter, setRegionFilter] = useState('');
   const [costFilter, setCostFilter] = useState('all'); // all, budget, moderate, premium
   const [sortBy, setSortBy] = useState('popularityScore');
   const [selectedCityModal, setSelectedCityModal] = useState(null);
+
+  // Sync search state with URL parameter if present
+  useEffect(() => {
+    if (urlSearchParam) {
+      setSearch(urlSearchParam);
+    }
+  }, [urlSearchParam]);
 
   // Fetch Cities with search & region parameters
   const { data: cities = [], isLoading } = useQuery({
@@ -30,6 +40,20 @@ export const CitySearchPage = () => {
     },
   });
 
+  // Auto-open target City Modal card when search parameter matches a city!
+  useEffect(() => {
+    if (urlSearchParam && cities.length > 0) {
+      const match = cities.find(
+        (c) =>
+          c.name.toLowerCase() === urlSearchParam.toLowerCase() ||
+          c.name.toLowerCase().includes(urlSearchParam.toLowerCase())
+      );
+      if (match) {
+        setSelectedCityModal(match);
+      }
+    }
+  }, [urlSearchParam, cities]);
+
   // Fetch detailed city with activities when modal is open
   const { data: detailedCity, isLoading: detailLoading } = useQuery({
     queryKey: ['cityDetail', selectedCityModal?.id],
@@ -39,6 +63,21 @@ export const CitySearchPage = () => {
     },
     enabled: !!selectedCityModal,
   });
+
+  const handleCloseModal = () => {
+    setSelectedCityModal(null);
+    setSearch('');
+    if (urlSearchParam) {
+      navigate('/cities', { replace: true });
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearch('');
+    if (urlSearchParam) {
+      navigate('/cities', { replace: true });
+    }
+  };
 
   const regions = [
     { label: 'All Regions', value: '' },
@@ -117,7 +156,7 @@ export const CitySearchPage = () => {
               className="w-full pl-10 pr-10 py-2.5 rounded-2xl glass-input text-xs"
             />
             {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-3 text-slate-400 hover:text-white">
+              <button onClick={handleClearSearch} className="absolute right-3 top-3 text-slate-400 hover:text-white">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -179,11 +218,7 @@ export const CitySearchPage = () => {
             Try clearing your search query or switching your region/cost filter.
           </p>
           <button
-            onClick={() => {
-              setSearch('');
-              setRegionFilter('');
-              setCostFilter('all');
-            }}
+            onClick={handleClearSearch}
             className="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-xl shadow-glow"
           >
             Reset All Filters
@@ -285,7 +320,7 @@ export const CitySearchPage = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
               <button
-                onClick={() => setSelectedCityModal(null)}
+                onClick={handleCloseModal}
                 className="absolute top-4 right-4 p-2 bg-slate-950/80 text-slate-300 hover:text-white rounded-full border border-slate-700"
               >
                 <X className="w-5 h-5" />
@@ -341,14 +376,14 @@ export const CitySearchPage = () => {
             {/* Modal Footer CTA */}
             <div className="p-4 bg-slate-950 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
               <button
-                onClick={() => setSelectedCityModal(null)}
+                onClick={handleCloseModal}
                 className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white"
               >
                 Close Preview
               </button>
               <button
                 onClick={() => {
-                  setSelectedCityModal(null);
+                  handleCloseModal();
                   navigate('/trips/new');
                 }}
                 className="px-5 py-2.5 bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-glow flex items-center space-x-1.5"
