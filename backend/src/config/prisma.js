@@ -432,8 +432,16 @@ export const prisma = new Proxy(realPrisma, {
       return origMethod;
     }
     
+    if (
+      typeof origMethod !== 'object' || 
+      origMethod === null || 
+      (typeof prop === 'string' && (prop.startsWith('_') || prop.startsWith('$')))
+    ) {
+      return origMethod;
+    }
+    
     // For models, return a proxy that catches database failures and falls back to mock
-    return new Proxy(origMethod || {}, {
+    return new Proxy(origMethod, {
       get: (modelTarget, modelProp) => {
         const origModelMethod = modelTarget[modelProp];
         if (typeof origModelMethod !== 'function') {
