@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { userApi } from '../services/userApi.js';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
@@ -7,7 +7,7 @@ import {
   User, Mail, Globe, Camera, Trash2, Save, ShieldCheck, Settings,
   Lock, Bell, Eye, EyeOff, Sparkles, MapPin, Calendar, Award,
   ChevronRight, LogOut, Moon, Sun, Zap, Heart, Star, Edit3,
-  CheckCircle2, AlertTriangle, Info, Palette
+  CheckCircle2, AlertTriangle, Info, Palette, Upload, UploadCloud, Image as ImageIcon
 } from 'lucide-react';
 
 const TABS = [
@@ -42,6 +42,29 @@ export const ProfilePage = () => {
   const [languagePreference, setLanguagePreference] = useState(user?.languagePreference || 'en');
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(user?.profilePhotoUrl || '');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file (PNG, JPG, GIF, WebP).');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image file size must be under 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setProfilePhotoUrl(event.target.result);
+      toast.success('Local photo loaded! Click "Save Profile" to apply.');
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Security State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -189,16 +212,27 @@ export const ProfilePage = () => {
 
         <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-8">
           {/* Avatar + Ring */}
-          <div className="relative shrink-0">
-            <div className="w-28 h-28 rounded-3xl ring-4 ring-brand-500/30 ring-offset-4 ring-offset-slate-900 overflow-hidden shadow-xl shadow-brand-500/20">
+          <div className="relative shrink-0 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept="image/*"
+              className="hidden"
+            />
+            <div className="w-28 h-28 rounded-3xl ring-4 ring-brand-500/30 ring-offset-4 ring-offset-slate-900 overflow-hidden shadow-xl shadow-brand-500/20 relative">
               <img
                 src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
                 alt={name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
               />
+              <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white backdrop-blur-xs">
+                <Camera className="w-6 h-6 mb-1 text-brand-300" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Upload</span>
+              </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
-              <CheckCircle2 className="w-4 h-4 text-white" />
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-brand-500 group-hover:bg-brand-400 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30 transition-colors">
+              <Upload className="w-4 h-4 text-white" />
             </div>
           </div>
 
@@ -302,26 +336,49 @@ export const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Profile Photo URL */}
+            {/* Profile Photo Upload & URL */}
             <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4 md:col-span-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                <Camera className="w-4 h-4 text-brand-400" />
-                Profile Photo URL
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  <Camera className="w-4 h-4 text-brand-400" />
+                  Profile Photo
+                </div>
+                <span className="text-[10px] text-slate-500 font-semibold">Upload file or enter URL</span>
               </div>
-              <div className="flex gap-4 items-center">
-                <img
-                  src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'}
-                  alt="preview"
-                  className="w-14 h-14 rounded-2xl object-cover ring-2 ring-brand-500/30 shrink-0"
-                  onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'; }}
-                />
-                <input
-                  type="url"
-                  value={profilePhotoUrl}
-                  onChange={(e) => setProfilePhotoUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="flex-1 px-4 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
-                />
+              
+              <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <div className="relative group shrink-0">
+                  <img
+                    src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'}
+                    alt="preview"
+                    className="w-16 h-16 rounded-2xl object-cover ring-2 ring-brand-500/30 group-hover:ring-brand-500/60 transition-all"
+                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'; }}
+                  />
+                </div>
+
+                <div className="flex-1 w-full space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-4 py-3 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-xs rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2 shrink-0 transform hover:scale-102"
+                    >
+                      <UploadCloud className="w-4 h-4" />
+                      <span>Upload Image File</span>
+                    </button>
+
+                    <div className="relative flex-1">
+                      <input
+                        type="url"
+                        value={profilePhotoUrl}
+                        onChange={(e) => setProfilePhotoUrl(e.target.value)}
+                        placeholder="Or paste image URL (https://...)"
+                        className="w-full px-4 py-3 rounded-xl glass-input text-xs focus:ring-2 focus:ring-brand-500/50 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500">Supports PNG, JPG, WebP, or GIF files up to 5MB.</p>
+                </div>
               </div>
             </div>
 
