@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { tripApi } from '../services/tripApi.js';
 import { formatDate, formatDateRange, formatCurrency, getCategoryBadgeColor } from '../utils/formatters.js';
-import { Calendar, MapPin, Clock, Ticket, PieChart, Edit3, Share2, Compass, CheckCircle2, FileText } from 'lucide-react';
+import { Calendar, MapPin, Clock, Ticket, PieChart, Edit3, Share2, Compass, CheckCircle2, FileText, PlusCircle, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const ItineraryViewPage = () => {
@@ -36,6 +36,8 @@ export const ItineraryViewPage = () => {
   if (!trip) {
     return <div className="text-center py-12 text-rose-400">Trip not found.</div>;
   }
+
+  const hasStops = trip.stops && trip.stops.length > 0;
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto animate-fade-in">
@@ -89,7 +91,7 @@ export const ItineraryViewPage = () => {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs Bar */}
       <div className="flex items-center justify-between border-b border-slate-800/50 pb-3">
         <div className="flex space-x-2">
           {['list', 'timeline'].map((tab) => (
@@ -112,93 +114,127 @@ export const ItineraryViewPage = () => {
         </div>
       </div>
 
-      {/* List View */}
-      {activeTab === 'list' && (
-        <div className="space-y-6">
-          {(trip.stops || []).map((stop, idx) => (
-            <div key={stop.id} className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5 hover:border-brand-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/10">
-              <div className="flex items-center justify-between border-b border-slate-800/50 pb-4">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-400 text-white font-bold text-base flex items-center justify-center shadow-lg shadow-brand-500/30">
-                    {idx + 1}
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-2xl text-white">{stop.city?.name} ({stop.city?.country})</h3>
-                    <p className="text-sm text-slate-300 flex items-center space-x-2 mt-1">
-                      <Calendar className="w-4 h-4 text-brand-400" />
-                      <span className="font-medium">{formatDateRange(stop.arrivalDate, stop.departureDate)}</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
+      {/* Empty State Callout Banner if No City Stops Added */}
+      {!hasStops ? (
+        <div className="glass-card rounded-3xl p-8 sm:p-12 border border-brand-500/30 bg-gradient-to-r from-slate-950 via-slate-900/90 to-purple-950/40 text-center space-y-5 shadow-2xl">
+          <div className="p-4 bg-brand-500/10 text-brand-400 rounded-2xl w-fit mx-auto border border-brand-500/20 shadow-glow">
+            <Compass className="w-10 h-10 animate-bounce" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-display font-black text-2xl sm:text-3xl text-white">Your Itinerary Has No City Stops Yet!</h3>
+            <p className="text-slate-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+              You've created the trip container <strong>"{trip.name}"</strong>. Now add your destination cities and curated activities to build your daily travel schedule!
+            </p>
+          </div>
 
-              {stop.notes && (
-                <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
-                  <p className="text-sm text-slate-300 italic flex items-start space-x-2">
-                    <FileText className="w-4 h-4 text-brand-400 mt-0.5 flex-shrink-0" />
-                    <span>{stop.notes}</span>
-                  </p>
-                </div>
-              )}
-
-              {/* Activities */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center space-x-2">
-                  <Ticket className="w-4 h-4 text-purple-400" />
-                  <span>Activities ({stop.stopActivities?.length || 0})</span>
-                </h4>
-                {(!stop.stopActivities || stop.stopActivities.length === 0) ? (
-                  <p className="text-sm text-slate-500 italic bg-slate-800/30 rounded-xl p-4 text-center">No scheduled activities for this stop.</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {stop.stopActivities.map((link) => (
-                      <div key={link.id} className="p-4 bg-gradient-to-br from-slate-900/60 to-slate-800/40 rounded-2xl border border-slate-800 flex items-center space-x-4 hover:border-brand-500/30 transition-all duration-300 group">
-                        {link.activity?.imageUrl && (
-                          <img src={link.activity.imageUrl} alt={link.activity.name} className="w-14 h-14 rounded-xl object-cover group-hover:scale-110 transition-transform duration-300" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-white truncate">{link.activity?.name}</p>
-                          <p className="text-xs text-slate-400 mt-1">
-                            {formatDate(link.scheduledDate)} at {link.scheduledTime || '10:00'} • {formatCurrency(link.customCost ?? link.activity?.estimatedCost)}
-                          </p>
-                        </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <Link
+              to={`/trips/${trip.id}/builder`}
+              className="px-6 py-3 bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-extrabold text-xs rounded-2xl shadow-glow flex items-center space-x-2 transition-all transform hover:scale-105"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Add City Stops in Builder</span>
+            </Link>
+            <Link
+              to="/cities"
+              className="px-6 py-3 bg-slate-800/90 hover:bg-slate-700 text-brand-300 font-bold text-xs rounded-2xl border border-slate-700/60 transition-colors flex items-center space-x-2"
+            >
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>Explore World Cities & Activities</span>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* List View */}
+          {activeTab === 'list' && (
+            <div className="space-y-6">
+              {trip.stops.map((stop, idx) => (
+                <div key={stop.id} className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5 hover:border-brand-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/10">
+                  <div className="flex items-center justify-between border-b border-slate-800/50 pb-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-400 text-white font-bold text-base flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        {idx + 1}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Timeline View */}
-      {activeTab === 'timeline' && (
-        <div className="relative pl-8 border-l-2 border-gradient-to-b from-brand-500 to-brand-400 space-y-10 my-8">
-          {(trip.stops || []).map((stop, idx) => (
-            <div key={stop.id} className="relative group">
-              <div className="absolute -left-[39px] top-2 w-6 h-6 rounded-full bg-gradient-to-br from-brand-500 to-brand-400 ring-4 ring-slate-950 shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform duration-300"></div>
-              <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4 hover:border-brand-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/10">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-display font-bold text-xl text-white">Stop {idx + 1}: {stop.city?.name}</h3>
-                    <span className="text-xs text-brand-400 font-semibold mt-1 inline-block bg-brand-500/10 rounded-lg px-2 py-1">{formatDateRange(stop.arrivalDate, stop.departureDate)}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3 pt-2">
-                  {(stop.stopActivities || []).map((link) => (
-                    <div key={link.id} className="flex items-center space-x-3 text-sm text-slate-300 bg-slate-800/30 rounded-xl p-3 hover:bg-slate-800/50 transition-colors">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                      <span className="font-medium text-white">{link.activity?.name}</span>
-                      <span className="text-slate-500 text-xs ml-auto">({formatDate(link.scheduledDate)} @ {link.scheduledTime || '10:00'})</span>
+                      <div>
+                        <h3 className="font-display font-bold text-2xl text-white">{stop.city?.name} ({stop.city?.country})</h3>
+                        <p className="text-sm text-slate-300 flex items-center space-x-2 mt-1">
+                          <Calendar className="w-4 h-4 text-brand-400" />
+                          <span className="font-medium">{formatDateRange(stop.arrivalDate, stop.departureDate)}</span>
+                        </p>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {stop.notes && (
+                    <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/50">
+                      <p className="text-sm text-slate-300 italic flex items-start space-x-2">
+                        <FileText className="w-4 h-4 text-brand-400 mt-0.5 flex-shrink-0" />
+                        <span>{stop.notes}</span>
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Activities */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wider flex items-center space-x-2">
+                      <Ticket className="w-4 h-4 text-purple-400" />
+                      <span>Activities ({stop.stopActivities?.length || 0})</span>
+                    </h4>
+                    {(!stop.stopActivities || stop.stopActivities.length === 0) ? (
+                      <p className="text-sm text-slate-500 italic bg-slate-800/30 rounded-xl p-4 text-center">No scheduled activities for this stop.</p>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {stop.stopActivities.map((link) => (
+                          <div key={link.id} className="p-4 bg-gradient-to-br from-slate-900/60 to-slate-800/40 rounded-2xl border border-slate-800 flex items-center space-x-4 hover:border-brand-500/30 transition-all duration-300 group">
+                            {link.activity?.imageUrl && (
+                              <img src={link.activity.imageUrl} alt={link.activity.name} className="w-14 h-14 rounded-xl object-cover group-hover:scale-110 transition-transform duration-300" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-white truncate">{link.activity?.name}</p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {formatDate(link.scheduledDate)} at {link.scheduledTime || '10:00'} • {formatCurrency(link.customCost ?? link.activity?.estimatedCost)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+
+          {/* Timeline View */}
+          {activeTab === 'timeline' && (
+            <div className="relative pl-8 border-l-2 border-gradient-to-b from-brand-500 to-brand-400 space-y-10 my-8">
+              {trip.stops.map((stop, idx) => (
+                <div key={stop.id} className="relative group">
+                  <div className="absolute -left-[39px] top-2 w-6 h-6 rounded-full bg-gradient-to-br from-brand-500 to-brand-400 ring-4 ring-slate-950 shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform duration-300"></div>
+                  <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4 hover:border-brand-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/10">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-display font-bold text-xl text-white">Stop {idx + 1}: {stop.city?.name}</h3>
+                        <span className="text-xs text-brand-400 font-semibold mt-1 inline-block bg-brand-500/10 rounded-lg px-2 py-1">{formatDateRange(stop.arrivalDate, stop.departureDate)}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      {(stop.stopActivities || []).map((link) => (
+                        <div key={link.id} className="flex items-center space-x-3 text-sm text-slate-300 bg-slate-800/30 rounded-xl p-3 hover:bg-slate-800/50 transition-colors">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                          <span className="font-medium text-white">{link.activity?.name}</span>
+                          <span className="text-slate-500 text-xs ml-auto">({formatDate(link.scheduledDate)} @ {link.scheduledTime || '10:00'})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

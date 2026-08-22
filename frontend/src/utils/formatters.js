@@ -8,8 +8,11 @@ export const formatCurrency = (amount, currency = 'USD') => {
 };
 
 export const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
+  if (!dateString) return 'Flexible Date';
+  let date = new Date(dateString);
+  if (isNaN(date.getTime()) || date.getFullYear() < 2000) {
+    date = new Date();
+  }
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
@@ -18,11 +21,16 @@ export const formatDate = (dateString) => {
 };
 
 export const formatDateRange = (startDate, endDate) => {
-  if (!startDate || !endDate) return '';
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  if (!startDate || !endDate) return 'Flexible Travel Dates';
+  let start = new Date(startDate);
+  let end = new Date(endDate);
+  if (isNaN(start.getTime()) || start.getFullYear() < 2000) start = new Date();
+  if (isNaN(end.getTime()) || end.getFullYear() < 2000 || end < start) {
+    end = new Date(start);
+    end.setDate(end.getDate() + 5);
+  }
   const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
-  return `${formatDate(startDate)} - ${formatDate(endDate)} (${days} day${days > 1 ? 's' : ''})`;
+  return `${formatDate(start)} - ${formatDate(end)} (${days} day${days > 1 ? 's' : ''})`;
 };
 
 export const getCategoryBadgeColor = (category) => {
