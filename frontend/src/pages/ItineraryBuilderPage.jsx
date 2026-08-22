@@ -9,7 +9,7 @@ import { formatDate, formatDateRange, formatCurrency, getCategoryBadgeColor } fr
 import toast from 'react-hot-toast';
 import {
   GripVertical, Plus, Calendar, MapPin, Ticket, Trash2, DollarSign,
-  ArrowRight, Check, X, Search, Clock, AlertCircle, Compass, PieChart, ShieldCheck, Sparkles, CheckCircle2
+  ArrowRight, Check, X, Search, Clock, AlertCircle, Compass, PieChart, ShieldCheck, Sparkles, CheckCircle2, CreditCard
 } from 'lucide-react';
 
 export const ItineraryBuilderPage = () => {
@@ -21,6 +21,17 @@ export const ItineraryBuilderPage = () => {
   const [addStopModalOpen, setAddStopModalOpen] = useState(false);
   const [addActivityModalOpen, setAddActivityModalOpen] = useState(false);
   const [selectedStopForActivity, setSelectedStopForActivity] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentStep, setPaymentStep] = useState('processing');
+
+  const handleInitiatePayment = () => {
+    setShowPaymentModal(true);
+    setPaymentStep('processing');
+    setTimeout(() => {
+      setPaymentStep('success');
+      toast.success('Payment of $499.00 processed successfully!', { icon: '💳' });
+    }, 1300);
+  };
 
   // Add stop form state
   const [citySearch, setCitySearch] = useState('');
@@ -246,14 +257,12 @@ export const ItineraryBuilderPage = () => {
             <span>Add City Stop</span>
           </button>
           <button
-            onClick={() => {
-              toast.success('Trip itinerary saved! Opening trip details...', { icon: '🎉' });
-              navigate(`/trips/${trip.id}`);
-            }}
-            className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 flex items-center space-x-2 transition-all transform hover:scale-105"
-            title="Finish itinerary building and view trip details & boarding passes"
+            onClick={handleInitiatePayment}
+            className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 hover:from-emerald-500 hover:to-teal-300 text-white font-extrabold text-xs rounded-xl shadow-xl shadow-emerald-500/25 flex items-center space-x-2 transition-all transform hover:scale-105"
+            title="Make payment & complete itinerary booking"
           >
-            <span>Next / Finish</span>
+            <CreditCard className="w-4 h-4 text-emerald-100 animate-pulse" />
+            <span>Make Payment & Finish ($499)</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -267,7 +276,7 @@ export const ItineraryBuilderPage = () => {
           </div>
           <h3 className="font-display font-extrabold text-2xl text-white">No City Stops Added Yet</h3>
           <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome), or click finish to view your trip details.
+            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome), or click finish to complete your payment & booking.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
@@ -278,13 +287,11 @@ export const ItineraryBuilderPage = () => {
               <span>Add First Stop</span>
             </button>
             <button
-              onClick={() => {
-                toast.success('Opening trip details...', { icon: '✈️' });
-                navigate(`/trips/${trip.id}`);
-              }}
-              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-extrabold text-sm rounded-xl border border-emerald-500/30 inline-flex items-center space-x-2 transition-transform transform hover:scale-105 shadow-lg"
+              onClick={handleInitiatePayment}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 hover:from-emerald-500 hover:to-teal-300 text-white font-extrabold text-sm rounded-xl border border-emerald-400/40 inline-flex items-center space-x-2 transition-transform transform hover:scale-105 shadow-xl shadow-emerald-500/25"
             >
-              <span>Finish & View Trip Details</span>
+              <CreditCard className="w-4 h-4 text-white animate-pulse" />
+              <span>Make Payment & Finish ($499)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -663,6 +670,61 @@ export const ItineraryBuilderPage = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Success Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+          <div className="glass-card max-w-md w-full rounded-3xl p-8 border border-emerald-500/40 shadow-[0_0_50px_rgba(16,185,129,0.25)] space-y-6 text-center bg-slate-950 relative overflow-hidden">
+            {paymentStep === 'processing' ? (
+              <div className="py-8 space-y-4">
+                <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <h3 className="font-display font-extrabold text-xl text-white">Processing Instant Payment...</h3>
+                <p className="text-xs text-slate-400">Verifying payment details & securing hotel reservations for {trip.name}...</p>
+              </div>
+            ) : (
+              <div className="space-y-6 animate-scale-up">
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-400 text-white rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-emerald-500/40 ring-8 ring-emerald-500/20">
+                  <CheckCircle2 className="w-10 h-10 animate-bounce" />
+                </div>
+
+                <div className="space-y-2">
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    Payment Successful 💳
+                  </span>
+                  <h3 className="font-display font-black text-2xl text-white">Booking Completed!</h3>
+                  <p className="text-xs text-slate-400">
+                    Your payment of <strong className="text-emerald-400">$499.00 USD</strong> has been successfully processed.
+                  </p>
+                </div>
+
+                {/* Receipt Details */}
+                <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 text-left space-y-2 text-xs">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Transaction Ref:</span>
+                    <span className="font-mono font-bold text-white">#TXN-984210</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Trip Itinerary:</span>
+                    <span className="font-bold text-white truncate max-w-[180px]">{trip.name}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Destinations:</span>
+                    <span className="font-bold text-emerald-400">{(trip.stops || []).length} City Stops</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate(`/trips/${trip.id}`)}
+                  className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center justify-center space-x-2 transition-transform transform hover:scale-105"
+                >
+                  <span>View Boarding Passes & Trip Summary</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -71,8 +71,6 @@ export const CreateTripPage = () => {
       return;
     }
 
-    setShowPaymentModal(true);
-    setPaymentStep('processing');
     setLoading(true);
 
     try {
@@ -88,17 +86,11 @@ export const CreateTripPage = () => {
         isPublic,
       });
 
-      setCreatedTripId(res.data.trip.id);
-      
-      // Simulate realistic payment gateway processing
-      setTimeout(() => {
-        setPaymentStep('success');
-        toast.success('Payment of $499 processed successfully!', { icon: '💳' });
-      }, 1200);
-
+      toast.success('Trip details saved! Launching itinerary builder...');
+      navigate(`/trips/${res.data.trip.id}/builder`);
     } catch (err) {
-      setShowPaymentModal(false);
-      setError(err.message || 'Failed to process payment & create trip.');
+      setError(err.message || 'Failed to create trip.');
+    } finally {
       setLoading(false);
     }
   };
@@ -360,87 +352,24 @@ export const CreateTripPage = () => {
           </label>
         </div>
 
-        <div className="pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-2 text-xs text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>256-Bit SSL Encrypted Instant Payment</span>
-          </div>
-
-          <div className="flex items-center space-x-3 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => navigate('/trips')}
-              className="px-5 py-3 text-xs font-semibold text-slate-400 hover:text-white rounded-2xl transition-all hover:bg-slate-800/50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || showPaymentModal}
-              className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 hover:from-emerald-500 hover:to-teal-300 text-white font-extrabold text-xs rounded-2xl shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 flex items-center justify-center space-x-2.5 disabled:opacity-50 transform hover:scale-105 group"
-            >
-              <CreditCard className="w-4 h-4 text-emerald-200 animate-pulse" />
-              <span>{loading ? 'Processing Payment...' : 'Make Payment & Create Trip ($499)'}</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-            </button>
-          </div>
+        <div className="pt-6 border-t border-slate-800/50 flex justify-end space-x-4">
+          <button
+            type="button"
+            onClick={() => navigate('/trips')}
+            className="px-6 py-3 text-sm font-medium text-slate-400 hover:text-white rounded-2xl transition-all hover:bg-slate-800/50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-8 py-3 bg-gradient-to-r from-brand-600 via-brand-500 to-brand-400 hover:from-brand-500 hover:via-brand-400 hover:to-brand-300 text-white font-semibold text-sm rounded-2xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-300 flex items-center space-x-2 disabled:opacity-50 transform hover:scale-105 group"
+          >
+            <span>{loading ? 'Creating Trip...' : 'Continue to Itinerary Builder'}</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </form>
-
-      {/* Payment Success Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
-          <div className="glass-card max-w-md w-full rounded-3xl p-8 border border-emerald-500/40 shadow-[0_0_50px_rgba(16,185,129,0.25)] space-y-6 text-center bg-slate-950 relative overflow-hidden">
-            {paymentStep === 'processing' ? (
-              <div className="py-8 space-y-4">
-                <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <h3 className="font-display font-extrabold text-xl text-white">Processing Instant Payment...</h3>
-                <p className="text-xs text-slate-400">Verifying card details & securing hotel room allocations...</p>
-              </div>
-            ) : (
-              <div className="space-y-6 animate-scale-up">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-400 text-white rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-emerald-500/40 ring-8 ring-emerald-500/20">
-                  <CheckCircle2 className="w-10 h-10 animate-bounce" />
-                </div>
-
-                <div className="space-y-2">
-                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    Payment Successful 💳
-                  </span>
-                  <h3 className="font-display font-black text-2xl text-white">Transaction Approved!</h3>
-                  <p className="text-xs text-slate-400">
-                    Your payment of <strong className="text-emerald-400">$499.00 USD</strong> has been successfully processed.
-                  </p>
-                </div>
-
-                {/* Receipt Details */}
-                <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 text-left space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-400">
-                    <span>Transaction ID:</span>
-                    <span className="font-mono font-bold text-white">#TXN-984210</span>
-                  </div>
-                  <div className="flex justify-between text-slate-400">
-                    <span>Lead Guest:</span>
-                    <span className="font-bold text-white">{ownerName || user?.name}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-400">
-                    <span>Guest Group:</span>
-                    <span className="font-bold text-emerald-400">{maleCount + femaleCount} Guests ({maleCount} Male 👨, {femaleCount} Female 👩)</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => navigate(`/trips/${createdTripId}/builder`)}
-                  className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center justify-center space-x-2 transition-transform transform hover:scale-105"
-                >
-                  <span>Proceed to Itinerary Builder</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
