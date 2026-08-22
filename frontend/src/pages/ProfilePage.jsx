@@ -193,16 +193,19 @@ export const ProfilePage = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 relative overflow-hidden group ${
               activeTab === tab.id
                 ? tab.id === 'danger'
-                  ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-lg'
-                  : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/25'
+                  ? 'bg-gradient-to-r from-rose-600 to-rose-500 text-white shadow-lg shadow-rose-500/30 transform scale-105'
+                  : 'bg-gradient-to-r from-brand-600 via-brand-500 to-brand-400 text-white shadow-lg shadow-brand-500/30 transform scale-105'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
-            <tab.icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:block">{tab.label}</span>
+            {activeTab === tab.id && (
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            )}
+            <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
+            <span className="hidden sm:block relative z-10">{tab.label}</span>
           </button>
         ))}
       </div>
@@ -280,14 +283,22 @@ export const ProfilePage = () => {
                     key={lang.code}
                     type="button"
                     onClick={() => setLanguagePreference(lang.code)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all duration-300 ${
+                    className={`group relative flex flex-col items-center gap-2 p-3 rounded-2xl border text-xs font-semibold transition-all duration-300 overflow-hidden ${
                       languagePreference === lang.code
-                        ? 'bg-brand-500/20 border-brand-500/50 text-brand-300 shadow-lg shadow-brand-500/10 scale-105'
+                        ? 'bg-gradient-to-br from-brand-500/20 to-brand-400/10 border-brand-500/50 text-brand-300 shadow-lg shadow-brand-500/20 scale-105'
                         : 'border-slate-800/50 text-slate-400 hover:border-slate-700 hover:text-slate-200 hover:bg-slate-800/30'
                     }`}
                   >
-                    <span className="text-2xl">{lang.flag}</span>
-                    <span>{lang.label}</span>
+                    {languagePreference === lang.code && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 to-emerald-500/10 animate-pulse"></div>
+                    )}
+                    <span className="text-2xl transform group-hover:scale-110 transition-transform relative z-10">{lang.flag}</span>
+                    <span className="relative z-10">{lang.label}</span>
+                    {languagePreference === lang.code && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-brand-500 rounded-full flex items-center justify-center shadow-lg">
+                        <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -298,14 +309,16 @@ export const ProfilePage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-sm rounded-2xl shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-300 flex items-center gap-2.5 disabled:opacity-50 transform hover:scale-105"
+              className="group relative px-8 py-3.5 bg-gradient-to-r from-brand-600 via-brand-500 to-brand-400 hover:from-brand-500 hover:via-brand-400 hover:to-brand-300 text-white font-bold text-sm rounded-2xl shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 transition-all duration-300 flex items-center gap-2.5 disabled:opacity-50 transform hover:scale-105 hover:-translate-y-0.5 overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
               {loading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10" />
               ) : (
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4 relative z-10 group-hover:rotate-12 transition-transform" />
               )}
-              {loading ? 'Saving...' : 'Save Profile'}
+              <span className="relative z-10">{loading ? 'Saving...' : 'Save Profile'}</span>
             </button>
           </div>
         </form>
@@ -326,18 +339,21 @@ export const ProfilePage = () => {
                 <button
                   key={theme.id}
                   onClick={() => { setSelectedTheme(theme.id); toast.success(`Theme switched to ${theme.label}`); }}
-                  className={`relative p-4 rounded-2xl border-2 transition-all duration-300 space-y-3 ${
+                  className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 space-y-3 overflow-hidden ${
                     selectedTheme === theme.id
-                      ? 'border-brand-500/70 shadow-xl shadow-brand-500/15'
-                      : 'border-slate-800/50 hover:border-slate-700'
+                      ? 'border-brand-500/70 shadow-xl shadow-brand-500/25 transform scale-105'
+                      : 'border-slate-800/50 hover:border-slate-700 hover:scale-102'
                   }`}
                 >
-                  <div className={`h-16 rounded-xl ${theme.preview} border border-white/5`}></div>
-                  <div className={`h-1.5 rounded-full bg-gradient-to-r ${theme.gradient}`}></div>
-                  <p className="text-xs font-bold text-slate-300">{theme.label}</p>
                   {selectedTheme === theme.id && (
-                    <div className="absolute top-2.5 right-2.5 w-5 h-5 bg-brand-500 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 to-emerald-500/10 animate-pulse"></div>
+                  )}
+                  <div className={`h-16 rounded-xl ${theme.preview} border border-white/5 transform group-hover:scale-105 transition-transform`}></div>
+                  <div className={`h-1.5 rounded-full bg-gradient-to-r ${theme.gradient} transform group-hover:scale-x-110 transition-transform origin-left`}></div>
+                  <p className="text-xs font-bold text-slate-300 relative z-10">{theme.label}</p>
+                  {selectedTheme === theme.id && (
+                    <div className="absolute top-2.5 right-2.5 w-6 h-6 bg-gradient-to-r from-brand-500 to-brand-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                     </div>
                   )}
                 </button>
@@ -370,13 +386,18 @@ export const ProfilePage = () => {
                   </div>
                   <button
                     onClick={() => toggleNotification(item.key)}
-                    className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 ${
-                      notifications[item.key] ? 'bg-brand-500 shadow-lg shadow-brand-500/30' : 'bg-slate-700'
+                    className={`relative w-14 h-7 rounded-full transition-all duration-300 shrink-0 overflow-hidden group ${
+                      notifications[item.key] 
+                        ? 'bg-gradient-to-r from-brand-500 to-brand-400 shadow-lg shadow-brand-500/40' 
+                        : 'bg-slate-700'
                     }`}
                   >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300 ${
-                      notifications[item.key] ? 'translate-x-7' : 'translate-x-1'
-                    }`} />
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center ${
+                      notifications[item.key] ? 'translate-x-8' : 'translate-x-1'
+                    }`}>
+                      {notifications[item.key] && <CheckCircle2 className="w-3 h-3 text-brand-500" />}
+                    </div>
+                    <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500`}></div>
                   </button>
                 </div>
               ))}
@@ -473,10 +494,12 @@ export const ProfilePage = () => {
               <button
                 type="submit"
                 disabled={pwLoading}
-                className="px-7 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm rounded-2xl shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-2 disabled:opacity-50 hover:scale-105"
+                className="group relative px-7 py-3 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 hover:from-emerald-500 hover:via-emerald-400 hover:to-emerald-300 text-white font-bold text-sm rounded-2xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all flex items-center gap-2 disabled:opacity-50 transform hover:scale-105 hover:-translate-y-0.5 overflow-hidden"
               >
-                {pwLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Lock className="w-4 h-4" />}
-                {pwLoading ? 'Updating...' : 'Update Password'}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                {pwLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10" /> : <Lock className="w-4 h-4 relative z-10 group-hover:rotate-12 transition-transform" />}
+                <span className="relative z-10">{pwLoading ? 'Updating...' : 'Update Password'}</span>
               </button>
             </div>
           </form>
@@ -504,9 +527,13 @@ export const ProfilePage = () => {
             </div>
             <button
               onClick={() => { logout(); toast.success('Signed out from all sessions.'); }}
-              className="shrink-0 px-5 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition-all"
+              className="group relative shrink-0 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-white font-bold text-xs rounded-xl border border-amber-500/30 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all transform hover:scale-105 overflow-hidden"
             >
-              Sign Out All
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10 flex items-center gap-2">
+                <LogOut className="w-3.5 h-3.5" />
+                Sign Out All
+              </span>
             </button>
           </div>
 
@@ -523,9 +550,13 @@ export const ProfilePage = () => {
             </div>
             <button
               onClick={() => setDeleteModalOpen(true)}
-              className="shrink-0 px-5 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold text-xs rounded-xl border border-rose-500/30 hover:border-rose-500/50 transition-all"
+              className="group relative shrink-0 px-6 py-2.5 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold text-xs rounded-xl border border-rose-500/30 shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 transition-all transform hover:scale-105 overflow-hidden"
             >
-              Delete Account
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10 flex items-center gap-2">
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete Account
+              </span>
             </button>
           </div>
         </div>
