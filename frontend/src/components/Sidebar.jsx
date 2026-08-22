@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   Map, 
@@ -8,25 +8,27 @@ import {
   ShieldCheck, 
   PlusCircle, 
   Globe2,
-  PanelLeftClose,
-  PanelLeftOpen,
-  X,
+  Pin,
+  PinOff,
   Sparkles,
   Flame,
-  ChevronRight,
-  Activity
+  Activity,
+  X
 } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { systemApi } from '../services/systemApi.js';
 
 export const Sidebar = ({ 
-  collapsed = false, 
-  onToggleCollapse, 
   mobileOpen = false, 
   onMobileClose,
   onOpenCreateTrip 
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
+
+  const collapsed = !isHovered && !isPinned;
+
   const { data: healthData } = useQuery({
     queryKey: ['systemHealth'],
     queryFn: async () => {
@@ -85,19 +87,19 @@ export const Sidebar = ({
             )}
           </Link>
 
-          {/* Desktop Toggle Button inside Sidebar */}
+          {/* Pin Lock Toggle Button inside Sidebar */}
           {!isMobile && (
             <button
-              onClick={onToggleCollapse}
-              title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              onClick={() => setIsPinned(!isPinned)}
+              title={isPinned ? 'Unpin Sidebar (Enable Auto Hover)' : 'Pin Sidebar Open'}
               className={`p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all border border-slate-800/50 hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/10 ${
                 isMini ? 'w-10 h-8 flex items-center justify-center mt-1' : 'block'
               } group`}
             >
-              {collapsed ? (
-                <PanelLeftOpen className="w-4.5 h-4.5 text-cyan-400 group-hover:rotate-180 transition-transform duration-300" />
+              {isPinned ? (
+                <Pin className="w-4 h-4 text-brand-400 fill-brand-400" />
               ) : (
-                <PanelLeftClose className="w-4.5 h-4.5 text-slate-400 hover:text-cyan-400 group-hover:-rotate-90 transition-transform duration-300" />
+                <PinOff className="w-4 h-4 text-slate-500 group-hover:text-brand-300 transition-colors" />
               )}
             </button>
           )}
@@ -258,8 +260,10 @@ export const Sidebar = ({
     <>
       {/* Desktop Sidebar: Smooth Collapsible Width */}
       <aside 
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className={`hidden md:flex flex-col h-full bg-gradient-to-b from-slate-950/60 via-slate-950/40 to-slate-950/60 backdrop-blur-xl border-r border-slate-800/60 p-4 transition-all duration-300 ease-in-out shrink-0 select-none z-30 overflow-x-hidden relative ${
-          collapsed ? 'w-20' : 'w-64'
+          collapsed ? 'w-20' : 'w-64 shadow-2xl shadow-brand-500/10'
         }`}
       >
         {/* Sidebar Glow Effect */}
