@@ -28,6 +28,7 @@ export const signup = async ({ name, email, password }) => {
       email: true,
       profilePhotoUrl: true,
       languagePreference: true,
+      role: true,
       createdAt: true,
     },
   });
@@ -60,6 +61,7 @@ export const login = async ({ email, password }) => {
     email: user.email,
     profilePhotoUrl: user.profilePhotoUrl,
     languagePreference: user.languagePreference,
+    role: user.role,
     createdAt: user.createdAt,
   };
 

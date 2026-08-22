@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../context/AuthContext.jsx';
 import { systemApi } from '../services/systemApi.js';
 
 export const Sidebar = ({ 
@@ -24,6 +25,7 @@ export const Sidebar = ({
   onMobileClose,
   onOpenCreateTrip 
 }) => {
+  const { user } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
 
@@ -56,7 +58,7 @@ export const Sidebar = ({
 
   const secondaryNavItems = [
     { name: 'Profile & Settings', icon: Settings, path: '/profile' },
-    { name: 'Platform Admin', icon: ShieldCheck, path: '/admin' },
+    ...(user?.role === 'ADMIN' ? [{ name: 'Platform Admin', icon: ShieldCheck, path: '/admin' }] : []),
   ];
 
   const navContent = (isMobile = false) => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './context/AuthContext.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 
 import { AppLayout } from './layouts/AppLayout.jsx';
@@ -22,6 +22,21 @@ import { ActivitySearchPage } from './pages/ActivitySearchPage.jsx';
 import { PublicTripPage } from './pages/PublicTripPage.jsx';
 import { ProfilePage } from './pages/ProfilePage.jsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
+
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="py-24 text-center text-slate-400">
+        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      </div>
+    );
+  }
+  if (!user || user.role !== 'ADMIN') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,7 +87,14 @@ export function App() {
                 <Route path="/cities" element={<CitySearchPage />} />
                 <Route path="/activities" element={<ActivitySearchPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/admin" element={<AdminDashboardPage />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminDashboardPage />
+                    </AdminRoute>
+                  }
+                />
               </Route>
 
               {/* Default Catch-all */}

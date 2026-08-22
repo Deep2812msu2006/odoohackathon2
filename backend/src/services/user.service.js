@@ -12,6 +12,7 @@ export const updateProfile = async (userId, data) => {
       email: true,
       profilePhotoUrl: true,
       languagePreference: true,
+      role: true,
       updatedAt: true,
     },
   });

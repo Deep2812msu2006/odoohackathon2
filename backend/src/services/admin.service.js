@@ -1,4 +1,5 @@
 import { prisma } from '../config/prisma.js';
+import { AppError } from '../utils/appError.js';
 
 export const getAdminAnalytics = async () => {
   const [
@@ -115,4 +116,43 @@ export const getAdminAnalytics = async () => {
       timestamp: new Date().toISOString(),
     },
   };
+};
+
+export const getAllUsersForAdmin = async () => {
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profilePhotoUrl: true,
+      role: true,
+      createdAt: true,
+      _count: { select: { trips: true } },
+    },
+  });
+  return users;
+};
+
+export const updateUserRole = async (targetUserId, newRole) => {
+  if (!['USER', 'ADMIN'].includes(newRole)) {
+    throw new AppError('Invalid user role specified.', 400, 'INVALID_ROLE');
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: targetUserId } });
+  if (!user) throw new AppError('User not found.', 404, 'NOT_FOUND');
+
+  const updatedUser = await prisma.user.update({
+    where: { id: targetUserId },
+    data: { role: newRole },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      updatedAt: true,
+    },
+  });
+
+  return updatedUser;
 };

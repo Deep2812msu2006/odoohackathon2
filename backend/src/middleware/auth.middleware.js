@@ -31,6 +31,7 @@ export const protect = async (req, res, next) => {
         email: true,
         profilePhotoUrl: true,
         languagePreference: true,
+        role: true,
         createdAt: true,
       },
     });
@@ -44,4 +45,11 @@ export const protect = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+export const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    return next(new AppError('Forbidden: Only Platform Admins can access this admin panel.', 403, 'FORBIDDEN_ADMIN_ONLY'));
+  }
+  next();
 };
