@@ -153,7 +153,7 @@ async function main() {
       region: 'Europe',
       costIndex: 1.2,
       popularityScore: 8.6,
-      imageUrl: 'https://images.unsplash.com/photo-1486016006115-74a41448aea2?w=800&auto=format&fit=crop&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200&auto=format&fit=crop&q=80',
     },
     {
       name: 'Mumbai',
@@ -495,7 +495,7 @@ async function main() {
       description: 'Walk medieval fortifications overlooking the turquoise Adriatic Sea.',
       estimatedCost: 35.0,
       durationHours: 2.5,
-      imageUrl: 'https://images.unsplash.com/photo-1486016006115-74a41448aea2?w=800&auto=format&fit=crop&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200&auto=format&fit=crop&q=80',
     },
 
     // Mumbai

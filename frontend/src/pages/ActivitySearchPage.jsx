@@ -12,13 +12,15 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const FALLBACK_ACTIVITY_IMAGE = 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&auto=format&fit=crop&q=80';
+
 // Category-Based Activity Photo Galleries (4 photos per category)
 const ACTIVITY_CATEGORY_PHOTOS = {
   sightseeing: [
     { title: 'Iconic Landmark Vista', url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Historic Monument Tour', url: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Panoramic Viewpoint', url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Golden Hour Photography', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Dubrovnik Adriatic Coastal View', url: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200&auto=format&fit=crop&q=80' },
   ],
   food: [
     { title: 'Street Food Market Feast', url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&auto=format&fit=crop&q=80' },
@@ -34,7 +36,7 @@ const ACTIVITY_CATEGORY_PHOTOS = {
   ],
   culture: [
     { title: 'Ancient Temple Interior', url: 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Art Museum Gallery Hall', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Art Museum Gallery Hall', url: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Heritage Architecture Walk', url: 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Cultural Festival Ceremony', url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1200&auto=format&fit=crop&q=80' },
   ],
@@ -119,6 +121,10 @@ const ActivityCardImageSlider = ({ activity, onOpenDetail }) => {
             key={i}
             src={slide.url}
             alt={slide.title}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = FALLBACK_ACTIVITY_IMAGE;
+            }}
             className="h-full object-cover flex-shrink-0"
             style={{ width: `${100 / slides.length}%` }}
           />
@@ -185,6 +191,10 @@ const ModalActivitySlider = ({ slides, activity }) => {
         key={currentSlide.url}
         src={currentSlide.url}
         alt={currentSlide.title}
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = FALLBACK_ACTIVITY_IMAGE;
+        }}
         className="w-full h-full object-cover animate-fade-in relative z-10"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent z-10"></div>
