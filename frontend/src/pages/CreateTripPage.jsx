@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tripApi } from '../services/tripApi.js';
 import toast from 'react-hot-toast';
-import { Map, Calendar, Image, FileText, ArrowRight, Share2 } from 'lucide-react';
+import { Map, Calendar, Image, FileText, ArrowRight, Share2, Search, X } from 'lucide-react';
 
 export const CreateTripPage = () => {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ export const CreateTripPage = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [coverPhotoUrl, setCoverPhotoUrl] = useState('');
+  const [coverSearch, setCoverSearch] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -150,12 +151,41 @@ export const CreateTripPage = () => {
         </div>
 
         <div className="space-y-4">
-          <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center space-x-2">
-            <Image className="w-4 h-4 text-brand-400" />
-            <span>Select Cover Photo</span>
-          </label>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <label className="block text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
+              <Image className="w-4 h-4 text-brand-400" />
+              <span>Select Cover Photo</span>
+            </label>
+
+            {/* Country / City Search Filter */}
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400" />
+              <input
+                type="text"
+                value={coverSearch}
+                onChange={(e) => setCoverSearch(e.target.value)}
+                placeholder="Search country or city (e.g., France, Tokyo, Egypt)..."
+                className="w-full pl-9 pr-8 py-2 rounded-xl glass-input text-xs focus:ring-2 focus:ring-brand-500/50 transition-all"
+              />
+              {coverSearch && (
+                <button
+                  type="button"
+                  onClick={() => setCoverSearch('')}
+                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {sampleCovers.map((cover, i) => {
+            {sampleCovers
+              .filter(c =>
+                c.city.toLowerCase().includes(coverSearch.toLowerCase()) ||
+                c.country.toLowerCase().includes(coverSearch.toLowerCase())
+              )
+              .map((cover, i) => {
               const isSelected = coverPhotoUrl === cover.url || (!coverPhotoUrl && i === 0);
               return (
                 <div
