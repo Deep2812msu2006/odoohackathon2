@@ -5,7 +5,7 @@ import { systemApi } from '../services/systemApi.js';
 import { 
   ShieldCheck, Users, Map, Building2, Ticket, Share2, Star, 
   TrendingUp, Database, Activity, Cpu, Layers, AlertCircle, RefreshCw, Globe, ChevronRight, Server, Settings, DollarSign,
-  Terminal, Play, Pause, Trash2, Eye, Table
+  Terminal, Play, Pause, Trash2, Eye
 } from 'lucide-react';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, LineChart, Line, CartesianGrid
@@ -16,7 +16,6 @@ export const AdminDashboardPage = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [chartType, setChartType] = useState('bar'); // bar, area, line
   const [isLogActive, setIsLogActive] = useState(true);
-  const [selectedModel, setSelectedModel] = useState('User');
   const [logs, setLogs] = useState([
     { id: 1, time: '10:48:15', type: 'query', method: 'GET', path: '/api/cities', status: 200, latency: '14ms', sql: 'SELECT * FROM "City" ORDER BY "popularityScore" DESC' },
     { id: 2, time: '10:48:19', type: 'mutation', method: 'POST', path: '/api/trips', status: 201, latency: '23ms', sql: 'INSERT INTO "Trip" ("id", "title", "userId") VALUES (?, ?, ?)' },
@@ -115,38 +114,6 @@ export const AdminDashboardPage = () => {
   const { overview, popularCities, popularActivities } = analyticsData;
   const dbName = healthData?.status === 'healthy' ? healthData.database : 'Database';
   const dbText = healthData?.status === 'healthy' ? `${healthData.database} Active` : 'Database Offline';
-
-  // Database Schema Inspector Data
-  const schemaDefinitions = {
-    User: [
-      { name: 'id', type: 'String (UUID)', key: 'PK', nullable: 'No', desc: 'Unique identifier for the user account' },
-      { name: 'name', type: 'String', key: '-', nullable: 'No', desc: 'Display name' },
-      { name: 'email', type: 'String', key: 'Unique', nullable: 'No', desc: 'Primary contact and login email' },
-      { name: 'role', type: 'String', key: '-', nullable: 'No', desc: 'Access tier (admin/user)' },
-      { name: 'createdAt', type: 'DateTime', key: '-', nullable: 'No', desc: 'Timestamp of registration' }
-    ],
-    Trip: [
-      { name: 'id', type: 'String (UUID)', key: 'PK', nullable: 'No', desc: 'Unique identifier for the trip' },
-      { name: 'userId', type: 'String (UUID)', key: 'FK', nullable: 'No', desc: 'Relation link to user owner' },
-      { name: 'title', type: 'String', key: '-', nullable: 'No', desc: 'Custom trip destination name' },
-      { name: 'startDate', type: 'DateTime', key: '-', nullable: 'Yes', desc: 'Starting date of travel' },
-      { name: 'isPublic', type: 'Boolean', key: '-', nullable: 'No', desc: 'Sharing state to public gallery' }
-    ],
-    City: [
-      { name: 'id', type: 'String (UUID)', key: 'PK', nullable: 'No', desc: 'Destination city identifier' },
-      { name: 'name', type: 'String', key: '-', nullable: 'No', desc: 'City name (e.g. Paris)' },
-      { name: 'country', type: 'String', key: '-', nullable: 'No', desc: 'Country location' },
-      { name: 'costIndex', type: 'Float', key: '-', nullable: 'No', desc: 'Multiplier relative to baseline' },
-      { name: 'popularityScore', type: 'Float', key: '-', nullable: 'No', desc: 'User rating metric (1-10)' }
-    ],
-    Activity: [
-      { name: 'id', type: 'String (UUID)', key: 'PK', nullable: 'No', desc: 'Activity identifier' },
-      { name: 'cityId', type: 'String (UUID)', key: 'FK', nullable: 'No', desc: 'Relation link to host city' },
-      { name: 'name', type: 'String', key: '-', nullable: 'No', desc: 'Name of sightseeing item' },
-      { name: 'category', type: 'String', key: '-', nullable: 'No', desc: 'Sightseeing, Food, Adventure, etc.' },
-      { name: 'estimatedCost', type: 'Float', key: '-', nullable: 'No', desc: 'Base currency cost' }
-    ]
-  };
 
   // Prepare chart data
   const chartData = [
@@ -648,77 +615,6 @@ export const AdminDashboardPage = () => {
             </div>
           </div>
 
-          {/* Advanced Visual Schema Inspector */}
-          <div className="glass-card rounded-3xl p-6 border border-slate-850 space-y-6 animate-fade-in">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900 pb-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
-                  <Table className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-display font-black text-lg text-white">Database Schema Inspector</h3>
-                  <p className="text-xs text-slate-400">ORM models and relational data structure mapping</p>
-                </div>
-              </div>
-
-              {/* Model Selectors */}
-              <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-850 text-[10px] font-bold text-slate-400">
-                {Object.keys(schemaDefinitions).map((modelName) => (
-                  <button
-                    key={modelName}
-                    onClick={() => setSelectedModel(modelName)}
-                    className={`px-3 py-1 rounded-lg uppercase tracking-wider transition-all ${
-                      selectedModel === modelName 
-                        ? 'bg-slate-850 text-white font-extrabold shadow-inner border border-slate-800' 
-                        : 'hover:text-slate-200'
-                    }`}
-                  >
-                    {modelName}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Model Field Table */}
-            <div className="overflow-x-auto rounded-2xl border border-slate-900">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="bg-slate-950 text-slate-400 font-bold border-b border-slate-900 uppercase text-[10px] tracking-wider">
-                    <th className="p-4">Field Name</th>
-                    <th className="p-4">Type</th>
-                    <th className="p-4">Key</th>
-                    <th className="p-4">Nullable</th>
-                    <th className="p-4">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-900/60 bg-slate-950/20">
-                  {schemaDefinitions[selectedModel].map((field) => (
-                    <tr key={field.name} className="hover:bg-slate-900/30 transition-colors">
-                      <td className="p-4 font-mono font-bold text-slate-200">{field.name}</td>
-                      <td className="p-4 text-slate-400">
-                        <span className="px-2 py-0.5 bg-slate-900 border border-slate-800 rounded font-mono text-[10px]">
-                          {field.type}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        {field.key !== '-' ? (
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-black border ${
-                            field.key === 'PK' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                          }`}>
-                            {field.key}
-                          </span>
-                        ) : (
-                          <span className="text-slate-600">-</span>
-                        )}
-                      </td>
-                      <td className="p-4 text-slate-400">{field.nullable}</td>
-                      <td className="p-4 text-slate-500">{field.desc}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
       )}
     </div>
