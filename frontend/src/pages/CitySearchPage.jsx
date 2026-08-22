@@ -110,6 +110,131 @@ const CITY_LANDMARK_SLIDESHOWS = {
 
 const BACKGROUND_TRAVEL_MUSIC = 'https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3';
 
+// Interactive Multi-Photo Image Slider Component for Each City Card
+const CityCardImageSlider = ({ city, handleOpenVideoModal }) => {
+  const slides = CITY_LANDMARK_SLIDESHOWS[city.name] || [
+    { title: city.name, url: city.imageUrl || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80' }
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Auto slide every 2.5 seconds when hovered
+  useEffect(() => {
+    let timer;
+    if (isHovered && slides.length > 1) {
+      timer = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % slides.length);
+      }, 2500);
+    }
+    return () => clearInterval(timer);
+  }, [isHovered, slides.length]);
+
+  const handleNext = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
+  };
+
+  const handlePrev = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  return (
+    <div 
+      className="h-56 relative overflow-hidden cursor-pointer group/slider select-none"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => handleOpenVideoModal(city)}
+    >
+      {/* Sliding Images */}
+      {slides.map((slide, idx) => (
+        <div
+          key={idx}
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+            idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+          }`}
+        >
+          <img
+            src={slide.url}
+            alt={slide.title}
+            className="w-full h-full object-cover transform group-hover/slider:scale-110 transition-transform duration-1000"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent"></div>
+        </div>
+      ))}
+
+      {/* Slide Controls (Prev / Next Buttons) */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={handlePrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-30 p-1.5 rounded-full bg-slate-950/80 hover:bg-brand-600 text-white backdrop-blur-md border border-white/20 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 shadow-2xl hover:scale-110"
+            title="Previous Landmark Photo"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-30 p-1.5 rounded-full bg-slate-950/80 hover:bg-brand-600 text-white backdrop-blur-md border border-white/20 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 shadow-2xl hover:scale-110"
+            title="Next Landmark Photo"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </>
+      )}
+
+      {/* Top Left: Region Pill */}
+      <span className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-slate-950/85 backdrop-blur-md text-brand-300 text-[10px] font-extrabold uppercase rounded-xl border border-brand-500/30 tracking-wider shadow-lg">
+        {city.region}
+      </span>
+
+      {/* Top Right: Popularity Score */}
+      <span className="absolute top-3 right-3 z-20 px-2.5 py-1 bg-slate-950/85 backdrop-blur-md text-amber-400 text-xs font-black rounded-xl border border-amber-500/30 flex items-center space-x-1 shadow-lg">
+        <Star className="w-3.5 h-3.5 fill-amber-400" />
+        <span>{city.popularityScore}</span>
+      </span>
+
+      {/* Bottom Overlay: City Info & Photo Slider Indicator Dots */}
+      <div className="absolute bottom-3 left-4 right-4 z-20 flex flex-col space-y-1.5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-display font-black text-2xl text-white tracking-tight leading-none drop-shadow-md">{city.name}</h3>
+            <p className="text-xs text-slate-300 font-semibold flex items-center space-x-1 mt-1">
+              <MapPin className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+              <span>{city.country}</span>
+            </p>
+          </div>
+
+          <div className="p-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl shadow-lg border border-white/20 opacity-0 group-hover/slider:opacity-100 transition-opacity">
+            <Play className="w-4 h-4 fill-white" />
+          </div>
+        </div>
+
+        {/* Sliding Dot Indicators */}
+        {slides.length > 1 && (
+          <div className="flex items-center justify-center space-x-1.5 pt-1">
+            {slides.map((_, dotIdx) => (
+              <button
+                key={dotIdx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex(dotIdx);
+                }}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  dotIdx === currentIndex 
+                    ? 'w-6 bg-cyan-400 shadow-glow' 
+                    : 'w-1.5 bg-white/40 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const CitySearchPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -362,43 +487,8 @@ export const CitySearchPage = () => {
                 key={city.id}
                 className="glass-card glass-card-hover rounded-3xl overflow-hidden border border-slate-800/90 flex flex-col justify-between group shadow-xl"
               >
-                {/* City Cover Image Container with Video Play Overlay */}
-                <div className="h-52 relative overflow-hidden cursor-pointer" onClick={() => handleOpenVideoModal(city)}>
-                  <img
-                    src={city.imageUrl || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80'}
-                    alt={city.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-
-                  {/* Play Video Trailer Badge Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-slate-950/40 backdrop-blur-xs">
-                    <div className="px-4 py-2 bg-gradient-to-r from-brand-600 via-pink-600 to-purple-600 text-white text-xs font-extrabold rounded-2xl shadow-2xl flex items-center space-x-2 transform group-hover:scale-105 transition-transform border border-white/20">
-                      <Play className="w-4 h-4 fill-white" />
-                      <span>Play {city.name} Photo Slideshow</span>
-                    </div>
-                  </div>
-
-                  {/* Popularity Badge */}
-                  <span className="absolute top-3 right-3 px-2.5 py-1 bg-slate-950/85 backdrop-blur-md text-amber-400 text-xs font-black rounded-xl border border-amber-500/30 flex items-center space-x-1 shadow-lg">
-                    <Star className="w-3.5 h-3.5 fill-amber-400" />
-                    <span>{city.popularityScore}</span>
-                  </span>
-
-                  {/* Region Pill */}
-                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-950/85 backdrop-blur-md text-brand-300 text-[10px] font-bold uppercase rounded-xl border border-brand-500/30 tracking-wider">
-                    {city.region}
-                  </span>
-
-                  {/* City Name & Country Overlay */}
-                  <div className="absolute bottom-3 left-4 right-4">
-                    <h3 className="font-display font-black text-2xl text-white tracking-tight">{city.name}</h3>
-                    <p className="text-xs text-slate-300 font-semibold flex items-center space-x-1 mt-0.5">
-                      <MapPin className="w-3.5 h-3.5 text-brand-400" />
-                      <span>{city.country}</span>
-                    </p>
-                  </div>
-                </div>
+                {/* Interactive Multi-Photo Image Slider Header */}
+                <CityCardImageSlider city={city} handleOpenVideoModal={handleOpenVideoModal} />
 
                 {/* City Info Card Body */}
                 <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
