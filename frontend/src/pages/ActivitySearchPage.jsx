@@ -639,7 +639,7 @@ export const ActivitySearchPage = () => {
             {/* Close Button */}
             <button
               onClick={() => setSelectedActivity(null)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-950/60 text-slate-300 hover:text-white hover:bg-slate-950 border border-slate-800"
+              className="absolute top-4 right-4 z-30 p-2 rounded-full bg-slate-950/80 text-slate-300 hover:text-white hover:bg-slate-950 border border-slate-800 shadow-lg"
             >
               <X className="w-5 h-5" />
             </button>
