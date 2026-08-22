@@ -17,15 +17,15 @@ import { prisma } from './config/prisma.js';
 
 const app = express();
 
-// Middlewares
+// Middlewares with 20MB limit for high-res profile photos and base64 uploads
 app.use(
   cors({
     origin: [env.FRONTEND_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true,
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use(cookieParser());
 
 // Static Uploads Serving

@@ -53,15 +53,43 @@ export const ProfilePage = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image file size must be under 5MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image file size must be under 10MB.');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      setProfilePhotoUrl(event.target.result);
-      toast.success('Local photo loaded! Click "Save Profile" to apply.');
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height = Math.round((height * MAX_SIZE) / width);
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width = Math.round((width * MAX_SIZE) / height);
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Compress image to JPEG 0.85 quality for instant uploads
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        setProfilePhotoUrl(compressedBase64);
+        toast.success('Local photo loaded and optimized! Click "Save Profile" to apply.');
+      };
+      img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
@@ -89,17 +117,10 @@ export const ProfilePage = () => {
   // Apply theme to document
   const applyTheme = (themeId) => {
     const body = document.body;
-    
-    // Remove all theme classes
     body.classList.remove('theme-cosmic', 'theme-ocean', 'theme-ember', 'theme-forest');
-    
-    // Add selected theme class
     body.classList.add(`theme-${themeId}`);
-    
-    // Store preference
     localStorage.setItem('interfaceTheme', themeId);
-    
-    // Apply custom styles for each theme
+
     const themeStyles = {
       cosmic: {
         '--brand-500': '#6366f1',
@@ -127,19 +148,15 @@ export const ProfilePage = () => {
     Object.entries(styles).forEach(([key, value]) => {
       document.documentElement.style.setProperty(key, value);
     });
-    
-    // Force a reflow to ensure styles are applied
     void document.documentElement.offsetHeight;
   };
 
-  // Apply theme on mount
   React.useEffect(() => {
     applyTheme(selectedTheme);
   }, [selectedTheme]);
 
   // Danger Zone
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [logoutAllModalOpen, setLogoutAllModalOpen] = useState(false);
 
   // Mock trip stats
   const stats = [
@@ -205,13 +222,11 @@ export const ProfilePage = () => {
 
       {/* ─── Hero Identity Card ─── */}
       <div className="relative rounded-3xl overflow-hidden border border-slate-800/60 shadow-2xl">
-        {/* Ambient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950/30"></div>
         <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500/8 rounded-full blur-3xl -translate-y-20 translate-x-20"></div>
         <div className="absolute bottom-0 left-0 w-60 h-60 bg-emerald-500/6 rounded-full blur-3xl translate-y-10 -translate-x-10"></div>
 
         <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-8">
-          {/* Avatar + Ring */}
           <div className="relative shrink-0 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             <input
               type="file"
@@ -236,7 +251,6 @@ export const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Identity Info */}
           <div className="flex-1 text-center md:text-left space-y-3">
             <div>
               <h1 className="font-display font-extrabold text-3xl md:text-4xl text-white">
@@ -260,7 +274,6 @@ export const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-1 gap-3 shrink-0">
             {stats.map(stat => (
               <div key={stat.label} className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl ${stat.bg} border border-white/5`}>
@@ -377,7 +390,7 @@ export const ProfilePage = () => {
                       />
                     </div>
                   </div>
-                  <p className="text-[10px] text-slate-500">Supports PNG, JPG, WebP, or GIF files up to 5MB.</p>
+                  <p className="text-[10px] text-slate-500">Supports PNG, JPG, WebP, or GIF files up to 10MB.</p>
                 </div>
               </div>
             </div>
@@ -671,7 +684,7 @@ export const ProfilePage = () => {
                     <span className="text-rose-400 flex items-center gap-1">
                       <AlertTriangle className="w-3.5 h-3.5" /> Passwords do not match
                     </span>
-                  )}
+                  ) }
                 </div>
               )}
             </div>
