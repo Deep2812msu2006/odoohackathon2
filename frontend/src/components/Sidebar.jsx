@@ -137,7 +137,7 @@ export const Sidebar = ({
         </Link>
 
         {/* Primary Navigation */}
-        <nav className="flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden scrollbar-none relative z-10">
+        <nav className={`flex-1 space-y-1.5 scrollbar-none relative z-10 ${isMini ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'}`}>
           {!isMini && (
             <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-3 mb-2 flex items-center gap-2">
               <Activity className="w-3 h-3" /> Navigation Menu
