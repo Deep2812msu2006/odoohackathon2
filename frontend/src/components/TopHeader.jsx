@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { cityApi } from '../services/cityApi.js';
 import { tripApi } from '../services/tripApi.js';
 import { activityApi } from '../services/activityApi.js';
+import { UserAvatar } from './UserAvatar.jsx';
 import { User, LogOut, ShieldCheck, Search, X, MapPin, Map, Ticket, ArrowRight, ArrowLeft, PanelLeftClose, PanelLeftOpen, Menu } from 'lucide-react';
 
 export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
@@ -264,10 +265,10 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
             className="flex items-center space-x-2.5 p-1 rounded-2xl hover:bg-slate-800/40 transition-colors focus:outline-none"
           >
             <div className="relative">
-              <img
-                src={user?.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
-                alt={user?.name}
-                className="w-8 h-8 rounded-xl object-cover ring-2 ring-cyan-500/60"
+              <UserAvatar
+                name={user?.name}
+                photoUrl={user?.profilePhotoUrl}
+                className="w-8 h-8 rounded-xl ring-2 ring-cyan-500/60"
               />
               <span className="w-2 h-2 bg-emerald-500 rounded-full absolute -bottom-0.5 -right-0.5 ring-2 ring-slate-950"></span>
             </div>

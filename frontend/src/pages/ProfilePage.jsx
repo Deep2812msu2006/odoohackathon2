@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { userApi } from '../services/userApi.js';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
+import { UserAvatar } from '../components/UserAvatar.jsx';
 import toast from 'react-hot-toast';
 import {
   User, Mail, Globe, Camera, Trash2, Save, ShieldCheck, Settings,
@@ -236,10 +237,11 @@ export const ProfilePage = () => {
               className="hidden"
             />
             <div className="w-28 h-28 rounded-3xl ring-4 ring-brand-500/30 ring-offset-4 ring-offset-slate-900 overflow-hidden shadow-xl shadow-brand-500/20 relative">
-              <img
-                src={profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
-                alt={name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              <UserAvatar
+                name={name}
+                photoUrl={profilePhotoUrl}
+                className="w-full h-full rounded-3xl group-hover:scale-105 transition-transform duration-300"
+                textClassName="text-3xl"
               />
               <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white backdrop-blur-xs">
                 <Camera className="w-6 h-6 mb-1 text-brand-300" />
