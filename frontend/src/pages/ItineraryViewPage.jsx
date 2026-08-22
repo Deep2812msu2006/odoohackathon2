@@ -211,6 +211,9 @@ export const ItineraryViewPage = () => {
 
   const totalDaysCount = calculateTotalDays(trip.startDate, trip.endDate);
 
+  // Extract all saved activities from all stops in database
+  const allDbActivities = displayStops.flatMap(stop => stop.stopActivities || []);
+
   // Master Day-by-Day Tourist Plan Generator for N Days (Day 1 to Day N)
   const generateDayByDaySchedule = (stopsList, totalDays, startDateStr) => {
     const schedule = [];
@@ -230,6 +233,23 @@ export const ItineraryViewPage = () => {
       const hotelName = `Grand ${cityName} Luxury Resort & Spa`;
       const hotelAddress = `Central Luxury Boulevard, ${cityName}, ${countryName}`;
       const hotelBookingLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotelName + ' ' + cityName)}`;
+
+      const isoDate = currentDate.toISOString().split('T')[0];
+
+      // Match activities saved in database for this specific day date or city stop
+      const dayDbActivities = allDbActivities.filter(actLink => {
+        if (actLink.scheduledDate) {
+          const actIso = new Date(actLink.scheduledDate).toISOString().split('T')[0];
+          if (actIso === isoDate) return true;
+        }
+        // Fallback: if single stop trip and 1 day, match all stop activities
+        if (displayStops.length === 1 && totalDays === 1) return true;
+        return false;
+      });
+
+      const extraActivitiesCost = dayDbActivities.reduce((sum, item) => {
+        return sum + (Number(item.customCost ?? item.activity?.estimatedCost) || 0);
+      }, 0);
 
       // Distinct daily activities
       const morningActivities = [
@@ -259,6 +279,7 @@ export const ItineraryViewPage = () => {
       schedule.push({
         dayNumber: dayNum,
         dateStr: formattedDayDate,
+        isoDate,
         cityName,
         countryName,
         hotelName,
@@ -270,12 +291,15 @@ export const ItineraryViewPage = () => {
         morning: morningActivities[(dayNum - 1) % morningActivities.length],
         afternoon: afternoonActivities[(dayNum - 1) % afternoonActivities.length],
         evening: eveningActivities[(dayNum - 1) % eveningActivities.length],
+        dayDbActivities,
+        extraActivitiesCost,
         dailyBudget: {
           stay: 140,
           food: 65,
           activities: 45,
           transport: 20,
-          total: 270
+          extra: extraActivitiesCost,
+          total: 270 + extraActivitiesCost
         }
       });
     }
@@ -283,7 +307,7 @@ export const ItineraryViewPage = () => {
   };
 
   const dayByDayPlan = generateDayByDaySchedule(displayStops, totalDaysCount, trip.startDate);
-  const totalTripCalculatedBudget = totalDaysCount * 270;
+  const totalTripCalculatedBudget = dayByDayPlan.reduce((sum, d) => sum + d.dailyBudget.total, 0);
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto animate-fade-in print:p-0 print:m-0">
@@ -673,48 +697,123 @@ export const ItineraryViewPage = () => {
                   </div>
                 </div>
 
-                {/* Where Tourist Goes Today: Morning, Afternoon, Evening Schedule */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-black uppercase text-cyan-300 flex items-center space-x-2">
-                    <Navigation className="w-4 h-4 text-cyan-400" />
-                    <span>Where Tourist Goes (Full Day Schedule)</span>
-                  </h4>
+                {/* Where Tourist Goes Today: Morning, Afternoon, Evening Schedule with Activity Photos */}
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-2">
+                    <h4 className="text-xs font-black uppercase text-cyan-300 flex items-center space-x-2">
+                      <Navigation className="w-4 h-4 text-cyan-400" />
+                      <span>Where Tourist Goes (Full Day Schedule & Experience Photos)</span>
+                    </h4>
+
+                    {/* Action Buttons to Browse & Add Activities or Food to Trip with Auto Date & Place pre-fill */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        to={`/activities?tripId=${trip.id}&category=sightseeing&date=${day.isoDate}&time=09:30&place=${encodeURIComponent(day.cityName)}`}
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-brand-600 to-cyan-600 hover:from-brand-500 hover:to-cyan-500 text-white font-extrabold text-[11px] rounded-xl shadow-lg flex items-center space-x-1.5 transition-all transform hover:scale-105"
+                      >
+                        <Ticket className="w-3.5 h-3.5" />
+                        <span>Browse & Add Extra Activity</span>
+                      </Link>
+
+                      <Link
+                        to={`/activities?tripId=${trip.id}&category=food&date=${day.isoDate}&time=12:30&place=${encodeURIComponent(day.cityName)}`}
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-slate-950 font-black text-[11px] rounded-xl shadow-lg flex items-center space-x-1.5 transition-all transform hover:scale-105"
+                      >
+                        <Utensils className="w-3.5 h-3.5" />
+                        <span>Browse & Add Food Experience</span>
+                      </Link>
+                    </div>
+                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    {/* Morning */}
-                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span className="font-extrabold text-amber-400 flex items-center gap-1.5">
-                          <Coffee className="w-4 h-4" /> 🌅 Morning (08:30 AM)
+                    {/* Morning Card with HD Photo */}
+                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3 group hover:border-amber-500/40 transition-all">
+                      <div className="relative h-32 rounded-xl overflow-hidden">
+                        <img 
+                          src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&auto=format&fit=crop&q=80" 
+                          alt="Morning Tour" 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-amber-500/90 text-slate-950 font-black text-[10px] rounded-md">
+                          08:30 AM • SIGHTSEEING
                         </span>
-                        <span className="text-[10px] font-bold text-slate-400">Sightseeing</span>
                       </div>
-                      <p className="text-slate-200 leading-relaxed font-semibold">{day.morning}</p>
+                      <p className="font-extrabold text-white text-xs leading-snug">{day.morning}</p>
+                      <p className="text-[11px] text-amber-400 font-bold">Included Tour Pass: $45.00</p>
                     </div>
 
-                    {/* Afternoon */}
-                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span className="font-extrabold text-emerald-400 flex items-center gap-1.5">
-                          <Utensils className="w-4 h-4" /> ☀️ Afternoon (12:30 PM)
+                    {/* Afternoon Card with HD Photo */}
+                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3 group hover:border-emerald-500/40 transition-all">
+                      <div className="relative h-32 rounded-xl overflow-hidden">
+                        <img 
+                          src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80" 
+                          alt="Afternoon Food Tour" 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-emerald-500/90 text-slate-950 font-black text-[10px] rounded-md">
+                          12:30 PM • LUNCH & DINING
                         </span>
-                        <span className="text-[10px] font-bold text-slate-400">Lunch & Culture</span>
                       </div>
-                      <p className="text-slate-200 leading-relaxed font-semibold">{day.afternoon}</p>
+                      <p className="font-extrabold text-white text-xs leading-snug">{day.afternoon}</p>
+                      <p className="text-[11px] text-emerald-400 font-bold">Food Market Tasting: $65.00</p>
                     </div>
 
-                    {/* Evening */}
-                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span className="font-extrabold text-purple-400 flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4" /> 🌙 Evening (19:30 PM)
+                    {/* Evening Card with HD Photo */}
+                    <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3 group hover:border-purple-500/40 transition-all">
+                      <div className="relative h-32 rounded-xl overflow-hidden">
+                        <img 
+                          src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&auto=format&fit=crop&q=80" 
+                          alt="Evening Gourmet Dinner" 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-purple-500/90 text-white font-black text-[10px] rounded-md">
+                          19:30 PM • GOURMET DINNER
                         </span>
-                        <span className="text-[10px] font-bold text-slate-400">Gourmet Dinner</span>
                       </div>
-                      <p className="text-slate-200 leading-relaxed font-semibold">{day.evening}</p>
+                      <p className="font-extrabold text-white text-xs leading-snug">{day.evening}</p>
+                      <p className="text-[11px] text-purple-400 font-bold">Chef's Table Dining: Included</p>
                     </div>
                   </div>
                 </div>
+
+                {/* Booked Extra Activities & Food Experiences Added from Database */}
+                {day.dayDbActivities && day.dayDbActivities.length > 0 && (
+                  <div className="space-y-3 pt-2">
+                    <h4 className="text-xs font-black uppercase text-emerald-300 flex items-center space-x-2">
+                      <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                      <span>Booked Extra Experiences & Food Tours ({day.dayDbActivities.length})</span>
+                    </h4>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {day.dayDbActivities.map((actLink, actIdx) => {
+                        const actObj = actLink.activity || {};
+                        const costVal = actLink.customCost ?? actObj.estimatedCost;
+                        return (
+                          <div key={actLink.id || actIdx} className="glass-card p-4 rounded-2xl border border-emerald-500/40 bg-emerald-950/20 flex items-center space-x-4 shadow-xl">
+                            <img
+                              src={actObj.imageUrl || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80'}
+                              alt={actObj.name}
+                              className="w-20 h-20 rounded-xl object-cover shrink-0 border border-emerald-500/30"
+                            />
+                            <div className="space-y-1 flex-1 min-w-0">
+                              <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-md text-[9px] font-black uppercase">
+                                {actObj.category || 'FOOD'} • {actLink.scheduledTime || '12:30'}
+                              </span>
+                              <p className="font-extrabold text-white text-sm truncate">{actObj.name}</p>
+                              <p className="text-[11px] text-slate-300 font-medium line-clamp-1">{actObj.description || 'Added to your itinerary schedule.'}</p>
+                              <p className="text-xs font-black text-emerald-400 pt-0.5">
+                                Extra Ticket Value: +{formatCurrency(costVal)}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Day N Expense Breakdown Bar */}
                 <div className="p-4 bg-slate-950/90 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -724,6 +823,11 @@ export const ItineraryViewPage = () => {
                     <span className="text-slate-400">Food: <strong className="text-white">{formatCurrency(day.dailyBudget.food)}</strong></span>
                     <span className="text-slate-400">Activities: <strong className="text-white">{formatCurrency(day.dailyBudget.activities)}</strong></span>
                     <span className="text-slate-400">Transport: <strong className="text-white">{formatCurrency(day.dailyBudget.transport)}</strong></span>
+                    {day.dailyBudget.extra > 0 && (
+                      <span className="text-emerald-300 font-extrabold bg-emerald-500/20 px-2.5 py-1 rounded-xl border border-emerald-500/40 shadow-sm">
+                        Booked Extra: +{formatCurrency(day.dailyBudget.extra)}
+                      </span>
+                    )}
                     <span className="text-emerald-400 font-black text-sm bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/20">
                       Day Total: {formatCurrency(day.dailyBudget.total)}
                     </span>
