@@ -16,10 +16,18 @@ export const CreateTripPage = () => {
   const [error, setError] = useState('');
 
   const sampleCovers = [
-    'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop&q=80',
+    { city: 'Paris', country: 'France', flag: '🇫🇷', url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Tokyo', country: 'Japan', flag: '🇯🇵', url: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Rome', country: 'Italy', flag: '🇮🇹', url: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80' },
+    { city: 'New York', country: 'United States', flag: '🇺🇸', url: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop&q=80' },
+    { city: 'London', country: 'United Kingdom', flag: '🇬🇧', url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Dubai', country: 'United Arab Emirates', flag: '🇦🇪', url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Sydney', country: 'Australia', flag: '🇦🇺', url: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Venice', country: 'Italy', flag: '🇮🇹', url: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Cairo', country: 'Egypt', flag: '🇪🇬', url: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Rio de Janeiro', country: 'Brazil', flag: '🇧🇷', url: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Barcelona', country: 'Spain', flag: '🇪🇸', url: 'https://images.unsplash.com/photo-1583422409516-2895a771df60?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80' },
   ];
 
   const handleSubmit = async (e) => {
@@ -38,7 +46,7 @@ export const CreateTripPage = () => {
         description,
         startDate,
         endDate,
-        coverPhotoUrl: coverPhotoUrl || sampleCovers[0],
+        coverPhotoUrl: coverPhotoUrl || sampleCovers[0].url,
         isPublic,
       });
 
@@ -146,20 +154,38 @@ export const CreateTripPage = () => {
             <Image className="w-4 h-4 text-brand-400" />
             <span>Select Cover Photo</span>
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {sampleCovers.map((url, i) => (
-              <div
-                key={i}
-                onClick={() => setCoverPhotoUrl(url)}
-                className={`h-24 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all duration-300 transform hover:scale-105 ${
-                  coverPhotoUrl === url || (!coverPhotoUrl && i === 0)
-                    ? 'border-brand-500 ring-4 ring-brand-500/30 shadow-lg shadow-brand-500/20'
-                    : 'border-transparent opacity-70 hover:opacity-100 hover:border-slate-600'
-                }`}
-              >
-                <img src={url} alt={`Cover ${i}`} className="w-full h-full object-cover" />
-              </div>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {sampleCovers.map((cover, i) => {
+              const isSelected = coverPhotoUrl === cover.url || (!coverPhotoUrl && i === 0);
+              return (
+                <div
+                  key={i}
+                  onClick={() => setCoverPhotoUrl(cover.url)}
+                  className={`group relative h-28 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all duration-300 transform hover:scale-105 shadow-md ${
+                    isSelected
+                      ? 'border-cyan-400 ring-4 ring-cyan-500/30 shadow-xl shadow-cyan-500/20 scale-[1.02]'
+                      : 'border-slate-800/80 opacity-80 hover:opacity-100 hover:border-slate-600'
+                  }`}
+                >
+                  <img src={cover.url} alt={`${cover.city}, ${cover.country}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  
+                  {/* Selected Indicator Checkmark */}
+                  {isSelected && (
+                    <div className="absolute top-2.5 right-2.5 z-20 w-5 h-5 bg-gradient-to-r from-brand-500 to-cyan-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                      <span className="text-white text-[10px] font-black">✓</span>
+                    </div>
+                  )}
+
+                  {/* Hover Country & City Name Badge Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2.5 z-10">
+                    <p className="text-white text-xs font-black flex items-center space-x-1.5 drop-shadow-md">
+                      <span className="text-sm">{cover.flag}</span>
+                      <span className="truncate">{cover.city}, {cover.country}</span>
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <div className="relative group">
             <Image className="w-5 h-5 absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-400 transition-colors" />
