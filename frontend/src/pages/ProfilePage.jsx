@@ -511,48 +511,113 @@ export const ProfilePage = () => {
               <h3 className="font-display font-bold text-lg text-white">Change Password</h3>
             </div>
 
-            {[
-              { label: 'Current Password', value: currentPassword, setter: setCurrentPassword, show: showCurrentPw, toggle: () => setShowCurrentPw(v => !v) },
-              { label: 'New Password', value: newPassword, setter: setNewPassword, show: showNewPw, toggle: () => setShowNewPw(v => !v) },
-              { label: 'Confirm New Password', value: confirmPassword, setter: setConfirmPassword, show: showNewPw, toggle: () => setShowNewPw(v => !v) },
-            ].map(field => (
-              <div key={field.label} className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">{field.label}</label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-4 top-4 text-slate-500" />
-                  <input
-                    type={field.show ? 'text' : 'password'}
-                    value={field.value}
-                    onChange={(e) => field.setter(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="w-full pl-11 pr-12 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
-                  />
-                  <button type="button" onClick={field.toggle} className="absolute right-4 top-4 text-slate-500 hover:text-slate-300 transition-colors">
-                    {field.show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+            {/* 1. Current Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Password</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 absolute left-4 top-4 text-slate-500" />
+                <input
+                  type={showCurrentPw ? 'text' : 'password'}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full pl-11 pr-12 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
+                />
+                <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-4 top-4 text-slate-500 hover:text-slate-300 transition-colors">
+                  {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
-            ))}
+            </div>
 
-            {/* Password Strength indicator */}
-            {newPassword.length > 0 && (
-              <div className="space-y-1.5">
-                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password Strength</div>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${
-                      newPassword.length >= i * 3
-                        ? i <= 1 ? 'bg-red-500' : i <= 2 ? 'bg-amber-500' : i <= 3 ? 'bg-emerald-500' : 'bg-emerald-400'
-                        : 'bg-slate-800'
-                    }`} />
-                  ))}
-                </div>
-                <p className="text-[10px] text-slate-500">
-                  {newPassword.length < 3 ? '🔴 Too short' : newPassword.length < 6 ? '🟡 Weak' : newPassword.length < 9 ? '🟢 Good' : '✅ Strong'}
-                </p>
+            {/* 2. New Password (FIRST PASSWORD FIELD) with attached Strength Meter */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">New Password</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 absolute left-4 top-4 text-slate-500" />
+                <input
+                  type={showNewPw ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password..."
+                  required
+                  className="w-full pl-11 pr-12 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
+                />
+                <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-4 top-4 text-slate-500 hover:text-slate-300 transition-colors">
+                  {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
-            )}
+
+              {/* Password Strength Indicator - attached directly under New Password */}
+              {newPassword.length > 0 && (
+                <div className="bg-slate-950/50 rounded-2xl p-3 border border-slate-800/80 space-y-2 animate-fade-in">
+                  <div className="flex items-center justify-between text-[11px] font-semibold">
+                    <span className="text-slate-400">Password Strength:</span>
+                    <span className="text-white font-bold flex items-center gap-1">
+                      {newPassword.length < 5 ? '🔴 Weak' : newPassword.length < 8 ? '🟡 Moderate' : newPassword.length < 11 ? '🟢 Strong' : '✨ Excellent'}
+                    </span>
+                  </div>
+                  
+                  {/* Progress bar */}
+                  <div className="flex gap-1.5 h-1.5">
+                    <div className={`flex-1 rounded-full transition-all duration-300 ${newPassword.length >= 1 ? (newPassword.length < 5 ? 'bg-rose-500' : 'bg-emerald-500') : 'bg-slate-800'}`} />
+                    <div className={`flex-1 rounded-full transition-all duration-300 ${newPassword.length >= 5 ? (newPassword.length < 8 ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-slate-800'}`} />
+                    <div className={`flex-1 rounded-full transition-all duration-300 ${newPassword.length >= 8 ? 'bg-emerald-500' : 'bg-slate-800'}`} />
+                    <div className={`flex-1 rounded-full transition-all duration-300 ${newPassword.length >= 11 ? 'bg-cyan-400' : 'bg-slate-800'}`} />
+                  </div>
+
+                  {/* Requirements checklist */}
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px] text-slate-400 pt-1">
+                    <span className={`flex items-center gap-1 ${newPassword.length >= 8 ? 'text-emerald-400 font-semibold' : ''}`}>
+                      {newPassword.length >= 8 ? '✓' : '○'} 8+ characters
+                    </span>
+                    <span className={`flex items-center gap-1 ${/[0-9]/.test(newPassword) ? 'text-emerald-400 font-semibold' : ''}`}>
+                      {/[0-9]/.test(newPassword) ? '✓' : '○'} Has number
+                    </span>
+                    <span className={`flex items-center gap-1 ${/[A-Z]/.test(newPassword) ? 'text-emerald-400 font-semibold' : ''}`}>
+                      {/[A-Z]/.test(newPassword) ? '✓' : '○'} Has uppercase
+                    </span>
+                    <span className={`flex items-center gap-1 ${/[^A-Za-z0-9]/.test(newPassword) ? 'text-emerald-400 font-semibold' : ''}`}>
+                      {/[^A-Za-z0-9]/.test(newPassword) ? '✓' : '○'} Has symbol
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Confirm New Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Confirm New Password</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 absolute left-4 top-4 text-slate-500" />
+                <input
+                  type={showNewPw ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password..."
+                  required
+                  className="w-full pl-11 pr-12 py-3.5 rounded-2xl glass-input text-sm focus:ring-2 focus:ring-brand-500/50 transition-all"
+                />
+                <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-4 top-4 text-slate-500 hover:text-slate-300 transition-colors">
+                  {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* Password Match Status */}
+              {confirmPassword.length > 0 && (
+                <div className="text-[11px] font-semibold flex items-center gap-1.5 pt-0.5">
+                  {confirmPassword === newPassword ? (
+                    <span className="text-emerald-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Passwords match
+                    </span>
+                  ) : (
+                    <span className="text-rose-400 flex items-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5" /> Passwords do not match
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
 
             <div className="flex justify-end pt-2">
               <button
