@@ -247,11 +247,11 @@ export const ItineraryBuilderPage = () => {
           </button>
           <button
             onClick={() => {
-              toast.success('Trip itinerary saved! Redirecting to My Trips...', { icon: '🎉' });
-              navigate('/trips');
+              toast.success('Trip itinerary saved! Opening trip details...', { icon: '🎉' });
+              navigate(`/trips/${trip.id}`);
             }}
             className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 flex items-center space-x-2 transition-all transform hover:scale-105"
-            title="Finish itinerary building and view all trips"
+            title="Finish itinerary building and view trip details & boarding passes"
           >
             <span>Next / Finish</span>
             <ArrowRight className="w-4 h-4" />
@@ -267,7 +267,7 @@ export const ItineraryBuilderPage = () => {
           </div>
           <h3 className="font-display font-extrabold text-2xl text-white">No City Stops Added Yet</h3>
           <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
-            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome), or click finish to view your trip summary.
+            Build your multi-city journey by adding your first destination stop (e.g. Paris, Tokyo, Rome), or click finish to view your trip details.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
@@ -279,12 +279,12 @@ export const ItineraryBuilderPage = () => {
             </button>
             <button
               onClick={() => {
-                toast.success('Redirecting to My Trips...', { icon: '✈️' });
-                navigate('/trips');
+                toast.success('Opening trip details...', { icon: '✈️' });
+                navigate(`/trips/${trip.id}`);
               }}
               className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-extrabold text-sm rounded-xl border border-emerald-500/30 inline-flex items-center space-x-2 transition-transform transform hover:scale-105 shadow-lg"
             >
-              <span>Finish & Go to My Trips</span>
+              <span>Finish & View Trip Details</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
