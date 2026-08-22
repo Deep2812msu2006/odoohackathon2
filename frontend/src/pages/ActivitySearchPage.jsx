@@ -1,13 +1,252 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { activityApi } from '../services/activityApi.js';
 import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import { 
   Search, Ticket, Clock, MapPin, DollarSign, Filter, Star, Sparkles, 
-  Heart, Compass, CheckCircle2, X, Calendar, Flame, ChevronRight, Eye 
+  Heart, Compass, CheckCircle2, X, Calendar, Flame, ChevronRight, ChevronLeft, Eye,
+  Play, Pause, Image as ImageIcon, Volume2, VolumeX
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+// Category-Based Activity Photo Galleries (4 photos per category)
+const ACTIVITY_CATEGORY_PHOTOS = {
+  sightseeing: [
+    { title: 'Iconic Landmark Vista', url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Historic Monument Tour', url: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Panoramic Viewpoint', url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Golden Hour Photography', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  food: [
+    { title: 'Street Food Market Feast', url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Chef\'s Tasting Experience', url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Local Cuisine Platter', url: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Artisan Bakery Selection', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  adventure: [
+    { title: 'Mountain Summit Trail', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Kayaking Crystal Waters', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Aerial Adventure View', url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Wilderness Exploration', url: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  culture: [
+    { title: 'Ancient Temple Interior', url: 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Art Museum Gallery Hall', url: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Heritage Architecture Walk', url: 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Cultural Festival Ceremony', url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  nightlife: [
+    { title: 'Neon City Lights District', url: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Rooftop Bar Skyline View', url: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Live Music Performance', url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Evening Cruise Atmosphere', url: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  relaxation: [
+    { title: 'Coastal Beach Serenity', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Garden Zen Pathway', url: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Thermal Spa Retreat', url: 'https://images.unsplash.com/photo-1529963183134-61a90db47eaf?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Sunset Horizon View', url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  shopping: [
+    { title: 'Grand Bazaar Market Lane', url: 'https://images.unsplash.com/photo-1527838832700-5059252407fa?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Artisan Craft Workshop', url: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Designer Boutique Street', url: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Local Souvenir Selection', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  other: [
+    { title: 'Unique Local Experience', url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Hidden Gem Discovery', url: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Off-the-Beaten-Path Tour', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Memorable Photo Moment', url: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200&auto=format&fit=crop&q=80' },
+  ],
+};
+
+// Helper: get slideshow photos for an activity (uses its own image + category photos)
+const getActivitySlides = (activity) => {
+  const catPhotos = ACTIVITY_CATEGORY_PHOTOS[activity.category] || ACTIVITY_CATEGORY_PHOTOS['other'];
+  const mainUrl = activity.imageUrl || catPhotos[0].url;
+  // Build a slides array: activity's own image first, then category photos (deduped)
+  const slides = [{ title: activity.name, url: mainUrl }];
+  for (const p of catPhotos) {
+    if (p.url !== mainUrl && slides.length < 4) {
+      slides.push(p);
+    }
+  }
+  return slides;
+};
+
+// Interactive Multi-Photo Image Slider Component for Each Activity Card
+const ActivityCardImageSlider = ({ activity, onOpenDetail }) => {
+  const slides = getActivitySlides(activity);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (isHovered && slides.length > 1) {
+      timer = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % slides.length);
+      }, 2500);
+    }
+    return () => clearInterval(timer);
+  }, [isHovered, slides.length]);
+
+  const handleNext = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
+  };
+
+  const handlePrev = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  return (
+    <div 
+      className="absolute inset-0 overflow-hidden cursor-pointer group/slider select-none"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onOpenDetail(activity)}
+    >
+      {/* Sliding Images */}
+      <div
+        className="flex h-full transition-transform duration-500 ease-in-out"
+        style={{ width: `${slides.length * 100}%`, transform: `translateX(-${currentIndex * (100 / slides.length)}%)` }}
+      >
+        {slides.map((slide, i) => (
+          <img
+            key={i}
+            src={slide.url}
+            alt={slide.title}
+            className="h-full object-cover flex-shrink-0"
+            style={{ width: `${100 / slides.length}%` }}
+          />
+        ))}
+      </div>
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 to-transparent opacity-0 group-hover/slider:opacity-100 transition-opacity duration-500"></div>
+
+      {/* Prev / Next Arrows */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={handlePrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-slate-950/70 hover:bg-slate-900 text-white rounded-xl border border-slate-800 backdrop-blur-md transition-all opacity-0 group-hover/slider:opacity-100 z-10"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-slate-950/70 hover:bg-slate-900 text-white rounded-xl border border-slate-800 backdrop-blur-md transition-all opacity-0 group-hover/slider:opacity-100 z-10"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </>
+      )}
+
+      {/* Dot Indicators */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 z-10">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
+              className={`h-1.5 rounded-full transition-all ${idx === currentIndex ? 'w-5 bg-brand-400' : 'w-1.5 bg-slate-600 hover:bg-slate-400'}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Modal Photo Slideshow Component for Activity Detail Modal
+const ModalActivitySlider = ({ slides, activity }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!isPlaying || slides.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [isPlaying, slides.length]);
+
+  const currentSlide = slides[currentIndex % slides.length];
+
+  return (
+    <div className="h-72 relative overflow-hidden group">
+      {/* Blurred Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-30 scale-110 pointer-events-none transition-all duration-700"
+        style={{ backgroundImage: `url(${currentSlide.url})` }}
+      />
+
+      {/* Main Image */}
+      <img
+        key={currentSlide.url}
+        src={currentSlide.url}
+        alt={currentSlide.title}
+        className="w-full h-full object-cover animate-fade-in relative z-10"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent z-10"></div>
+
+      {/* Caption & Counter */}
+      <div className="absolute bottom-12 left-6 right-6 z-20">
+        <span className="px-2.5 py-1 bg-brand-500/20 text-brand-300 text-[10px] uppercase font-bold rounded-lg border border-brand-500/30 backdrop-blur-md">
+          {activity.category}
+        </span>
+        <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white mt-2 drop-shadow-md">
+          {activity.name}
+        </h2>
+        <p className="text-[10px] uppercase font-bold text-pink-400 tracking-wider mt-1">
+          Image {currentIndex + 1} of {slides.length}
+        </p>
+      </div>
+
+      {/* Play/Pause */}
+      <button
+        onClick={() => setIsPlaying(!isPlaying)}
+        className="absolute top-4 right-14 p-2 bg-slate-950/70 hover:bg-slate-900 text-white rounded-xl border border-slate-800 backdrop-blur-md transition-all z-20"
+      >
+        {isPlaying ? <Pause className="w-4 h-4 text-amber-400" /> : <Play className="w-4 h-4 text-emerald-400" />}
+      </button>
+
+      {/* Arrows */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={() => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-slate-950/60 hover:bg-slate-900 text-white rounded-xl border border-slate-800 backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 z-20"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setCurrentIndex((prev) => (prev + 1) % slides.length)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-slate-950/60 hover:bg-slate-900 text-white rounded-xl border border-slate-800 backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 z-20"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </>
+      )}
+
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 z-20">
+        {slides.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentIndex(idx)}
+            className={`h-1.5 rounded-full transition-all ${idx === currentIndex ? 'w-6 bg-pink-500' : 'w-1.5 bg-slate-600 hover:bg-slate-400'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const ActivitySearchPage = () => {
   const [search, setSearch] = useState('');
@@ -313,38 +552,32 @@ export const ActivitySearchPage = () => {
                 key={act.id} 
                 className="glass-card rounded-3xl overflow-hidden border border-slate-800/50 flex flex-col justify-between group hover:border-brand-500/40 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-500/10 transform hover:-translate-y-1.5"
               >
-                {/* Visual Cover */}
+                {/* Interactive Multi-Photo Slider with Overlays */}
                 <div className="h-60 relative overflow-hidden">
-                  <img
-                    src={act.imageUrl || 'https://images.unsplash.com/photo-1543349689-9a4d426bee8e?w=800&auto=format&fit=crop&q=80'}
-                    alt={act.name}
-                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <ActivityCardImageSlider activity={act} onOpenDetail={(a) => { setSelectedActivity(a); setBookingDate(''); }} />
                   
                   {/* Category Pill Tag */}
-                  <span className={`absolute top-4 left-4 px-3 py-1.5 text-[10px] uppercase font-bold rounded-xl border border-white/10 backdrop-blur-xl bg-gradient-to-r ${catGradient}`}>
+                  <span className={`absolute top-4 left-4 px-3 py-1.5 text-[10px] uppercase font-bold rounded-xl border border-white/10 backdrop-blur-xl bg-gradient-to-r ${catGradient} z-20 pointer-events-none`}>
                     {act.category}
                   </span>
                   
                   {/* Heart / Wishlist Trigger */}
                   <button
-                    onClick={() => toggleWishlist(act)}
-                    className="absolute top-4 right-4 p-2 bg-slate-950/60 hover:bg-slate-950/90 text-white rounded-xl backdrop-blur-sm border border-slate-800/50 transition duration-300"
+                    onClick={(e) => { e.stopPropagation(); toggleWishlist(act); }}
+                    className="absolute top-4 right-4 p-2 bg-slate-950/60 hover:bg-slate-950/90 text-white rounded-xl backdrop-blur-sm border border-slate-800/50 transition duration-300 z-20"
                   >
                     <Heart className={`w-4 h-4 transition-colors ${isWishlisted ? 'fill-rose-500 text-rose-500' : 'text-slate-300'}`} />
                   </button>
                   
                   {/* Star Rating Overlay */}
-                  <div className="absolute bottom-4 left-4 flex items-center space-x-1.5 bg-slate-950/60 backdrop-blur-md rounded-lg px-2.5 py-1 border border-slate-850">
+                  <div className="absolute bottom-4 left-4 flex items-center space-x-1.5 bg-slate-950/60 backdrop-blur-md rounded-lg px-2.5 py-1 border border-slate-850 z-20 pointer-events-none">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     <span className="text-[11px] font-bold text-white">{rating}</span>
                     <span className="text-[9px] text-slate-400">({reviews} reviews)</span>
                   </div>
 
                   {/* Difficulty Tag */}
-                  <div className={`absolute bottom-4 right-4 px-2.5 py-1 text-[10px] font-bold rounded-lg border ${diff.color} backdrop-blur-md`}>
+                  <div className={`absolute bottom-4 right-4 px-2.5 py-1 text-[10px] font-bold rounded-lg border ${diff.color} backdrop-blur-md z-20 pointer-events-none`}>
                     {diff.label}
                   </div>
                 </div>
@@ -411,24 +644,11 @@ export const ActivitySearchPage = () => {
               <X className="w-5 h-5" />
             </button>
 
-            {/* Cover Photo */}
-            <div className="h-64 relative">
-              <img
-                src={selectedActivity.imageUrl || 'https://images.unsplash.com/photo-1543349689-9a4d426bee8e?w=800&auto=format&fit=crop&q=80'}
-                alt={selectedActivity.name}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent"></div>
-              
-              <div className="absolute bottom-4 left-6 right-6">
-                <span className="px-2.5 py-1 bg-brand-500/20 text-brand-300 text-[10px] uppercase font-bold rounded-lg border border-brand-500/30 backdrop-blur-md">
-                  {selectedActivity.category}
-                </span>
-                <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white mt-2 drop-shadow-md">
-                  {selectedActivity.name}
-                </h2>
-              </div>
-            </div>
+            {/* Modal Cover Photo Slideshow */}
+            {(() => {
+              const slides = getActivitySlides(selectedActivity);
+              return <ModalActivitySlider slides={slides} activity={selectedActivity} />;
+            })()}
 
             {/* Modal Body Info */}
             <div className="p-6 md:p-8 space-y-6">
