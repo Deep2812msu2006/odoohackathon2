@@ -10,6 +10,9 @@ export const getAdminAnalytics = async () => {
     totalActivities,
     popularCitiesRaw,
     popularActivitiesRaw,
+    recentTripsRaw,
+    activitiesGroupedByCategory,
+    citiesGroupedByRegion,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.trip.count(),
@@ -27,6 +30,28 @@ export const getAdminAnalytics = async () => {
       _count: { activityId: true },
       orderBy: { _count: { activityId: 'desc' } },
       take: 5,
+    }),
+    prisma.trip.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        name: true,
+        startDate: true,
+        endDate: true,
+        isPublic: true,
+        createdAt: true,
+        user: { select: { name: true, email: true, profilePhotoUrl: true } },
+        _count: { select: { stops: true } },
+      },
+    }),
+    prisma.activity.groupBy({
+      by: ['category'],
+      _count: { category: true },
+    }),
+    prisma.city.groupBy({
+      by: ['region'],
+      _count: { region: true },
     }),
   ]);
 
@@ -48,16 +73,46 @@ export const getAdminAnalytics = async () => {
     };
   });
 
+  // Calculate Category Percentage Distribution
+  const categoryBreakdown = activitiesGroupedByCategory.map((c) => ({
+    category: c.category,
+    count: c._count.category,
+    percentage: totalActivities > 0 ? Math.round((c._count.category / totalActivities) * 100) : 0,
+  }));
+
+  // Calculate Region Distribution
+  const regionBreakdown = citiesGroupedByRegion.map((r) => ({
+    region: r.region,
+    cityCount: r._count.region,
+  }));
+
   return {
     overview: {
       totalUsers,
       totalTrips,
       publicTrips,
+      privateTrips: totalTrips - publicTrips,
       totalShares,
       totalCities,
       totalActivities,
     },
+    categoryBreakdown,
+    regionBreakdown,
     popularCities: popularCitiesRaw,
     popularActivities,
+    recentTrips: recentTripsRaw.map((t) => ({
+      id: t.id,
+      name: t.name,
+      creator: t.user.name,
+      creatorEmail: t.user.email,
+      stopsCount: t._count.stops,
+      isPublic: t.isPublic,
+      createdAt: t.createdAt,
+    })),
+    systemHealth: {
+      uptimeSeconds: process.uptime(),
+      memoryUsageMB: Math.round(process.memoryUsage().rss / 1024 / 1024),
+      timestamp: new Date().toISOString(),
+    },
   };
 };
