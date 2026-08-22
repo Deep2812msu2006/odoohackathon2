@@ -102,21 +102,8 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
 
   return (
     <div className="w-full flex items-center justify-between">
-      {/* Left Action Area: Sidebar Toggles & Search */}
+      {/* Left Action Area: Mobile Drawer Toggle & Search */}
       <div className="flex items-center space-x-3">
-        {/* Desktop Sidebar Toggle Button */}
-        <button
-          onClick={onToggleSidebar}
-          title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all border border-slate-800/50 hidden md:flex items-center justify-center hover:border-slate-700"
-        >
-          {collapsed ? (
-            <PanelLeftOpen className="w-5 h-5 text-brand-400 animate-pulse" />
-          ) : (
-            <PanelLeftClose className="w-5 h-5 text-slate-400 hover:text-brand-400 transition-colors" />
-          )}
-        </button>
-
         {/* Mobile Drawer Toggle Button */}
         <button
           onClick={onToggleSidebar}

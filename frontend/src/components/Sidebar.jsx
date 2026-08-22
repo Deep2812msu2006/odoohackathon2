@@ -59,7 +59,7 @@ export const Sidebar = ({
     return (
       <div className="flex flex-col h-full overflow-x-hidden">
         {/* Brand Header */}
-        <div className={`flex items-center ${isMini ? 'justify-center px-0' : 'px-3'} py-4 mb-3`}>
+        <div className={`flex items-center ${isMini ? 'flex-col gap-2 py-3 px-0' : 'justify-between px-3 py-4'} mb-3 border-b border-slate-800/40 pb-3`}>
           <Link to="/dashboard" className="flex items-center gap-3 overflow-hidden group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-purple-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0 transform group-hover:scale-105 transition-transform duration-300">
               <Globe2 className="w-5.5 h-5.5 text-white animate-pulse" />
@@ -73,6 +73,23 @@ export const Sidebar = ({
               </div>
             )}
           </Link>
+
+          {/* Desktop Toggle Button inside Sidebar */}
+          {!isMobile && (
+            <button
+              onClick={onToggleCollapse}
+              title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              className={`p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all border border-slate-800/50 hover:border-slate-700 ${
+                isMini ? 'w-10 h-8 flex items-center justify-center mt-1' : 'block'
+              }`}
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="w-4.5 h-4.5 text-cyan-400" />
+              ) : (
+                <PanelLeftClose className="w-4.5 h-4.5 text-slate-400 hover:text-cyan-400 transition-colors" />
+              )}
+            </button>
+          )}
 
           {/* Mobile Close Button */}
           {isMobile && (
