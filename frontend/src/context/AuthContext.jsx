@@ -10,13 +10,19 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
         const res = await authApi.getMe();
-        if (res.success && res.data.user) {
+        if (res && res.success && res.data.user) {
           setUser(res.data.user);
         }
       } catch (err) {
         setUser(null);
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
