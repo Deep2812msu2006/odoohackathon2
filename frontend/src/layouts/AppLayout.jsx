@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Navbar } from '../components/Navbar.jsx';
 import { Sidebar } from '../components/Sidebar.jsx';
+import { TopHeader } from '../components/TopHeader.jsx';
 
 export const AppLayout = () => {
   const { user, loading } = useAuth();
@@ -23,12 +23,22 @@ export const AppLayout = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-      <Navbar />
-      <div className="flex flex-1 max-w-7xl w-full mx-auto">
-        <Sidebar />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          <Outlet />
+    <div className="flex h-screen w-screen overflow-hidden bg-[#070b14] text-slate-100">
+      {/* 1. Left Sidebar: Flush to the far-left edge */}
+      <Sidebar />
+
+      {/* 2. Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        {/* Top Navbar */}
+        <header className="h-16 shrink-0 border-b border-slate-800/80 bg-[#0B1120]/50 backdrop-blur-md px-6 flex items-center justify-between z-20">
+          <TopHeader />
+        </header>
+
+        {/* Dynamic Scrollable Page Body */}
+        <main className="flex-1 overflow-y-auto px-8 py-6">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

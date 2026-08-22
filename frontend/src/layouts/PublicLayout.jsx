@@ -10,7 +10,7 @@ export const PublicLayout = () => {
         <Outlet />
       </main>
       <footer className="glass-card border-t border-slate-800 py-6 text-center text-xs text-slate-400">
-        <p>© 2026 GlobeTrotter Travel Planning Platform. Production PostgreSQL + Express + React Architecture.</p>
+        <p>© 2026 GlobeTrotter Travel Planning Platform. Production Full-Stack React Architecture.</p>
       </footer>
     </div>
   );

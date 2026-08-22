@@ -13,6 +13,7 @@ import cityRoutes from './routes/city.routes.js';
 import activityRoutes from './routes/activity.routes.js';
 import publicRoutes from './routes/public.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import { prisma } from './config/prisma.js';
 
 const app = express();
 
@@ -32,8 +33,37 @@ const uploadDir = path.join(process.cwd(), env.UPLOAD_DIR);
 app.use('/uploads', express.static(uploadDir));
 
 // Health Check
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    if (process.env.MOCK_DATABASE === 'true') {
+      return res.status(200).json({
+        status: 'healthy',
+        database: 'Mock DB',
+        timestamp: new Date().toISOString(),
+      });
+    }
+    await prisma.$queryRaw`SELECT 1`;
+    const isSqlite = env.DATABASE_URL?.startsWith('file:') || env.DATABASE_URL?.startsWith('sqlite:');
+    res.status(200).json({
+      status: 'healthy',
+      database: isSqlite ? 'SQLite' : 'PostgreSQL',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    if (process.env.MOCK_DATABASE === 'true') {
+      return res.status(200).json({
+        status: 'healthy',
+        database: 'Mock DB',
+        timestamp: new Date().toISOString(),
+      });
+    }
+    res.status(200).json({
+      status: 'unhealthy',
+      database: 'Unknown',
+      error: error.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // API Routes

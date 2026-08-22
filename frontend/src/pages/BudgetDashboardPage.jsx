@@ -60,7 +60,7 @@ export const BudgetDashboardPage = () => {
             <span>Back to Itinerary Builder</span>
           </Link>
           <h1 className="font-display font-black text-3xl text-white tracking-tight">Dynamic Budget Analytics</h1>
-          <p className="text-xs text-slate-400 mt-0.5">Real-time cost engine computed directly from PostgreSQL trip stops & activities</p>
+          <p className="text-xs text-slate-400 mt-0.5">Real-time cost engine computed directly from database trip stops & activities</p>
         </div>
 
         {/* Daily Target Budget Setter */}

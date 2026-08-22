@@ -74,7 +74,7 @@ export const CitySearchPage = () => {
         <div className="relative z-10 space-y-4">
           <div className="inline-flex items-center space-x-2 px-3 py-1 bg-gradient-to-r from-brand-500/20 to-purple-500/20 text-brand-300 border border-brand-500/30 rounded-full text-xs font-bold shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>PostgreSQL Global Destination Database</span>
+            <span>Global Destination Database</span>
           </div>
 
           <h1 className="font-display font-black text-3xl sm:text-5xl text-white tracking-tight leading-tight">

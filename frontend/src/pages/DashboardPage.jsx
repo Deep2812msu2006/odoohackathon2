@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { tripApi } from '../services/tripApi.js';
 import { cityApi } from '../services/cityApi.js';
+import { systemApi } from '../services/systemApi.js';
 import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { EmptyState } from '../components/EmptyState.jsx';
 import { formatDateRange, formatCurrency } from '../utils/formatters.js';
@@ -11,6 +12,24 @@ import { Compass, Map, Building2, Globe, Plus, ArrowRight, Share2, Sparkles, Cal
 
 export const DashboardPage = () => {
   const { user } = useAuth();
+
+  const { data: healthData } = useQuery({
+    queryKey: ['systemHealth'],
+    queryFn: async () => {
+      try {
+        const res = await systemApi.getHealth();
+        return res;
+      } catch (err) {
+        return { status: 'unhealthy', database: 'Offline' };
+      }
+    },
+    refetchInterval: 30000,
+  });
+
+  const dbName = healthData?.status === 'healthy' ? healthData.database : 'Database';
+  const dbText = healthData?.status === 'healthy' ? `${healthData.database} Live` : 'Database Offline';
+  const statusColorClass = healthData?.status === 'healthy' ? 'text-emerald-400' : 'text-rose-400';
+  const pingColorClass = healthData?.status === 'healthy' ? 'bg-emerald-500' : 'bg-rose-500';
 
   const { data: tripsData, isLoading: tripsLoading } = useQuery({
     queryKey: ['trips'],
@@ -111,9 +130,9 @@ export const DashboardPage = () => {
         <div className="glass-card glass-card-hover rounded-2xl p-5 border border-slate-800 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Database Status</p>
-            <p className="font-display text-sm font-bold text-emerald-400 flex items-center space-x-1.5 mt-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span>PostgreSQL Active</span>
+            <p className={`font-display text-sm font-bold ${statusColorClass} flex items-center space-x-1.5 mt-2`}>
+              <span className={`w-2.5 h-2.5 rounded-full ${pingColorClass} animate-ping`}></span>
+              <span>{dbText}</span>
             </p>
           </div>
           <div className="p-3 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20 shadow-glow">
@@ -211,7 +230,7 @@ export const DashboardPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-display font-extrabold text-2xl text-white tracking-tight">Top Destination Cities</h2>
-            <p className="text-xs text-slate-400">Curated from local PostgreSQL database records</p>
+            <p className="text-xs text-slate-400">Curated from local {dbName} database records</p>
           </div>
           <Link to="/cities" className="text-xs font-bold text-brand-400 hover:text-brand-300">
             Explore All Cities →

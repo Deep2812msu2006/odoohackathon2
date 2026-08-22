@@ -16,7 +16,7 @@ export const AdminDashboardPage = () => {
     return (
       <div className="py-12 text-center text-slate-400 space-y-2">
         <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p>Executing PostgreSQL aggregate queries...</p>
+        <p>Executing database aggregate queries...</p>
       </div>
     );
   }
@@ -35,7 +35,7 @@ export const AdminDashboardPage = () => {
         </div>
         <div>
           <h1 className="font-display font-bold text-2xl text-white">Platform Administration Analytics</h1>
-          <p className="text-sm text-slate-400">Real database aggregate metrics calculated directly in PostgreSQL</p>
+          <p className="text-sm text-slate-400">Real database aggregate metrics calculated directly in the database</p>
         </div>
       </div>
 
