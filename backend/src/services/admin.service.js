@@ -143,10 +143,13 @@ export const getAdminAnalytics = async () => {
     return {
       id: t.id,
       name: t.name,
+      userName: t.user?.name || 'Globetrotter Traveler',
+      userEmail: t.user?.email || 'traveler@globetrotter.com',
       startDate: t.startDate,
       endDate: t.endDate,
       createdAt: t.createdAt,
       stopsCount: t.stops.length,
+      stopsSummary: t.stops.map(s => `${s.city?.name || 'City'} (${s.city?.country || 'Country'})`).join(' ➔ ') || 'All-Inclusive Destination Package',
       activitiesCost: Math.round(activitiesCost),
       accommodationCost: Math.round(accommodationCost),
       transportCost: Math.round(transportCost),

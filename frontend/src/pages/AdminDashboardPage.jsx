@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router-dom';
 import { adminApi } from '../services/adminApi.js';
 import { systemApi } from '../services/systemApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -8,7 +9,7 @@ import toast from 'react-hot-toast';
 import { 
   ShieldCheck, Users, Map, Building2, Ticket, Share2, Star, 
   TrendingUp, Database, Activity, Layers, AlertCircle, RefreshCw, Globe, ChevronRight, Settings, DollarSign,
-  UserCheck, Search, PieChart, Landmark, ArrowUpRight, BarChart3, Calendar
+  UserCheck, Search, PieChart, Landmark, ArrowUpRight, BarChart3, Calendar, Eye, X, ExternalLink, Hotel, Utensils, Plane
 } from 'lucide-react';
 import {
   BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, LineChart, Line, CartesianGrid, Legend, ComposedChart
@@ -17,10 +18,12 @@ import {
 export const AdminDashboardPage = () => {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [tripSearchTerm, setTripSearchTerm] = useState('');
+  const [selectedTripForModal, setSelectedTripForModal] = useState(null);
 
   const { data: analyticsData, isLoading, error, refetch: refetchAnalytics } = useQuery({
     queryKey: ['adminAnalytics'],
@@ -376,16 +379,35 @@ export const AdminDashboardPage = () => {
                     </tr>
                   ) : (
                     filteredTripBudgets.map((t) => (
-                      <tr key={t.id} className="hover:bg-slate-900/60 transition-colors">
-                        <td className="py-3.5 px-4 font-extrabold text-white">{t.name}</td>
-                        <td className="py-3.5 px-4 font-semibold">{t.stopsCount} stops</td>
-                        <td className="py-3.5 px-4 font-medium">{formatCurrency(t.activitiesCost)}</td>
-                        <td className="py-3.5 px-4 font-medium">{formatCurrency(t.accommodationCost + t.transportCost + t.mealsCost)}</td>
+                      <tr 
+                        key={t.id} 
+                        onClick={() => setSelectedTripForModal(t)}
+                        className="hover:bg-slate-900/90 transition-all cursor-pointer group border-b border-slate-800/80"
+                      >
+                        <td className="py-3.5 px-4 font-black text-white group-hover:text-brand-400 flex items-center space-x-2 transition-colors">
+                          <span>{t.name}</span>
+                          <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-brand-400 transition-opacity" />
+                        </td>
+                        <td className="py-3.5 px-4 font-semibold text-slate-300">{t.stopsCount} stops</td>
+                        <td className="py-3.5 px-4 font-medium text-slate-300">{formatCurrency(t.activitiesCost)}</td>
+                        <td className="py-3.5 px-4 font-medium text-slate-300">{formatCurrency(t.accommodationCost + t.transportCost + t.mealsCost)}</td>
                         <td className="py-3.5 px-4 font-black text-brand-400">{formatCurrency(t.totalBudget)}</td>
                         <td className="py-3.5 px-4 text-right font-black text-emerald-400">
-                          <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400">
-                            +{formatCurrency(t.platformProfit)}
-                          </span>
+                          <div className="flex items-center justify-end space-x-2">
+                            <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400">
+                              +{formatCurrency(t.platformProfit)}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedTripForModal(t);
+                              }}
+                              className="px-2.5 py-1 bg-brand-500/10 hover:bg-brand-500/20 text-brand-300 border border-brand-500/30 rounded-lg text-[11px] font-bold flex items-center space-x-1 transition-all"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>Inspect</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -543,6 +565,113 @@ export const AdminDashboardPage = () => {
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Trip Master Inspection Modal */}
+      {selectedTripForModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in print:hidden">
+          <div className="glass-card border border-brand-500/40 rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl bg-slate-900/95 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4 gap-4">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase rounded-full border border-emerald-500/30">
+                    CONFIRMED TRIP BOOKING
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">ID: {selectedTripForModal.id}</span>
+                </div>
+                <h2 className="font-display font-black text-2xl sm:text-3xl text-white">{selectedTripForModal.name}</h2>
+                <p className="text-xs text-slate-300 flex flex-wrap items-center gap-2">
+                  <span>Booked Traveler: <strong className="text-brand-300 font-extrabold">{selectedTripForModal.userName}</strong> ({selectedTripForModal.userEmail})</span>
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedTripForModal(null)}
+                className="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl transition-all shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Destinations Route Summary */}
+            <div className="glass-card p-4 rounded-2xl border border-slate-800 bg-slate-950/80 space-y-1.5">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination Route & Stops</p>
+              <p className="font-extrabold text-sm text-cyan-300">{selectedTripForModal.stopsSummary || 'All-Inclusive Destination Package'}</p>
+            </div>
+
+            {/* Itemized Financial & Budget Grid */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-black uppercase text-slate-300 flex items-center space-x-2">
+                <DollarSign className="w-4 h-4 text-emerald-400" />
+                <span>Financial & Itemized Cost Breakdown</span>
+              </h3>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Accommodation</span>
+                  <span className="font-extrabold text-purple-400 text-base">{formatCurrency(selectedTripForModal.accommodationCost)}</span>
+                </div>
+
+                <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Dining & Food</span>
+                  <span className="font-extrabold text-amber-400 text-base">{formatCurrency(selectedTripForModal.mealsCost)}</span>
+                </div>
+
+                <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Activity Tickets</span>
+                  <span className="font-extrabold text-cyan-400 text-base">{formatCurrency(selectedTripForModal.activitiesCost)}</span>
+                </div>
+
+                <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Transport Pass</span>
+                  <span className="font-extrabold text-blue-400 text-base">{formatCurrency(selectedTripForModal.transportCost)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Total Volume & Profit Banner */}
+            <div className="p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950/40 rounded-2xl border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+              <div className="space-y-0.5">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gross Calculated Trip Budget</p>
+                <p className="font-display font-black text-3xl text-cyan-400">{formatCurrency(selectedTripForModal.totalBudget)}</p>
+              </div>
+
+              <div className="p-3.5 bg-emerald-500/10 rounded-xl border border-emerald-500/30 text-right space-y-0.5">
+                <p className="text-[10px] text-emerald-400 font-extrabold uppercase">Platform Net Profit (15%)</p>
+                <p className="font-display font-black text-2xl text-emerald-400">+{formatCurrency(selectedTripForModal.platformProfit)}</p>
+              </div>
+            </div>
+
+            {/* Action Links */}
+            <div className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-slate-800">
+              <Link
+                to={`/trips/${selectedTripForModal.id}`}
+                target="_blank"
+                className="px-5 py-3 bg-gradient-to-r from-brand-600 via-purple-600 to-cyan-500 hover:from-brand-500 hover:to-cyan-400 text-white font-extrabold text-xs rounded-xl shadow-lg flex items-center space-x-2 transition-all transform hover:scale-105"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Open Full Itinerary Page</span>
+              </Link>
+
+              <Link
+                to={`/trips/${selectedTripForModal.id}/budget`}
+                target="_blank"
+                className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-brand-300 font-bold text-xs rounded-xl border border-slate-700 flex items-center space-x-2 transition-all"
+              >
+                <PieChart className="w-4 h-4" />
+                <span>View Budget Dashboard</span>
+              </Link>
+
+              <button
+                onClick={() => setSelectedTripForModal(null)}
+                className="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold text-xs rounded-xl border border-slate-800"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
