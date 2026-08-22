@@ -3,6 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Sidebar } from '../components/Sidebar.jsx';
 import { TopHeader } from '../components/TopHeader.jsx';
+import { TravelWorldBackground } from '../components/TravelWorldBackground.jsx';
 
 export const AppLayout = () => {
   const { user, loading } = useAuth();
@@ -24,6 +25,9 @@ export const AppLayout = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-transparent text-slate-100 relative">
+      {/* City Travel Background Photo & Multi-City Traveling Dots */}
+      <TravelWorldBackground />
+
       {/* 1. Left Sidebar */}
       <Sidebar />
 

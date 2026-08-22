@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Compass } from 'lucide-react';
+import { TravelWorldBackground } from '../components/TravelWorldBackground.jsx';
 
 export const AuthLayout = () => {
   const { user, loading } = useAuth();
@@ -11,7 +12,10 @@ export const AuthLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-transparent flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* City Travel Background Photo & Multi-City Traveling Dots */}
+      <TravelWorldBackground />
+
       {/* Dynamic Background Blobs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
