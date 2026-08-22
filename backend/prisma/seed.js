@@ -137,7 +137,7 @@ async function main() {
       region: 'Africa',
       costIndex: 0.7,
       popularityScore: 8.7,
-      imageUrl: 'https://images.unsplash.com/photo-1572252821143-02f064e43e26?w=800&auto=format&fit=crop&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800&auto=format&fit=crop&q=80',
     },
     {
       name: 'Amsterdam',
@@ -153,7 +153,7 @@ async function main() {
       region: 'Europe',
       costIndex: 1.2,
       popularityScore: 8.6,
-      imageUrl: 'https://images.unsplash.com/photo-1555990538-1505c8702b85?w=800&auto=format&fit=crop&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1486016006115-74a41448aea2?w=800&auto=format&fit=crop&q=80',
     },
     {
       name: 'Mumbai',
@@ -190,7 +190,7 @@ async function main() {
       description: 'Ascend to the top of Paris’ iconic monument for panoramic city views.',
       estimatedCost: 35.0,
       durationHours: 3.0,
-      imageUrl: 'https://images.unsplash.com/photo-1543349689-9a4d426bee8e?w=800&auto=format&fit=crop&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80',
     },
     {
       cityName: 'Paris',
@@ -473,7 +473,7 @@ async function main() {
       description: 'Uncover ancient wonders with an Egyptologist guide.',
       estimatedCost: 30.0,
       durationHours: 4.0,
-      imageUrl: 'https://images.unsplash.com/photo-1572252821143-02f064e43e26?w=800&auto=format&fit=crop&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=800&auto=format&fit=crop&q=80',
     },
 
     // Amsterdam
@@ -495,7 +495,7 @@ async function main() {
       description: 'Walk medieval fortifications overlooking the turquoise Adriatic Sea.',
       estimatedCost: 35.0,
       durationHours: 2.5,
-      imageUrl: 'https://images.unsplash.com/photo-1555990538-1505c8702b85?w=800&auto=format&fit=crop&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1486016006115-74a41448aea2?w=800&auto=format&fit=crop&q=80',
     },
 
     // Mumbai
