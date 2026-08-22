@@ -34,65 +34,17 @@ const CITY_LANDMARK_SLIDESHOWS = {
     { title: 'Pantheon & Historic Piazza', url: 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=1200&auto=format&fit=crop&q=80' },
     { title: 'St. Peter Basilica Vatican View', url: 'https://images.unsplash.com/photo-1543429776-2782fc8e1acd?w=1200&auto=format&fit=crop&q=80' },
   ],
-  London: [
-    { title: 'Big Ben & Elizabeth Tower', url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Tower Bridge over Thames River', url: 'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'London Eye Evening Reflections', url: 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Piccadilly Circus Red Buses', url: 'https://images.unsplash.com/photo-1526129318478-62ed807ebdf9?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Dubai: [
-    { title: 'Burj Khalifa World Tallest Tower', url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Dubai Marina Luxury Night Skyline', url: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Palm Jumeirah Island Aerial View', url: 'https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Arabian Desert Safari Golden Dunes', url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Sydney: [
-    { title: 'Sydney Opera House Sunset View', url: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Sydney Harbour Bridge Aerial View', url: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Bondi Beach Coastal Waters', url: 'https://images.unsplash.com/photo-1549180030-48bf079fb38a?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Darling Harbour Evening Lights', url: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Venice: [
-    { title: 'Grand Canal Gondolas & Rialto', url: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'St. Mark Square Basilica Campanile', url: 'https://images.unsplash.com/photo-1520175480921-4edfa2983e0f?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Burano Island Colorful Houses', url: 'https://images.unsplash.com/photo-1534113414509-0eec2bfb493f?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Venetian Sunset Canal Reflections', url: 'https://images.unsplash.com/photo-1498307833015-e7b400441eb8?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Cairo: [
-    { title: 'Pyramids of Giza & Great Sphinx', url: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Nile River Sunset Sail Boat', url: 'https://images.unsplash.com/photo-1572252821143-035a4f3ec183?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Khan el-Khalili Historic Bazaar', url: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Mosque of Muhammad Ali Citadel', url: 'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Rio: [
-    { title: 'Christ the Redeemer Corcovado Statue', url: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Sugarloaf Mountain Aerial Bay View', url: 'https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Copacabana Beach Turquoise Ocean', url: 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Escadaria Selarón Mosaic Steps', url: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?w=1200&auto=format&fit=crop&q=80' },
+  Kyoto: [
+    { title: 'Fushimi Inari Shrine Torii Pathway', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Kinkaku-ji Golden Pavilion Over Pond', url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Arashiyama Bamboo Grove Walkway', url: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Yasaka Pagoda & Higashiyama Streets', url: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1200&auto=format&fit=crop&q=80' },
   ],
   Barcelona: [
-    { title: 'Sagrada Família Gaudi Masterpiece', url: 'https://images.unsplash.com/photo-1583422409516-2895a771df60?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Sagrada Família Gaudi Masterpiece', url: 'https://images.unsplash.com/photo-1511527661048-7fe73d85e9a4?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Park Güell Mosaic Serpent Terrace', url: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Casa Batlló Vibrant Architecture', url: 'https://images.unsplash.com/photo-1564221710304-0b37c8b9d729?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Barceloneta Beach Mediterranean Sun', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Amsterdam: [
-    { title: 'Historic Canal Houses & Bicycles', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Rijksmuseum Bridge & Canal View', url: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Jordaan District Evening Lights', url: 'https://images.unsplash.com/photo-1468436139062-f60a71c5c892?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Spring Tulip Fields Horizon', url: 'https://images.unsplash.com/photo-1588714477688-cf28a50e94f7?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Bangkok: [
-    { title: 'Grand Palace Golden Stupas', url: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Wat Arun Temple of Dawn River View', url: 'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Damnoen Saduak Floating Market', url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Chao Phraya River Night Skyline', url: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1200&auto=format&fit=crop&q=80' },
-  ],
-  Istanbul: [
-    { title: 'Hagia Sophia Grand Dome Sunset', url: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Blue Mosque Sultanahmet Minarets', url: 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Grand Bazaar Colorful Lanterns', url: 'https://images.unsplash.com/photo-1527838832700-5059252407fa?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Bosphorus Strait Ferry Cruise', url: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=1200&auto=format&fit=crop&q=80' },
   ],
   'Cape Town': [
     { title: 'Table Mountain & Camp Bay Coast', url: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=1200&auto=format&fit=crop&q=80' },
@@ -100,11 +52,59 @@ const CITY_LANDMARK_SLIDESHOWS = {
     { title: 'Boulders Beach African Penguins', url: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1200&auto=format&fit=crop&q=80' },
     { title: 'Cape of Good Hope Atlantic View', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&auto=format&fit=crop&q=80' },
   ],
-  Singapore: [
-    { title: 'Marina Bay Sands & Supertrees', url: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Gardens by the Bay Avatar Lights', url: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Jewel Changi Airport Rain Vortex', url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Merlion Park Waterfront Skyline', url: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200&auto=format&fit=crop&q=80' },
+  Sydney: [
+    { title: 'Sydney Opera House Sunset View', url: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Sydney Harbour Bridge Aerial View', url: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Bondi Beach Coastal Waters', url: 'https://images.unsplash.com/photo-1549180030-48bf079fb38a?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Darling Harbour Evening Lights', url: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  London: [
+    { title: 'Big Ben & Elizabeth Tower', url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Tower Bridge over Thames River', url: 'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'London Eye Evening Reflections', url: 'https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Piccadilly Circus Red Buses', url: 'https://images.unsplash.com/photo-1526129318478-62ed807ebdf9?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  Bangkok: [
+    { title: 'Grand Palace Golden Stupas', url: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Wat Arun Temple of Dawn River View', url: 'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Damnoen Saduak Floating Market', url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Chao Phraya River Night Skyline', url: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  'Rio de Janeiro': [
+    { title: 'Christ the Redeemer Corcovado Statue', url: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Sugarloaf Mountain Aerial Bay View', url: 'https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Copacabana Beach Turquoise Ocean', url: 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Escadaria Selarón Mosaic Steps', url: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  Cairo: [
+    { title: 'Pyramids of Giza & Great Sphinx', url: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Nile River Sunset Sail Boat', url: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Khan el-Khalili Historic Bazaar', url: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Mosque of Muhammad Ali Citadel', url: 'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  Amsterdam: [
+    { title: 'Historic Canal Houses & Bicycles', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Rijksmuseum Bridge & Canal View', url: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Jordaan District Evening Lights', url: 'https://images.unsplash.com/photo-1468436139062-f60a71c5c892?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Spring Tulip Fields Horizon', url: 'https://images.unsplash.com/photo-1588714477688-cf28a50e94f7?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  Dubrovnik: [
+    { title: 'Old Town Walls Coastal Fortifications', url: 'https://images.unsplash.com/photo-1547127796-06bb04e4b315?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Lovrijenac Fort & Adriatic Sea Coast', url: 'https://images.unsplash.com/photo-1486016006115-74a41448aea2?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Stradun Main Street Sunset Promenade', url: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Banje Beach Coastal Panorama View', url: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  Mumbai: [
+    { title: 'Gateway of India Waterfront Arch', url: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Marine Drive Queen’s Necklace Curve', url: 'https://images.unsplash.com/photo-1562979314-bee7453e911c?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Taj Mahal Palace Iconic Hotel', url: 'https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Chhatrapati Shivaji Terminus Station', url: 'https://images.unsplash.com/photo-1567168539593-59673ababaae?w=1200&auto=format&fit=crop&q=80' },
+  ],
+  Reykjavik: [
+    { title: 'Hallgrímskirkja Cathedral Expression', url: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Harpa Concert Hall Glass Architecture', url: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Blue Lagoon Geothermal Therapeutic Spa', url: 'https://images.unsplash.com/photo-1529963183134-61a90db47eaf?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Northern Lights Aurora Over Cityscape', url: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=1200&auto=format&fit=crop&q=80' },
   ],
 };
 
@@ -311,6 +311,27 @@ export const CitySearchPage = () => {
 
     return () => clearInterval(timer);
   }, [videoModalCity, isPlaying]);
+
+  // Keyboard navigation for full-screen slideshow modal
+  useEffect(() => {
+    if (!videoModalCity) return;
+    const slides = CITY_LANDMARK_SLIDESHOWS[videoModalCity.name] || [
+      { title: videoModalCity.name, url: videoModalCity.imageUrl }
+    ];
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') {
+        setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
+      } else if (e.key === 'ArrowLeft') {
+        setCurrentSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
+      } else if (e.key === 'Escape') {
+        setVideoModalCity(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [videoModalCity]);
 
   const handleOpenVideoModal = (city) => {
     setVideoModalCity(city);
@@ -537,7 +558,7 @@ export const CitySearchPage = () => {
 
       {/* Cinematic Landmark Photo Slideshow Fullscreen Modal with Ambient Soundtrack */}
       {videoModalCity && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-xl animate-fade-in">
+        <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/98 backdrop-blur-2xl animate-fade-in w-screen h-screen">
           <audio
             ref={audioRef}
             src={BACKGROUND_TRAVEL_MUSIC}
@@ -546,9 +567,9 @@ export const CitySearchPage = () => {
             muted={isAudioMuted}
           />
 
-          <div className="glass-card rounded-3xl max-w-4xl w-full border border-pink-500/40 shadow-2xl overflow-hidden flex flex-col space-y-0 relative">
+          <div className="flex-1 w-full h-full flex flex-col space-y-0 relative overflow-hidden">
             {/* Header Controls */}
-            <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between z-10">
+            <div className="p-4 bg-slate-950/90 border-b border-slate-900 flex items-center justify-between z-10 backdrop-blur-md">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-pink-500/10 text-pink-400 border border-pink-500/20 rounded-xl">
                   <ImageIcon className="w-5 h-5" />
@@ -569,7 +590,7 @@ export const CitySearchPage = () => {
                     setVideoModalCity(null);
                     setSelectedCityModal(target);
                   }}
-                  className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-brand-300 font-bold text-xs rounded-xl border border-slate-700 transition-colors"
+                  className="px-3.5 py-2 bg-slate-850 hover:bg-slate-800 text-brand-300 font-bold text-xs rounded-xl border border-slate-800 transition-colors"
                 >
                   View Activities
                 </button>
@@ -582,8 +603,8 @@ export const CitySearchPage = () => {
               </div>
             </div>
 
-            {/* Cinematic Landmark Photo Slideshow Container with Ken Burns Pan/Zoom */}
-            <div className="relative w-full aspect-video bg-slate-950 overflow-hidden flex items-center justify-center group">
+            {/* Immersive Center Slider Area */}
+            <div className="relative flex-1 w-full bg-slate-950 overflow-hidden flex items-center justify-center group">
               {(() => {
                 const slides = CITY_LANDMARK_SLIDESHOWS[videoModalCity.name] || [
                   { title: videoModalCity.name, url: videoModalCity.imageUrl }
@@ -591,22 +612,28 @@ export const CitySearchPage = () => {
                 const currentSlide = slides[currentSlideIndex % slides.length];
 
                 return (
-                  <div className="relative w-full h-full">
-                    {/* Landmark Image with Smooth Motion Zoom */}
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    {/* Blurred Reflection Background Sheet */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-25 select-none pointer-events-none scale-105 transition-all duration-700" 
+                      style={{ backgroundImage: `url(${currentSlide.url})` }} 
+                    />
+
+                    {/* Centered Contain Main Landmark Image */}
                     <img
                       key={currentSlide.url}
                       src={currentSlide.url}
                       alt={currentSlide.title}
-                      className="w-full h-full object-cover animate-fade-in transform scale-105 group-hover:scale-110 transition-transform duration-1000"
+                      className="max-h-[66vh] max-w-[88vw] object-contain rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.85)] z-10 select-none pointer-events-none animate-fade-in transition-transform duration-700"
                     />
 
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                    {/* Gradient Screen Underlay */}
+                    <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent pointer-events-none z-10"></div>
 
                     {/* Sound Audio Toggle Button */}
                     <button
                       onClick={() => setIsAudioMuted(!isAudioMuted)}
-                      className="absolute top-4 left-4 px-3.5 py-1.5 bg-slate-950/80 hover:bg-slate-900 text-white text-xs font-bold rounded-xl border border-slate-700 flex items-center space-x-2 shadow-2xl backdrop-blur-md transition-all z-20"
+                      className="absolute top-4 left-4 px-3.5 py-1.5 bg-slate-950/80 hover:bg-slate-900 text-white text-xs font-bold rounded-xl border border-slate-800 flex items-center space-x-2 shadow-2xl backdrop-blur-md transition-all z-20"
                     >
                       {isAudioMuted ? (
                         <>
@@ -621,41 +648,41 @@ export const CitySearchPage = () => {
                       )}
                     </button>
 
-                    {/* Landmark Title Badge */}
-                    <div className="absolute bottom-16 left-6 right-6 flex items-center justify-between">
-                      <div className="px-4 py-2 bg-slate-950/80 backdrop-blur-md rounded-2xl border border-slate-800 text-white shadow-2xl">
+                    {/* Image Caption & Counter Overlay HUD */}
+                    <div className="absolute bottom-16 left-6 right-6 flex items-center justify-between z-20">
+                      <div className="px-4 py-2 bg-slate-950/80 backdrop-blur-md rounded-2xl border border-slate-850 text-white shadow-2xl">
                         <p className="text-[10px] uppercase font-bold text-pink-400 tracking-wider">
-                          Landmark {currentSlideIndex + 1} of {slides.length}
+                          Image {currentSlideIndex + 1} of {slides.length}
                         </p>
-                        <h4 className="font-display font-black text-lg text-white">{currentSlide.title}</h4>
+                        <h4 className="font-display font-black text-base text-white">{currentSlide.title}</h4>
                       </div>
 
                       {/* Pause / Play Slideshow Button */}
                       <button
                         onClick={() => setIsPlaying(!isPlaying)}
-                        className="p-3 bg-slate-950/80 hover:bg-slate-900 text-white rounded-2xl border border-slate-700 shadow-2xl backdrop-blur-md transition-all"
+                        className="p-3 bg-slate-950/80 hover:bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-2xl backdrop-blur-md transition-all"
                         title={isPlaying ? 'Pause Slideshow' : 'Resume Slideshow'}
                       >
                         {isPlaying ? <Pause className="w-5 h-5 text-amber-400" /> : <Play className="w-5 h-5 text-emerald-400" />}
                       </button>
                     </div>
 
-                    {/* Slide Navigation Arrows */}
+                    {/* Navigation Arrows */}
                     <button
                       onClick={() => setCurrentSlideIndex((prev) => (prev - 1 + slides.length) % slides.length)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-slate-950/70 hover:bg-slate-900 text-white rounded-2xl border border-slate-800 backdrop-blur-md transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute left-6 top-1/2 -translate-y-1/2 p-3.5 bg-slate-900/60 hover:bg-slate-900 text-white rounded-2xl border border-slate-800 backdrop-blur-md transition-all shadow-lg z-20"
                     >
                       <ChevronLeft className="w-6 h-6" />
                     </button>
                     <button
                       onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % slides.length)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-slate-950/70 hover:bg-slate-900 text-white rounded-2xl border border-slate-800 backdrop-blur-md transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute right-6 top-1/2 -translate-y-1/2 p-3.5 bg-slate-900/60 hover:bg-slate-900 text-white rounded-2xl border border-slate-800 backdrop-blur-md transition-all shadow-lg z-20"
                     >
                       <ChevronRight className="w-6 h-6" />
                     </button>
 
-                    {/* Thumbnail Strip */}
-                    <div className="absolute bottom-4 left-6 right-6 flex items-center justify-center space-x-2">
+                    {/* Bottom Dot Indicators */}
+                    <div className="absolute bottom-4 left-6 right-6 flex items-center justify-center space-x-2 z-20">
                       {slides.map((s, idx) => (
                         <button
                           key={s.title}
@@ -672,7 +699,7 @@ export const CitySearchPage = () => {
             </div>
 
             {/* Modal Footer CTA */}
-            <div className="p-4 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="p-4 bg-slate-950 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 z-10">
               <div className="text-xs text-slate-400">
                 Viewing <strong>{videoModalCity.name}</strong> landmark photo motion slideshow. Start planning your trip!
               </div>
