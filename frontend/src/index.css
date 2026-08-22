@@ -102,3 +102,31 @@ aside * {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
+
+/* Disable Recharts & SVG focus outline / selection bounding boxes on click and double click */
+.recharts-wrapper *,
+.recharts-surface *,
+.recharts-pie-sector,
+.recharts-sector,
+.recharts-cell,
+.recharts-bar-rectangle,
+.recharts-layer,
+svg path,
+svg rect,
+svg g {
+  outline: none !important;
+  border: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible,
+.recharts-pie-sector:focus,
+.recharts-sector:focus,
+.recharts-cell:focus,
+.recharts-surface *:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}

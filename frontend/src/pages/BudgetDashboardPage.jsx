@@ -12,6 +12,28 @@ import {
   TrendingUp, Sparkles, PlusCircle, Trash2, Plus, RefreshCw, Layers, Tag
 } from 'lucide-react';
 
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="glass-card border border-slate-700/80 p-3.5 rounded-2xl text-xs shadow-2xl bg-slate-950/95 backdrop-blur-md min-w-[160px] space-y-1.5 border border-brand-500/30">
+        <p className="font-black text-white text-xs tracking-tight border-b border-slate-800 pb-1.5">
+          {payload[0].payload.name || payload[0].payload.date || 'Expense Details'}
+        </p>
+        {payload.map((entry, index) => (
+          <div key={`item-${index}`} className="flex items-center justify-between space-x-3 py-0.5">
+            <div className="flex items-center space-x-2">
+              <span className="w-2.5 h-2.5 rounded-full shadow-glow" style={{ backgroundColor: entry.color || entry.fill }}></span>
+              <span className="text-slate-300 font-bold">{entry.name || entry.dataKey}:</span>
+            </div>
+            <span className="font-extrabold text-emerald-400">{formatCurrency(entry.value)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 export const BudgetDashboardPage = () => {
   const { id: tripId } = useParams();
   const [targetBudgetInput, setTargetBudgetInput] = useState(150);
@@ -303,7 +325,7 @@ export const BudgetDashboardPage = () => {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart style={{ outline: 'none' }}>
                 <Pie
                   data={pieData.length > 0 ? pieData : [{ name: 'No Expenses', value: 1, color: '#334155' }]}
                   cx="50%"
@@ -312,22 +334,24 @@ export const BudgetDashboardPage = () => {
                   outerRadius={95}
                   paddingAngle={6}
                   dataKey="value"
+                  stroke="none"
+                  style={{ outline: 'none' }}
                 >
                   {(pieData.length > 0 ? pieData : [{ name: 'No Expenses', value: 1, color: '#334155' }]).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" style={{ outline: 'none' }} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(val) => formatCurrency(val)} />
+                <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-slate-800 text-xs">
             {pieData.map((item) => (
-              <div key={item.name} className="flex items-center space-x-2">
-                <span className="w-3 h-3 rounded-full shadow-sm shrink-0" style={{ backgroundColor: item.color }}></span>
-                <span className="text-slate-400 font-medium">{item.name}:</span>
-                <span className="font-bold text-white ml-auto">{formatCurrency(item.value)}</span>
+              <div key={item.name} className="flex items-center space-x-2 bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                <span className="w-2.5 h-2.5 rounded-full shadow-sm shrink-0" style={{ backgroundColor: item.color }}></span>
+                <span className="text-slate-300 font-semibold text-[11px] truncate">{item.name}:</span>
+                <span className="font-extrabold text-white text-[11px] ml-auto">{formatCurrency(item.value)}</span>
               </div>
             ))}
           </div>
@@ -343,18 +367,27 @@ export const BudgetDashboardPage = () => {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={realtimeDailySpending.length > 0 ? realtimeDailySpending : [
-                { date: 'Today', activities: 0, accommodation: 0, meals: 0, transport: 0 }
-              ]}>
-                <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                <Tooltip formatter={(val) => formatCurrency(val)} />
-                <Legend />
-                <ReferenceLine y={targetBudgetInput} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: 'Target', fill: '#f59e0b', fontSize: 10 }} />
-                <Bar dataKey="activities" name="Activities" stackId="a" fill="#36a9f7" />
-                <Bar dataKey="accommodation" name="Accom." stackId="a" fill="#a855f7" />
-                <Bar dataKey="meals" name="Meals" stackId="a" fill="#10b981" />
-                <Bar dataKey="transport" name="Transport" stackId="a" fill="#f59e0b" />
+              <BarChart
+                style={{ outline: 'none' }}
+                data={realtimeDailySpending.length > 0 ? realtimeDailySpending : [
+                  { date: 'Today', activities: 0, accommodation: 0, meals: 0, transport: 0 }
+                ]}
+              >
+                <XAxis dataKey="date" tick={{ fill: '#cbd5e1', fontSize: 11, fontWeight: 700 }} />
+                <YAxis tick={{ fill: '#cbd5e1', fontSize: 11, fontWeight: 700 }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  formatter={(value, entry) => (
+                    <span className="text-xs font-bold text-slate-200 px-1.5 py-0.5 rounded-md bg-slate-900 border border-slate-800">
+                      {value}
+                    </span>
+                  )}
+                />
+                <ReferenceLine y={targetBudgetInput} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: 'Target Threshold', fill: '#f59e0b', fontSize: 11, fontWeight: 800 }} />
+                <Bar dataKey="activities" name="Activities" stackId="a" fill="#36a9f7" stroke="none" style={{ outline: 'none' }} />
+                <Bar dataKey="accommodation" name="Accom." stackId="a" fill="#a855f7" stroke="none" style={{ outline: 'none' }} />
+                <Bar dataKey="meals" name="Meals" stackId="a" fill="#10b981" stroke="none" style={{ outline: 'none' }} />
+                <Bar dataKey="transport" name="Transport" stackId="a" fill="#f59e0b" stroke="none" style={{ outline: 'none' }} />
               </BarChart>
             </ResponsiveContainer>
           </div>
