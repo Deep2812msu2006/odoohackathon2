@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ActivityCategory {
+  sightseeing
+  food
+  adventure
+  culture
+  nightlife
+  relaxation
+  shopping
+  other
+}
+
+model User {
+  id                 String      @id @default(uuid())
+  name               String
+  email              String      @unique
+  passwordHash       String
+  profilePhotoUrl    String?
+  languagePreference String      @default("en")
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  trips              Trip[]
+  shares             TripShare[]
+
+  @@index([email])
+}
+
+model Trip {
+  id             String      @id @default(uuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  startDate      DateTime
+  endDate        DateTime
+  coverPhotoUrl  String?
+  isPublic       Boolean     @default(false)
+  publicSlug     String      @unique
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  stops          TripStop[]
+  originalShares TripShare[] @relation("OriginalTrip")
+  copiedShares   TripShare[] @relation("CopiedTrip")
+
+  @@index([userId])
+  @@index([publicSlug])
+}
+
+model City {
+  id              String     @id @default(uuid())
+  name            String
+  country         String
+  region          String
+  costIndex       Float      @default(1.0)
+  popularityScore Float      @default(0.0)
+  imageUrl        String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  stops           TripStop[]
+  activities      Activity[]
+
+  @@index([name])
+  @@index([country])
+  @@index([region])
+  @@index([popularityScore])
+}
+
+model TripStop {
+  id             String             @id @default(uuid())
+  tripId         String
+  trip           Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  cityId         String
+  city           City               @relation(fields: [cityId], references: [id])
+  orderIndex     Int
+  arrivalDate    DateTime
+  departureDate  DateTime
+  notes          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  stopActivities TripStopActivity[]
+
+  @@index([tripId])
+  @@index([cityId])
+}
+
+model Activity {
+  id             String             @id @default(uuid())
+  cityId         String
+  city           City               @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  name           String
+  category       ActivityCategory   @default(other)
+  description    String?
+  estimatedCost  Float              @default(0.0)
+  durationHours  Float              @default(1.0)
+  imageUrl       String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  stopActivities TripStopActivity[]
+
+  @@index([cityId])
+  @@index([category])
+}
+
+model TripStopActivity {
+  id            String   @id @default(uuid())
+  tripStopId    String
+  tripStop      TripStop @relation(fields: [tripStopId], references: [id], onDelete: Cascade)
+  activityId    String
+  activity      Activity @relation(fields: [activityId], references: [id])
+  scheduledDate DateTime
+  scheduledTime String?
+  customCost    Float?
+  orderIndex    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([tripStopId])
+  @@index([activityId])
+}
+
+model TripShare {
+  id             String   @id @default(uuid())
+  originalTripId String
+  originalTrip   Trip     @relation("OriginalTrip", fields: [originalTripId], references: [id], onDelete: Cascade)
+  copiedTripId   String
+  copiedTrip     Trip     @relation("CopiedTrip", fields: [copiedTripId], references: [id], onDelete: Cascade)
+  copiedByUserId String
+  copiedByUser   User     @relation(fields: [copiedByUserId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+}

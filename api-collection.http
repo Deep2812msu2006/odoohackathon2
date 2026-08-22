@@ -1,0 +1,65 @@
+### GlobeTrotter REST API Testing Collection
+
+@baseUrl = http://localhost:5000/api
+@token = {{login.response.body.data.token}}
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. User Signup
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "Alex Rivera",
+  "email": "alex.rivera@example.com",
+  "password": "Password123!"
+}
+
+### 3. User Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@globetrotter.com",
+  "password": "Password123!"
+}
+
+### 4. Get Current User Profile
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### 5. Get Discover Cities
+GET {{baseUrl}}/cities?search=Paris
+
+### 6. Get Activities for City
+GET {{baseUrl}}/activities
+
+### 7. Create New Trip
+POST {{baseUrl}}/trips
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Asian Odyssey 2026",
+  "description": "Exploring Tokyo and Kyoto temples.",
+  "startDate": "2026-10-01",
+  "endDate": "2026-10-15",
+  "isPublic": true
+}
+
+### 8. Get User Trips
+GET {{baseUrl}}/trips
+Authorization: Bearer {{token}}
+
+### 9. Get Public Trip by Slug
+GET {{baseUrl}}/public/trips/grand-european-escapade-2026
+
+### 10. Copy Public Trip (Transactional Copy)
+POST {{baseUrl}}/public/trips/grand-european-escapade-2026/copy
+Authorization: Bearer {{token}}
+
+### 11. Get Admin Analytics (SQL Database Aggregation)
+GET {{baseUrl}}/admin/analytics
+Authorization: Bearer {{token}}
