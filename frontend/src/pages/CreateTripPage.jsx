@@ -26,7 +26,7 @@ export const CreateTripPage = () => {
     { city: 'Venice', country: 'Italy', flag: '🇮🇹', url: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=800&auto=format&fit=crop&q=80' },
     { city: 'Cairo', country: 'Egypt', flag: '🇪🇬', url: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&auto=format&fit=crop&q=80' },
     { city: 'Rio de Janeiro', country: 'Brazil', flag: '🇧🇷', url: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&auto=format&fit=crop&q=80' },
-    { city: 'Barcelona', country: 'Spain', flag: '🇪🇸', url: 'https://images.unsplash.com/photo-1583422409516-2895a771df60?w=800&auto=format&fit=crop&q=80' },
+    { city: 'Barcelona', country: 'Spain', flag: '🇪🇸', url: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&auto=format&fit=crop&q=80' },
     { city: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80' },
   ];
 
@@ -167,7 +167,14 @@ export const CreateTripPage = () => {
                       : 'border-slate-800/80 opacity-80 hover:opacity-100 hover:border-slate-600'
                   }`}
                 >
-                  <img src={cover.url} alt={`${cover.city}, ${cover.country}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <img 
+                    src={cover.url} 
+                    alt={`${cover.city}, ${cover.country}`} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&auto=format&fit=crop&q=80';
+                    }}
+                  />
                   
                   {/* Selected Indicator Checkmark */}
                   {isSelected && (
