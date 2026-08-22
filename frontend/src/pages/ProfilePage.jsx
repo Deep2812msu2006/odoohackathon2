@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
 import { userApi } from '../services/userApi.js';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
 import { UserAvatar } from '../components/UserAvatar.jsx';
@@ -13,6 +14,7 @@ import {
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User },
+  { id: 'wishlist', label: 'Saved Wishlist', icon: Heart },
   { id: 'settings', label: 'Settings', icon: Settings },
   { id: 'security', label: 'Security', icon: Lock },
   { id: 'danger', label: 'Danger Zone', icon: AlertTriangle },
@@ -27,14 +29,8 @@ const LANGUAGES = [
   { code: 'it', label: 'Italian', flag: '🇮🇹', native: 'Italiano' },
 ];
 
-const THEMES = [
-  { id: 'cosmic', label: 'Cosmic Dark', gradient: 'from-indigo-600 to-purple-700', preview: 'bg-gradient-to-br from-indigo-950 to-purple-950' },
-  { id: 'ocean', label: 'Deep Ocean', gradient: 'from-cyan-600 to-blue-700', preview: 'bg-gradient-to-br from-cyan-950 to-blue-950' },
-  { id: 'ember', label: 'Ember Night', gradient: 'from-rose-600 to-orange-700', preview: 'bg-gradient-to-br from-rose-950 to-orange-950' },
-  { id: 'forest', label: 'Forest Dark', gradient: 'from-emerald-600 to-teal-700', preview: 'bg-gradient-to-br from-emerald-950 to-teal-950' },
-];
-
 export const ProfilePage = () => {
+  const navigate = useNavigate();
   const { user, updateUserProfile, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -45,6 +41,16 @@ export const ProfilePage = () => {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(initialPhoto);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Saved Wishlist State
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem('globetrotter_wishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
@@ -86,7 +92,6 @@ export const ProfilePage = () => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Compress image to JPEG 0.85 quality for instant uploads
         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
         setProfilePhotoUrl(compressedBase64);
         toast.success('Local photo loaded and optimized! Click "Save Profile" to apply.');
@@ -116,55 +121,23 @@ export const ProfilePage = () => {
     weeklyDigest: true,
   });
 
-  // Apply theme to document
   const applyTheme = (themeId) => {
     const body = document.body;
     body.classList.remove('theme-cosmic', 'theme-ocean', 'theme-ember', 'theme-forest');
     body.classList.add(`theme-${themeId}`);
     localStorage.setItem('interfaceTheme', themeId);
-
-    const themeStyles = {
-      cosmic: {
-        '--brand-500': '#6366f1',
-        '--brand-400': '#818cf8',
-        '--brand-600': '#4f46e5',
-      },
-      ocean: {
-        '--brand-500': '#06b6d4',
-        '--brand-400': '#22d3ee',
-        '--brand-600': '#0891b2',
-      },
-      ember: {
-        '--brand-500': '#f97316',
-        '--brand-400': '#fb923c',
-        '--brand-600': '#ea580c',
-      },
-      forest: {
-        '--brand-500': '#10b981',
-        '--brand-400': '#34d399',
-        '--brand-600': '#059669',
-      }
-    };
-    
-    const styles = themeStyles[themeId] || themeStyles.cosmic;
-    Object.entries(styles).forEach(([key, value]) => {
-      document.documentElement.style.setProperty(key, value);
-    });
-    void document.documentElement.offsetHeight;
   };
 
   React.useEffect(() => {
     applyTheme(selectedTheme);
   }, [selectedTheme]);
 
-  // Danger Zone
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  // Mock trip stats
   const stats = [
     { label: 'Trips Planned', value: 3, icon: MapPin, color: 'text-brand-400', bg: 'bg-brand-500/10' },
+    { label: 'Saved Wishlist', value: wishlist.length, icon: Heart, color: 'text-pink-400', bg: 'bg-pink-500/10' },
     { label: 'Cities Visited', value: 7, icon: Globe, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-    { label: 'Activities Done', value: 12, icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10' },
     { label: 'Member Since', value: '2026', icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
   ];
 
@@ -323,7 +296,6 @@ export const ProfilePage = () => {
         <form onSubmit={handleProfileSubmit} className="space-y-6 animate-fade-in">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Full Name */}
             <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
                 <User className="w-4 h-4 text-brand-400" />
@@ -339,7 +311,6 @@ export const ProfilePage = () => {
               />
             </div>
 
-            {/* Email (read-only) */}
             <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
                 <Mail className="w-4 h-4 text-brand-400" />
@@ -356,7 +327,6 @@ export const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Profile Photo Upload & URL */}
             <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4 md:col-span-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
@@ -402,7 +372,6 @@ export const ProfilePage = () => {
               </div>
             </div>
 
-            {/* Language - full width */}
             <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4 md:col-span-2">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
                 <Globe className="w-4 h-4 text-brand-400" />
@@ -455,11 +424,69 @@ export const ProfilePage = () => {
         </form>
       )}
 
+      {/* ─── Wishlist Tab ─── */}
+      {activeTab === 'wishlist' && (
+        <div className="space-y-6 animate-fade-in">
+          <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Heart className="w-5 h-5 text-rose-400 fill-rose-400 animate-pulse" />
+                <h3 className="font-display font-bold text-lg text-white">Your Saved Wishlist ({wishlist.length})</h3>
+              </div>
+              <button
+                onClick={() => navigate('/activities')}
+                className="text-xs font-bold text-brand-400 hover:text-brand-300"
+              >
+                Browse More Experiences →
+              </button>
+            </div>
+
+            {wishlist.length === 0 ? (
+              <div className="text-center py-12 space-y-3">
+                <Heart className="w-12 h-12 text-slate-600 mx-auto" />
+                <p className="font-bold text-white text-base">No Saved Wishlist Items Yet</p>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  Click the heart icon on any activity card on the Activities page to save your favorite tours here!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+                {wishlist.map((act) => (
+                  <div key={act.id} className="bg-slate-950/60 rounded-2xl overflow-hidden border border-slate-800 flex flex-col justify-between group">
+                    <div className="h-36 relative overflow-hidden">
+                      <img src={act.imageUrl || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80'} alt={act.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                      <button
+                        onClick={() => {
+                          const updated = wishlist.filter(w => w.id !== act.id);
+                          setWishlist(updated);
+                          localStorage.setItem('globetrotter_wishlist', JSON.stringify(updated));
+                          toast.success(`Removed "${act.name}" from wishlist.`);
+                        }}
+                        className="absolute top-2 right-2 p-1.5 bg-slate-950/80 hover:bg-rose-500/30 text-rose-400 rounded-xl border border-slate-800 transition-colors"
+                        title="Remove from wishlist"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      <h4 className="font-bold text-sm text-white line-clamp-1">{act.name}</h4>
+                      <p className="text-xs text-slate-400 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-brand-400" />
+                        <span>{act.city?.name || 'Local Destination'}</span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ─── Settings Tab ─── */}
       {activeTab === 'settings' && (
         <div className="space-y-6 animate-fade-in">
-
-          {/* Notifications */}
           <div className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5">
             <div className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-brand-400" />
@@ -507,8 +534,6 @@ export const ProfilePage = () => {
       {/* ─── Security Tab ─── */}
       {activeTab === 'security' && (
         <div className="space-y-6 animate-fade-in">
-
-          {/* Security Overview */}
           <div className="glass-card rounded-3xl p-6 border border-slate-800/50">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 bg-emerald-500/15 rounded-2xl flex items-center justify-center">
@@ -538,14 +563,12 @@ export const ProfilePage = () => {
             </div>
           </div>
 
-          {/* Change Password */}
           <form onSubmit={handlePasswordChange} className="glass-card rounded-3xl p-6 border border-slate-800/50 space-y-5">
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-brand-400" />
               <h3 className="font-display font-bold text-lg text-white">Change Password</h3>
             </div>
 
-            {/* 1. Current Password */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Password</label>
               <div className="relative">
@@ -564,7 +587,6 @@ export const ProfilePage = () => {
               </div>
             </div>
 
-            {/* 2. New Password (FIRST PASSWORD FIELD) with attached Strength Meter */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">New Password</label>
               <div className="relative">
@@ -582,7 +604,6 @@ export const ProfilePage = () => {
                 </button>
               </div>
 
-              {/* Password Strength Indicator - attached directly under New Password */}
               {newPassword.length > 0 && (
                 <div className="bg-slate-950/50 rounded-2xl p-3 border border-slate-800/80 space-y-2 animate-fade-in">
                   <div className="flex items-center justify-between text-[11px] font-semibold">
@@ -592,7 +613,6 @@ export const ProfilePage = () => {
                     </span>
                   </div>
                   
-                  {/* Progress bar */}
                   <div className="flex gap-1.5 h-1.5">
                     <div className={`flex-1 rounded-full transition-all duration-300 ${newPassword.length >= 1 ? (newPassword.length < 5 ? 'bg-rose-500' : 'bg-emerald-500') : 'bg-slate-800'}`} />
                     <div className={`flex-1 rounded-full transition-all duration-300 ${newPassword.length >= 5 ? (newPassword.length < 8 ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-slate-800'}`} />
@@ -600,7 +620,6 @@ export const ProfilePage = () => {
                     <div className={`flex-1 rounded-full transition-all duration-300 ${newPassword.length >= 11 ? 'bg-cyan-400' : 'bg-slate-800'}`} />
                   </div>
 
-                  {/* Requirements checklist */}
                   <div className="grid grid-cols-2 gap-1.5 text-[10px] text-slate-400 pt-1">
                     <span className={`flex items-center gap-1 ${newPassword.length >= 8 ? 'text-emerald-400 font-semibold' : ''}`}>
                       {newPassword.length >= 8 ? '✓' : '○'} 8+ characters
@@ -619,7 +638,6 @@ export const ProfilePage = () => {
               )}
             </div>
 
-            {/* 3. Confirm New Password */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Confirm New Password</label>
               <div className="relative">
@@ -637,7 +655,6 @@ export const ProfilePage = () => {
                 </button>
               </div>
 
-              {/* Password Match Status */}
               {confirmPassword.length > 0 && (
                 <div className="text-[11px] font-semibold flex items-center gap-1.5 pt-0.5">
                   {confirmPassword === newPassword ? (
@@ -677,7 +694,6 @@ export const ProfilePage = () => {
             <p>Actions in this section are <strong>irreversible</strong>. Please proceed with caution.</p>
           </div>
 
-          {/* Sign out all devices */}
           <div className="glass-card rounded-3xl p-6 border border-slate-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 bg-amber-500/10 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
@@ -700,7 +716,6 @@ export const ProfilePage = () => {
             </button>
           </div>
 
-          {/* Delete Account */}
           <div className="glass-card rounded-3xl p-6 border border-rose-500/20 bg-rose-950/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 bg-rose-500/10 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
@@ -725,7 +740,6 @@ export const ProfilePage = () => {
         </div>
       )}
 
-      {/* Delete Confirm Modal */}
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

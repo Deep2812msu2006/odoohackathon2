@@ -66,7 +66,6 @@ const ACTIVITY_CATEGORY_PHOTOS = {
 const getActivitySlides = (activity) => {
   const catPhotos = ACTIVITY_CATEGORY_PHOTOS[activity.category] || ACTIVITY_CATEGORY_PHOTOS['other'];
   const mainUrl = activity.imageUrl || catPhotos[0].url;
-  // Build a slides array: activity's own image first, then category photos (deduped)
   const slides = [{ title: activity.name, url: mainUrl }];
   for (const p of catPhotos) {
     if (p.url !== mainUrl && slides.length < 4) {
@@ -109,7 +108,6 @@ const ActivityCardImageSlider = ({ activity, onOpenDetail }) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onOpenDetail(activity)}
     >
-      {/* Sliding Images */}
       <div
         className="flex h-full transition-transform duration-500 ease-in-out"
         style={{ width: `${slides.length * 100}%`, transform: `translateX(-${currentIndex * (100 / slides.length)}%)` }}
@@ -125,11 +123,9 @@ const ActivityCardImageSlider = ({ activity, onOpenDetail }) => {
         ))}
       </div>
 
-      {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-brand-500/10 to-transparent opacity-0 group-hover/slider:opacity-100 transition-opacity duration-500"></div>
 
-      {/* Prev / Next Arrows */}
       {slides.length > 1 && (
         <>
           <button
@@ -147,7 +143,6 @@ const ActivityCardImageSlider = ({ activity, onOpenDetail }) => {
         </>
       )}
 
-      {/* Dot Indicators */}
       {slides.length > 1 && (
         <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 z-10">
           {slides.map((_, idx) => (
@@ -180,13 +175,10 @@ const ModalActivitySlider = ({ slides, activity }) => {
 
   return (
     <div className="h-72 relative overflow-hidden group">
-      {/* Blurred Background */}
       <div
         className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-30 scale-110 pointer-events-none transition-all duration-700"
         style={{ backgroundImage: `url(${currentSlide.url})` }}
       />
-
-      {/* Main Image */}
       <img
         key={currentSlide.url}
         src={currentSlide.url}
@@ -195,7 +187,6 @@ const ModalActivitySlider = ({ slides, activity }) => {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent z-10"></div>
 
-      {/* Caption & Counter */}
       <div className="absolute bottom-12 left-6 right-6 z-20">
         <span className="px-2.5 py-1 bg-brand-500/20 text-brand-300 text-[10px] uppercase font-bold rounded-lg border border-brand-500/30 backdrop-blur-md">
           {activity.category}
@@ -208,7 +199,6 @@ const ModalActivitySlider = ({ slides, activity }) => {
         </p>
       </div>
 
-      {/* Play/Pause */}
       <button
         onClick={() => setIsPlaying(!isPlaying)}
         className="absolute top-4 right-14 p-2 bg-slate-950/70 hover:bg-slate-900 text-white rounded-xl border border-slate-800 backdrop-blur-md transition-all z-20"
@@ -216,7 +206,6 @@ const ModalActivitySlider = ({ slides, activity }) => {
         {isPlaying ? <Pause className="w-4 h-4 text-amber-400" /> : <Play className="w-4 h-4 text-emerald-400" />}
       </button>
 
-      {/* Arrows */}
       {slides.length > 1 && (
         <>
           <button
@@ -234,7 +223,6 @@ const ModalActivitySlider = ({ slides, activity }) => {
         </>
       )}
 
-      {/* Dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 z-20">
         {slides.map((_, idx) => (
           <button
@@ -251,11 +239,26 @@ const ModalActivitySlider = ({ slides, activity }) => {
 export const ActivitySearchPage = () => {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [priceFilter, setPriceFilter] = useState('all'); // all, free, budget, mid, luxury
-  const [sortBy, setSortBy] = useState('popularity'); // popularity, priceAsc, priceDesc, duration
+  const [priceFilter, setPriceFilter] = useState('all'); // all, wishlist, free, budget, mid, luxury
+  const [sortBy, setSortBy] = useState('popularity');
   const [selectedActivity, setSelectedActivity] = useState(null);
-  const [wishlist, setWishlist] = useState([]);
   
+  // Persisted Wishlist State
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem('globetrotter_wishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('globetrotter_wishlist', JSON.stringify(wishlist));
+    } catch (e) {}
+  }, [wishlist]);
+
   // Modal Booking Mock State
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('10:00');
@@ -283,8 +286,11 @@ export const ActivitySearchPage = () => {
     },
   });
 
-  // Client-side Price Filtering and Sorting for dynamic response
+  // Client-side Price & Wishlist Filtering and Sorting
   const filteredActivities = rawActivities.filter(act => {
+    if (priceFilter === 'wishlist') {
+      return wishlist.some(w => w.id === act.id);
+    }
     if (priceFilter === 'all') return true;
     if (priceFilter === 'free') return act.estimatedCost === 0;
     if (priceFilter === 'budget') return act.estimatedCost > 0 && act.estimatedCost <= 30;
@@ -293,7 +299,6 @@ export const ActivitySearchPage = () => {
     return true;
   }).sort((a, b) => {
     if (sortBy === 'popularity') {
-      // Deterministic popularity score based on name length
       const scoreA = (a.name.length * 7) % 10 + 40; 
       const scoreB = (b.name.length * 7) % 10 + 40;
       return scoreB - scoreA;
@@ -304,20 +309,17 @@ export const ActivitySearchPage = () => {
     return 0;
   });
 
-  // Deterministic Star Rating generator
   const getRating = (id) => {
     const seed = id.charCodeAt(0) + id.charCodeAt(id.length - 1);
     const score = 4.0 + (seed % 10) * 0.1;
     return score.toFixed(1);
   };
 
-  // Deterministic Reviews count generator
   const getReviewCount = (id) => {
     const seed = id.charCodeAt(1) + id.charCodeAt(id.length - 2);
     return 12 + (seed % 150);
   };
 
-  // Deterministic Difficulty badge based on category
   const getDifficulty = (category) => {
     if (['adventure'].includes(category)) return { label: 'Intense', color: 'bg-red-500/20 text-red-400 border-red-500/30' };
     if (['sightseeing', 'shopping'].includes(category)) return { label: 'Mild', color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' };
@@ -325,7 +327,6 @@ export const ActivitySearchPage = () => {
     return { label: 'Moderate', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
   };
 
-  // Deterministic Reviews contents
   const getReviews = (id) => {
     const seed = id.charCodeAt(0) % 3;
     const items = [
@@ -350,20 +351,20 @@ export const ActivitySearchPage = () => {
 
   const toggleWishlist = (act) => {
     if (wishlist.some(item => item.id === act.id)) {
-      setWishlist(wishlist.filter(item => item.id !== act.id));
-      toast.success('Removed from your saved activities');
-    } else {
-      setWishlist([...wishlist, act]);
-      toast({
-        icon: '💖',
-        duration: 3000,
-        style: {
-          background: '#064e3b',
-          color: '#ecfdf5',
-        },
-        message: 'Saved to your wishlist!'
+      setWishlist(prev => prev.filter(item => item.id !== act.id));
+      toast.success(`Removed "${act.name}" from your saved wishlist.`, {
+        icon: '💔',
       });
-      toast.success(`Saved "${act.name}" to wishlist!`);
+    } else {
+      setWishlist(prev => [...prev, act]);
+      toast.success(`Saved "${act.name}" to your wishlist!`, {
+        icon: '💖',
+        style: {
+          background: '#0f172a',
+          color: '#f8fafc',
+          border: '1px solid rgba(244, 63, 94, 0.4)',
+        },
+      });
     }
   };
 
@@ -406,7 +407,7 @@ export const ActivitySearchPage = () => {
           </p>
           
           {/* Quick Stats Grid */}
-          <div className="flex flex-wrap items-center gap-6 pt-4 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-4 pt-4 text-xs font-semibold">
             <div className="flex items-center space-x-2 bg-slate-950/60 rounded-xl px-4 py-2.5 border border-slate-800/50 backdrop-blur-md">
               <Compass className="w-4 h-4 text-brand-400" />
               <span className="text-slate-300">Total Tours: </span>
@@ -419,11 +420,20 @@ export const ActivitySearchPage = () => {
                 {rawActivities.filter(a => ['adventure'].includes(a.category)).length}
               </span>
             </div>
-            <div className="flex items-center space-x-2 bg-slate-950/60 rounded-xl px-4 py-2.5 border border-slate-800/50 backdrop-blur-md">
-              <Heart className="w-4 h-4 text-pink-500" />
-              <span className="text-slate-300">Saved Wishlist: </span>
-              <span className="text-white font-bold text-sm">{wishlist.length}</span>
-            </div>
+
+            {/* Clickable Wishlist Counter Button */}
+            <button
+              onClick={() => setPriceFilter('wishlist')}
+              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 border backdrop-blur-md transition-all transform hover:scale-105 ${
+                priceFilter === 'wishlist'
+                  ? 'bg-rose-500/25 border-rose-500/50 text-rose-300 shadow-lg shadow-rose-500/20'
+                  : 'bg-slate-950/60 border-slate-800/50 text-slate-300 hover:border-rose-500/30'
+              }`}
+            >
+              <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
+              <span>Saved Wishlist: </span>
+              <span className="text-white font-black text-sm">{wishlist.length} Items</span>
+            </button>
           </div>
         </div>
       </div>
@@ -444,13 +454,14 @@ export const ActivitySearchPage = () => {
             />
           </div>
 
-          {/* Quick Price Segment Filter */}
+          {/* Quick Price & Wishlist Segment Filter */}
           <div className="lg:col-span-5 flex flex-wrap gap-2 items-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2 flex items-center gap-1.5">
-              <Filter className="w-3.5 h-3.5" /> Price:
+              <Filter className="w-3.5 h-3.5" /> Filter:
             </span>
             {[
               { id: 'all', label: 'All Costs' },
+              { id: 'wishlist', label: `💖 Saved Wishlist (${wishlist.length})` },
               { id: 'free', label: 'Free Only' },
               { id: 'budget', label: '< $30' },
               { id: 'mid', label: '$30 - $80' },
@@ -459,9 +470,11 @@ export const ActivitySearchPage = () => {
               <button
                 key={segment.id}
                 onClick={() => setPriceFilter(segment.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${
                   priceFilter === segment.id
-                    ? 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/20 scale-105'
+                    ? segment.id === 'wishlist'
+                      ? 'bg-gradient-to-r from-rose-600 to-rose-500 text-white shadow-lg shadow-rose-500/30 scale-105'
+                      : 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/20 scale-105'
                     : 'bg-slate-950/40 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
@@ -522,10 +535,14 @@ export const ActivitySearchPage = () => {
         <GridSkeleton count={6} />
       ) : filteredActivities.length === 0 ? (
         <div className="glass-card rounded-3xl p-12 text-center border border-slate-800/50 max-w-xl mx-auto space-y-4">
-          <Compass className="w-12 h-12 text-slate-500 mx-auto animate-spin" />
-          <h3 className="font-display font-bold text-lg text-white">No Matching Activities</h3>
+          <Heart className="w-12 h-12 text-rose-400 mx-auto animate-bounce" />
+          <h3 className="font-display font-bold text-lg text-white">
+            {priceFilter === 'wishlist' ? 'No Wishlisted Activities Saved Yet' : 'No Matching Activities'}
+          </h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Try adjusting your search query, selecting different categories, or raising your budget criteria.
+            {priceFilter === 'wishlist'
+              ? 'Click the heart icon on any activity card to save it to your wishlist here!'
+              : 'Try adjusting your search query, selecting different categories, or raising your budget criteria.'}
           </p>
           <button
             onClick={() => {
@@ -552,37 +569,39 @@ export const ActivitySearchPage = () => {
                 key={act.id} 
                 className="glass-card rounded-3xl overflow-hidden border border-slate-800/50 flex flex-col justify-between group hover:border-brand-500/40 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-500/10 transform hover:-translate-y-1.5"
               >
-                {/* Interactive Multi-Photo Slider with Overlays */}
                 <div className="h-60 relative overflow-hidden">
                   <ActivityCardImageSlider activity={act} onOpenDetail={(a) => { setSelectedActivity(a); setBookingDate(''); }} />
                   
-                  {/* Category Pill Tag */}
                   <span className={`absolute top-4 left-4 px-3 py-1.5 text-[10px] uppercase font-bold rounded-xl border border-white/10 backdrop-blur-xl bg-gradient-to-r ${catGradient} z-20 pointer-events-none`}>
                     {act.category}
                   </span>
                   
-                  {/* Heart / Wishlist Trigger */}
                   <button
-                    onClick={(e) => { e.stopPropagation(); toggleWishlist(act); }}
-                    className="absolute top-4 right-4 p-2 bg-slate-950/60 hover:bg-slate-950/90 text-white rounded-xl backdrop-blur-sm border border-slate-800/50 transition duration-300 z-20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist(act);
+                    }}
+                    title={isWishlisted ? "Remove from Saved Wishlist" : "Save to Wishlist"}
+                    className={`absolute top-4 right-4 p-2.5 rounded-2xl backdrop-blur-md border transition-all duration-300 z-20 transform hover:scale-110 active:scale-95 ${
+                      isWishlisted
+                        ? 'bg-rose-500/30 border-rose-500/60 text-rose-400 shadow-lg shadow-rose-500/30'
+                        : 'bg-slate-950/70 border-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-900'
+                    }`}
                   >
-                    <Heart className={`w-4 h-4 transition-colors ${isWishlisted ? 'fill-rose-500 text-rose-500' : 'text-slate-300'}`} />
+                    <Heart className={`w-4.5 h-4.5 transition-transform duration-300 ${isWishlisted ? 'fill-rose-500 text-rose-500 scale-110 animate-pulse' : 'text-slate-300'}`} />
                   </button>
                   
-                  {/* Star Rating Overlay */}
                   <div className="absolute bottom-4 left-4 flex items-center space-x-1.5 bg-slate-950/60 backdrop-blur-md rounded-lg px-2.5 py-1 border border-slate-850 z-20 pointer-events-none">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     <span className="text-[11px] font-bold text-white">{rating}</span>
                     <span className="text-[9px] text-slate-400">({reviews} reviews)</span>
                   </div>
 
-                  {/* Difficulty Tag */}
                   <div className={`absolute bottom-4 right-4 px-2.5 py-1 text-[10px] font-bold rounded-lg border ${diff.color} backdrop-blur-md z-20 pointer-events-none`}>
                     {diff.label}
                   </div>
                 </div>
 
-                {/* Info Content Section */}
                 <div className="p-5 flex-1 flex flex-col justify-between bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-950/40 space-y-4">
                   <div className="space-y-2">
                     <h3 className="font-display font-bold text-lg text-white group-hover:text-brand-300 transition-colors line-clamp-1">
@@ -597,7 +616,6 @@ export const ActivitySearchPage = () => {
                     </p>
                   </div>
 
-                  {/* Footer Elements */}
                   <div className="flex items-center justify-between text-xs pt-4 border-t border-slate-800/50">
                     <div className="flex items-center space-x-3">
                       <span className="flex items-center space-x-1 text-slate-400 bg-slate-900/60 rounded-lg px-2.5 py-1.5 border border-slate-800">
@@ -611,11 +629,9 @@ export const ActivitySearchPage = () => {
                         {act.estimatedCost === 0 ? 'Free' : formatCurrency(act.estimatedCost)}
                       </span>
                       
-                      {/* Action Button: Open Preview Modal */}
                       <button
                         onClick={() => {
                           setSelectedActivity(act);
-                          // Reset scheduling dates
                           setBookingDate('');
                         }}
                         className="p-2 bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white rounded-xl border border-brand-500/20 transition-all duration-300 transform group-hover:scale-105"
@@ -636,7 +652,6 @@ export const ActivitySearchPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
           <div className="glass-card rounded-3xl border border-slate-800 overflow-hidden max-w-2xl w-full bg-slate-900 shadow-2xl relative max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
             
-            {/* Close Button */}
             <button
               onClick={() => setSelectedActivity(null)}
               className="absolute top-4 right-4 z-30 p-2 rounded-full bg-slate-950/80 text-slate-300 hover:text-white hover:bg-slate-950 border border-slate-800 shadow-lg"
@@ -644,16 +659,13 @@ export const ActivitySearchPage = () => {
               <X className="w-5 h-5" />
             </button>
 
-            {/* Modal Cover Photo Slideshow */}
             {(() => {
               const slides = getActivitySlides(selectedActivity);
               return <ModalActivitySlider slides={slides} activity={selectedActivity} />;
             })()}
 
-            {/* Modal Body Info */}
             <div className="p-6 md:p-8 space-y-6">
               
-              {/* Quick Details Row */}
               <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-300">
                 <div className="flex items-center space-x-2 bg-slate-950/40 rounded-xl px-3.5 py-2 border border-slate-800/50">
                   <MapPin className="w-4 h-4 text-brand-400" />
@@ -671,7 +683,6 @@ export const ActivitySearchPage = () => {
                 </div>
               </div>
 
-              {/* Description */}
               <div className="space-y-2">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">About this experience</h4>
                 <p className="text-sm text-slate-300 leading-relaxed">
@@ -679,7 +690,6 @@ export const ActivitySearchPage = () => {
                 </p>
               </div>
 
-              {/* Reviews Mock Block */}
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center space-x-1.5">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
@@ -698,7 +708,6 @@ export const ActivitySearchPage = () => {
                 </div>
               </div>
 
-              {/* Mock Booking Scheduler */}
               <form onSubmit={handleBookActivity} className="border-t border-slate-800 pt-5 space-y-4">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center space-x-1.5">
                   <Calendar className="w-4 h-4 text-brand-400" />
