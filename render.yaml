@@ -6,7 +6,7 @@ services:
     region: singapore
     rootDir: backend
     buildCommand: npm install && npx prisma generate
-    startCommand: npx prisma db push && npm start
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
