@@ -587,7 +587,7 @@ export const prisma = new Proxy(realPrisma, {
     // Default dynamic behavior
     const origMethod = target[prop];
     if (typeof origMethod === 'function') {
-      return origMethod;
+      return origMethod.bind(target);
     }
     
     if (

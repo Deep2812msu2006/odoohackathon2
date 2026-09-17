@@ -17,8 +17,8 @@ export const errorHandler = (err, req, res, next) => {
     code = 'NOT_FOUND';
   }
 
-  if (process.env.NODE_ENV === 'development' && statusCode === 500) {
-    console.error('💥 UNHANDLED ERROR:', err);
+  if (statusCode === 500) {
+    console.error('💥 UNHANDLED ERROR:', err.stack || err);
   }
 
   return res.status(statusCode).json({
