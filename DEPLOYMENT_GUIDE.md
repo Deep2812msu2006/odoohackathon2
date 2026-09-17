@@ -25,7 +25,7 @@ Your Supabase PostgreSQL database is **already connected, migrated, and fully se
    - **Build Command**: `npm install && npx prisma generate`
    - **Start Command**: `npx prisma db push && npm start`
 4. Add **Environment Variables**:
-   - `DATABASE_URL`: `postgresql://postgres:Deep%40globel@db.wqhsbcmsqeavijgpuwsv.supabase.co:5432/postgres?schema=public`
+   - `DATABASE_URL`: `postgresql://postgres:Deep%40globel@db.wqhsbcmsqeavijgpuwsv.supabase.co:6543/postgres?pgbouncer=true`
    - `JWT_SECRET`: `globetrotter_production_secret_key_2026_hackarina`
    - `NODE_ENV`: `production`
    - `FRONTEND_URL`: `https://globetrotter-frontend.onrender.com` (or your Vercel URL)
