@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { tripApi } from '../services/tripApi.js';
@@ -406,7 +407,7 @@ export const ItineraryViewPage = () => {
               }`}
             >
               <CreditCard className="w-5 h-5 text-emerald-200 animate-pulse" />
-              <span>{isPaid ? '✓ Paid & Confirmed ($499)' : '💳 Make Final Payment ($499)'}</span>
+              <span>{isPaid ? `✓ Paid & Confirmed (${formatCurrency(499)})` : `💳 Make Final Payment (${formatCurrency(499)})`}</span>
             </button>
 
             {/* MAIN DIRECT PRINT / SAVE PDF PASS BUTTON */}
@@ -967,7 +968,7 @@ export const ItineraryViewPage = () => {
             <span>Official Trip Checkout & Hotel Guarantee</span>
           </div>
           <h3 className="font-display font-black text-2xl text-white">Finalize Your Multi-City Experience</h3>
-          <p className="text-xs text-slate-300">Complete your $499 payment after configuring food & activities to lock in luxury suites and official boarding passes.</p>
+          <p className="text-xs text-slate-300">Complete your {formatCurrency(499)} payment after configuring food & activities to lock in luxury suites and official boarding passes.</p>
         </div>
 
         <button
@@ -979,14 +980,14 @@ export const ItineraryViewPage = () => {
           }`}
         >
           <CreditCard className="w-5 h-5 animate-pulse" />
-          <span>{isPaid ? '✓ Booking Fully Paid & Confirmed' : '💳 Make Final Payment Now ($499)'}</span>
+          <span>{isPaid ? '✓ Booking Fully Paid & Confirmed' : `💳 Make Final Payment Now (${formatCurrency(499)})`}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Payment Success Modal */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in print:hidden">
+      {/* Payment Success Modal (Mounted directly to document.body via Portal) */}
+      {showPaymentModal && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in print:hidden">
           <div className="glass-card max-w-md w-full rounded-3xl p-8 border border-emerald-500/40 shadow-[0_0_50px_rgba(16,185,129,0.25)] space-y-6 text-center bg-slate-950 relative overflow-hidden">
             {paymentStep === 'processing' ? (
               <div className="py-8 space-y-4">
@@ -1006,7 +1007,7 @@ export const ItineraryViewPage = () => {
                   </span>
                   <h3 className="font-display font-black text-2xl text-white">All Bookings Confirmed!</h3>
                   <p className="text-xs text-slate-400">
-                    Your payment of <strong className="text-emerald-400">$499.00 USD</strong> has been successfully processed. All hotel suite vouchers & boarding passes are now active.
+                    Your payment of <strong className="text-emerald-400">{formatCurrency(499)}</strong> has been successfully processed. All hotel suite vouchers & boarding passes are now active.
                   </p>
                 </div>
 
@@ -1039,7 +1040,8 @@ export const ItineraryViewPage = () => {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
