@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Sidebar } from '../components/Sidebar.jsx';
 import { TopHeader } from '../components/TopHeader.jsx';
 import { TravelWorldBackground } from '../components/TravelWorldBackground.jsx';
+import { cityApi } from '../services/cityApi.js';
+import { activityApi } from '../services/activityApi.js';
+import { tripApi } from '../services/tripApi.js';
+import { adminApi } from '../services/adminApi.js';
 
 export const AppLayout = () => {
   const { user, loading } = useAuth();
+  const queryClient = useQueryClient();
   
   // Persisted Collapsed Sidebar State
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -15,6 +21,63 @@ export const AppLayout = () => {
 
   // Mobile Drawer State
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Background Cache Warmup: Prefetches all pages immediately so clicking any link opens in 0ms!
+  useEffect(() => {
+    if (user) {
+      queryClient.prefetchQuery({
+        queryKey: ['trips'],
+        queryFn: async () => {
+          const res = await tripApi.getTrips();
+          return res.data.trips;
+        },
+      });
+      queryClient.prefetchQuery({
+        queryKey: ['cities', '', 'all', 'popular'],
+        queryFn: async () => {
+          const res = await cityApi.getCities({ search: '', region: 'all', sortBy: 'popular', order: 'desc' });
+          return res.data.cities;
+        },
+      });
+      queryClient.prefetchQuery({
+        queryKey: ['cities'],
+        queryFn: async () => {
+          const res = await cityApi.getCities();
+          return res.data.cities;
+        },
+      });
+      queryClient.prefetchQuery({
+        queryKey: ['activities', '', 'all', 'all'],
+        queryFn: async () => {
+          const res = await activityApi.getActivities({ search: '', category: 'all', cityId: 'all' });
+          return res.data.activities;
+        },
+      });
+      queryClient.prefetchQuery({
+        queryKey: ['activities'],
+        queryFn: async () => {
+          const res = await activityApi.getActivities();
+          return res.data.activities;
+        },
+      });
+      if (user.role === 'ADMIN') {
+        queryClient.prefetchQuery({
+          queryKey: ['adminAnalytics'],
+          queryFn: async () => {
+            const res = await adminApi.getAnalytics();
+            return res.data;
+          },
+        });
+        queryClient.prefetchQuery({
+          queryKey: ['adminUsers'],
+          queryFn: async () => {
+            const res = await adminApi.getUsers();
+            return res.data.users;
+          },
+        });
+      }
+    }
+  }, [user, queryClient]);
 
   const handleToggleSidebar = () => {
     setSidebarCollapsed((prev) => {
