@@ -8,7 +8,7 @@ import { systemApi } from '../services/systemApi.js';
 import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { EmptyState } from '../components/EmptyState.jsx';
 import { formatDateRange, formatCurrency } from '../utils/formatters.js';
-import { Compass, Map, Building2, Globe, Plus, ArrowRight, Share2, Sparkles, Calendar, Star, CheckCircle2, Ticket } from 'lucide-react';
+import { Compass, Map, Building2, Globe, Plus, ArrowRight, Share2, Sparkles, Calendar, Star, CheckCircle2, Ticket, MapPin, Waypoints } from 'lucide-react';
 
 export const CITY_DATABASE = {
   tokyo: { name: 'Tokyo', country: 'Japan', flag: '🇯🇵', photo: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=480&auto=format&fit=crop&q=75' },
@@ -242,20 +242,34 @@ export const DashboardPage = () => {
 
                 <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
-                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{trip.description || 'No description provided.'}</p>
-                    
-                    {/* Cities Badges */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {(trip.stops || []).map((stop) => (
-                        <span key={stop.id} className="px-2.5 py-1 bg-slate-900/90 text-slate-200 text-[11px] font-semibold rounded-lg border border-slate-800 flex items-center space-x-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-brand-400"></span>
-                          <span>{stop.city?.name}</span>
-                        </span>
-                      ))}
-                      {(trip.stops || []).length === 0 && (
-                        <span className="text-[11px] text-slate-500 italic">No city stops added yet</span>
+                    {/* Destination / Location Section */}
+                    <div className="flex items-center space-x-2 text-xs font-bold text-white">
+                      <MapPin className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+                      <span className="truncate">{dest.cityName}{dest.country ? `, ${dest.country}` : ''}</span>
+                    </div>
+
+                    {/* Intermediate Stops Route Section */}
+                    <div className="flex items-center space-x-2 text-xs text-slate-300">
+                      <Waypoints className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                      <span className="text-slate-400 font-semibold text-[11px] shrink-0">Stops:</span>
+                      {trip.stops && trip.stops.length > 0 ? (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {trip.stops.map((stop, idx) => (
+                            <span key={stop.id || idx} className="inline-flex items-center space-x-1">
+                              <span className="px-2 py-0.5 bg-slate-800/90 text-slate-200 text-[11px] font-semibold rounded-md border border-slate-700/60">
+                                {stop.city?.name || 'Stop'}
+                              </span>
+                              {idx < trip.stops.length - 1 && <span className="text-slate-500 text-[10px]">→</span>}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-slate-500 text-[11px] italic">Direct (0 intermediate stops)</span>
                       )}
                     </div>
+
+                    {/* Description */}
+                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{trip.description || 'No description provided.'}</p>
                   </div>
 
                   <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">

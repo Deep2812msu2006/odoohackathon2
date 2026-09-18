@@ -8,7 +8,7 @@ import { ConfirmModal } from '../components/ConfirmModal.jsx';
 import { EmptyState } from '../components/EmptyState.jsx';
 import toast from 'react-hot-toast';
 import { 
-  Plus, Calendar, MapPin, Share2, Trash2, Edit3, Eye, Search, Filter, Compass, Sparkles, Globe, Heart, ArrowRight
+  Plus, Calendar, MapPin, Share2, Trash2, Edit3, Eye, Search, Filter, Compass, Sparkles, Globe, Heart, ArrowRight, Waypoints
 } from 'lucide-react';
 
 export const MyTripsPage = () => {
@@ -215,16 +215,7 @@ export const MyTripsPage = () => {
                   </button>
 
                   {/* Trip Info Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-5 space-y-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/30">
-                        <MapPin className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-[10px] font-bold text-brand-300 bg-brand-500/10 px-2 py-1 rounded-lg border border-brand-500/20">
-                        {(trip.stops || []).length} {(trip.stops || []).length === 1 ? ' City' : ' Cities'}
-                      </span>
-                    </div>
-                    
+                  <div className="absolute bottom-0 left-0 right-0 p-5 space-y-2">
                     <h3 className="font-display font-bold text-2xl text-white truncate drop-shadow-lg leading-tight">{trip.name}</h3>
                     
                     <div className="flex items-center gap-2">
@@ -239,29 +230,34 @@ export const MyTripsPage = () => {
                 {/* Enhanced Content Section */}
                 <div className="p-5 space-y-4 flex-1 flex flex-col justify-between bg-gradient-to-b from-slate-900/60 to-slate-800/40 backdrop-blur-xl">
                   <div className="space-y-3">
-                    <p className="text-sm text-slate-300 line-clamp-2 leading-relaxed">{trip.description || 'No description added.'}</p>
-                    
-                    {/* Cities Stops Badges with Enhanced Styling */}
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {(trip.stops || []).slice(0, 4).map((stop, idx) => (
-                        <span 
-                          key={stop.id} 
-                          className={`px-3 py-1.5 text-xs font-medium rounded-xl border flex items-center space-x-1.5 transition-all duration-300 transform hover:scale-105 ${
-                            idx === 0 
-                              ? 'bg-gradient-to-r from-brand-500/20 to-brand-400/10 text-brand-300 border-brand-500/30' 
-                              : 'bg-gradient-to-r from-slate-800 to-slate-700/50 text-slate-200 border-slate-700/50 hover:border-brand-500/30'
-                          }`}
-                        >
-                          <MapPin className="w-3 h-3" />
-                          <span>{stop.city?.name}</span>
-                        </span>
-                      ))}
-                      {(trip.stops || []).length > 4 && (
-                        <span className="px-3 py-1.5 bg-slate-800/50 text-slate-400 text-xs font-medium rounded-xl border border-slate-700/50">
-                          +{(trip.stops || []).length - 4} more
-                        </span>
+                    {/* Destination / Location Section */}
+                    <div className="flex items-center space-x-2 text-xs font-bold text-white">
+                      <MapPin className="w-4 h-4 text-brand-400 shrink-0" />
+                      <span className="truncate">{dest.cityName}{dest.country ? `, ${dest.country}` : ''}</span>
+                    </div>
+
+                    {/* Intermediate Stops Route Section */}
+                    <div className="flex items-center space-x-2 text-xs text-slate-300">
+                      <Waypoints className="w-4 h-4 text-purple-400 shrink-0" />
+                      <span className="text-slate-400 font-semibold text-[11px] shrink-0">Stops:</span>
+                      {trip.stops && trip.stops.length > 0 ? (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {trip.stops.map((stop, idx) => (
+                            <span key={stop.id || idx} className="inline-flex items-center space-x-1">
+                              <span className="px-2 py-0.5 bg-slate-800/90 text-slate-200 text-[11px] font-medium rounded-md border border-slate-700/60">
+                                {stop.city?.name || 'Stop'}
+                              </span>
+                              {idx < trip.stops.length - 1 && <span className="text-slate-500 text-[10px]">→</span>}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-slate-500 text-[11px] italic">Direct (0 intermediate stops)</span>
                       )}
                     </div>
+
+                    {/* Description Text */}
+                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{trip.description || 'No description added.'}</p>
                   </div>
 
                   {/* Enhanced Actions Footer */}
