@@ -162,14 +162,18 @@ export const ItineraryViewPage = () => {
 
   const mainStop = hasStops ? trip.stops[trip.stops.length - 1]?.city : null;
   const firstStop = hasStops ? trip.stops[0]?.city : null;
+  const coverUrl = (trip.coverPhotoUrl || '').toLowerCase();
+  const matchedCoverKey = Object.keys(CITY_DATABASE).find(k =>
+    coverUrl.includes(k) || (CITY_DATABASE[k]?.photo && coverUrl.includes(CITY_DATABASE[k].photo.split('?')[0].replace('https://images.unsplash.com/', '')))
+  );
   const searchStr = `${trip.name || ''} ${trip.description || ''}`.toLowerCase();
-  const matchedKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
-  const matchedInfo = matchedKey ? CITY_DATABASE[matchedKey] : null;
+  const matchedTextKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
+  const matchedInfo = (matchedCoverKey ? CITY_DATABASE[matchedCoverKey] : null) || (matchedTextKey ? CITY_DATABASE[matchedTextKey] : null) || CITY_DATABASE.tokyo;
 
-  const mainCityName = mainStop?.name || firstStop?.name || matchedInfo?.name || (trip.name?.length > 2 ? trip.name : 'Tokyo');
+  const mainCityName = mainStop?.name || firstStop?.name || matchedInfo?.name || 'Tokyo';
   const mainCountry = mainStop?.country || firstStop?.country || matchedInfo?.country || 'Japan';
   const mainFlag = matchedInfo?.flag || (mainCountry === 'Japan' ? '🇯🇵' : mainCountry === 'France' ? '🇫🇷' : mainCountry === 'Italy' ? '🇮🇹' : '📍');
-  const mainCode = matchedInfo?.code || mainCityName.substring(0, 3).toUpperCase();
+  const mainCode = matchedInfo?.code || (mainCityName ? mainCityName.substring(0, 3).toUpperCase() : 'TYO');
 
   const defaultGeneric = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80';
   const effectiveCoverPhoto = (trip.coverPhotoUrl && trip.coverPhotoUrl !== defaultGeneric)
