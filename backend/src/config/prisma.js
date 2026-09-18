@@ -598,28 +598,29 @@ export const prisma = new Proxy(realPrisma, {
       return origMethod;
     }
     
-    // For models, return a proxy that catches database failures and falls back to mock
+    // For models, return a proxy that safely routes to real Prisma without mutating global process state
     return new Proxy(origMethod, {
       get: (modelTarget, modelProp) => {
         const origModelMethod = modelTarget[modelProp];
         return async function (...args) {
+          if (typeof origModelMethod !== 'function') {
+            return origModelMethod;
+          }
           try {
-            if (typeof origModelMethod === 'function') {
-              return await origModelMethod.apply(modelTarget, args);
-            }
+            return await origModelMethod.apply(modelTarget, args);
           } catch (err) {
-            console.warn(`⚠️ Database query failed for prisma.${prop}.${modelProp}: ${err.message}. Toggling mock mode.`);
-            process.env.MOCK_DATABASE = 'true';
+            // Only fallback to mock if DB is genuinely unreachable (P1001/P1002) AND explicit mock fallback is requested
+            const isConnectionError = err.code === 'P1001' || err.code === 'P1002' || err.message?.includes("Can't reach database");
+            if (isConnectionError && process.env.ALLOW_MOCK_FALLBACK === 'true') {
+              console.warn(`⚠️ Connection error for prisma.${prop}.${modelProp}: ${err.message}. Falling back to mock for this request.`);
+              const modelMock = mockPrisma[prop] || createModelMock(prop);
+              if (modelMock && typeof modelMock[modelProp] === 'function') {
+                return await modelMock[modelProp].apply(modelMock, args);
+              }
+            }
+            // Always rethrow database errors (such as unique constraint, invalid inputs) so real DB operations process correctly
+            throw err;
           }
-          
-          // Execute mock fallback
-          const modelMock = mockPrisma[prop] || createModelMock(prop);
-          if (modelMock && typeof modelMock[modelProp] === 'function') {
-            return await modelMock[modelProp].apply(modelMock, args);
-          }
-          
-          // Safe fallback for unspecified mock methods
-          return { count: 0, _count: { id: 0 } };
         };
       }
     });

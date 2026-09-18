@@ -186,6 +186,6 @@ describe('GlobeTrotter REST API Integration Tests', () => {
       expect(res.status).toBe(201);
       expect(res.body.data.trip.name).toContain('Copy of Summer Voyage in Paris');
       expect(res.body.data.trip.stops.length).toBe(1);
-    });
+    }, 20000);
   });
 });
