@@ -5,7 +5,8 @@ import { cityApi } from '../services/cityApi.js';
 import { GridSkeleton } from '../components/SkeletonLoader.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import {
-  Search, MapPin, Globe, Filter, Star, DollarSign, Sparkles, Ticket, X, ArrowRight, CheckCircle2, Compass, Layers, Plus, Play, Pause, ChevronLeft, ChevronRight, Video, Volume2, VolumeX, Image as ImageIcon
+  Search, MapPin, Globe, Filter, Star, DollarSign, Sparkles, Ticket, X, ArrowRight, CheckCircle2, Compass, Layers, Plus, Play, Pause, ChevronLeft, ChevronRight, Video, Volume2, VolumeX, Image as ImageIcon,
+  Clock, Lightbulb, Calendar, Wallet
 } from 'lucide-react';
 
 // Curated 4-Photo HD Landmark Slideshows for All 16 Cities
@@ -106,6 +107,106 @@ const CITY_LANDMARK_SLIDESHOWS = {
     { title: 'Blue Lagoon Geothermal Therapeutic Spa', url: 'https://images.unsplash.com/photo-1529963183134-61a90db47eaf?w=480&auto=format&fit=crop&q=75' },
     { title: 'Northern Lights Aurora Over Cityscape', url: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=480&auto=format&fit=crop&q=75' },
   ],
+};
+
+// Curated Relatable Travel Insights for Cities
+const CITY_TRAVEL_INSIGHTS = {
+  Tokyo: {
+    vibe: 'High-Tech Neon & Timeless Shrines',
+    idealDuration: '4–6 Days',
+    bestSeason: 'Mar – May & Sep – Nov',
+    travelerTip: 'Get a reloadable Suica or Pasmo card for seamless travel on Tokyo subways and trains.',
+  },
+  Paris: {
+    vibe: 'Romantic Cafes, Haute Art & Architecture',
+    idealDuration: '4–5 Days',
+    bestSeason: 'Apr – Jun & Sep – Oct',
+    travelerTip: 'Reserve Louvre & Eiffel Tower slots well in advance, and explore Montmartre in the morning.',
+  },
+  'New York': {
+    vibe: 'Electric Energy, Broadway & Cultural Icons',
+    idealDuration: '3–5 Days',
+    bestSeason: 'Apr – Jun & Sep – Nov',
+    travelerTip: 'Walk the High Line and catch the NYC Ferry for skyline views at standard transit fares.',
+  },
+  Rome: {
+    vibe: 'Living History, Baroque Piazzas & Gelato',
+    idealDuration: '3–4 Days',
+    bestSeason: 'Apr – May & Sep – Oct',
+    travelerTip: 'Refill your water bottle for free at public "nasoni" fountains across the historic center.',
+  },
+  Kyoto: {
+    vibe: 'Zen Temples, Bamboo Groves & Geisha Culture',
+    idealDuration: '3–4 Days',
+    bestSeason: 'Mar – May & Oct – Nov',
+    travelerTip: 'Hike Fushimi Inari Shrine early in the morning for peaceful photos without the crowds.',
+  },
+  Barcelona: {
+    vibe: 'Mediterranean Sun, Tapas & Gaudí Masterpieces',
+    idealDuration: '3–5 Days',
+    bestSeason: 'May – Jun & Sep – Oct',
+    travelerTip: 'Dinner starts late (around 9 PM); buy timed entry for Sagrada Família to skip long queues.',
+  },
+  'Cape Town': {
+    vibe: 'Dramatic Coastal Peaks & Atlantic Breezes',
+    idealDuration: '4–6 Days',
+    bestSeason: 'Nov – Mar',
+    travelerTip: 'Head up the Table Mountain Cableway on the first clear sunny day as winds can close it.',
+  },
+  Sydney: {
+    vibe: 'Harbour Living, Golden Surf & Coastal Walks',
+    idealDuration: '4–5 Days',
+    bestSeason: 'Sep – Nov & Feb – Apr',
+    travelerTip: 'Take the scenic public ferry from Circular Quay to Manly Beach for stunning harbour views.',
+  },
+  London: {
+    vibe: 'Royal Heritage, Iconic Theatres & River Walks',
+    idealDuration: '4–5 Days',
+    bestSeason: 'May – Sep',
+    travelerTip: 'World-renowned museums like the British Museum and Tate Modern have completely free entry.',
+  },
+  Bangkok: {
+    vibe: 'Gilded Temples, Floating Markets & Street Eats',
+    idealDuration: '3–4 Days',
+    bestSeason: 'Nov – Feb',
+    travelerTip: 'Dress modestly covering shoulders and knees when visiting the Grand Palace and Wat Arun.',
+  },
+  'Rio de Janeiro': {
+    vibe: 'Samba Rhythms, Ocean Heights & Beach Culture',
+    idealDuration: '4–5 Days',
+    bestSeason: 'Dec – Mar',
+    travelerTip: 'Gather with locals on Arpoador Rock between Copacabana and Ipanema to applaud the sunset.',
+  },
+  Cairo: {
+    vibe: 'Ancient Wonders, Historic Bazaars & Nile Sunsets',
+    idealDuration: '3–4 Days',
+    bestSeason: 'Oct – Apr',
+    travelerTip: 'Take a relaxed evening felucca sailboat ride on the Nile to unwind after exploring Giza.',
+  },
+  Amsterdam: {
+    vibe: 'Picturesque Canals, Art Masters & Cycling Life',
+    idealDuration: '3–4 Days',
+    bestSeason: 'Apr – May & Sep – Nov',
+    travelerTip: 'Rent a bicycle or wander the historic Jordaan district to experience authentic local life.',
+  },
+  Dubrovnik: {
+    vibe: 'Medieval Fortresses & Crystal Adriatic Shores',
+    idealDuration: '2–3 Days',
+    bestSeason: 'May – Jun & Sep – Oct',
+    travelerTip: 'Walk the ancient defensive stone city walls either right at opening or near late afternoon.',
+  },
+  Mumbai: {
+    vibe: 'High-Spirited Streets, Heritage Arches & Seaside Drives',
+    idealDuration: '3–4 Days',
+    bestSeason: 'Nov – Feb',
+    travelerTip: 'Stroll Marine Drive around twilight to see the dazzling "Queen’s Necklace" lights come alive.',
+  },
+  Reykjavik: {
+    vibe: 'Nordic Charm, Northern Lights & Volcanic Spas',
+    idealDuration: '3–5 Days',
+    bestSeason: 'Sep – Mar (Aurora) or Jun – Aug',
+    travelerTip: 'Pack windproof layers and pre-book the Blue Lagoon or Sky Lagoon well in advance.',
+  },
 };
 
 const BACKGROUND_TRAVEL_MUSIC = 'https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3';
@@ -727,89 +828,189 @@ export const CitySearchPage = () => {
         </div>
       )}
 
-      {/* City Detail & Activities Preview Modal */}
+      {/* City Detail & Activities Preview Modal - Compact & Relatable */}
       {selectedCityModal && !videoModalCity && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
-          <div className="glass-card rounded-3xl max-w-2xl w-full border border-slate-800 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            {/* Modal Header */}
-            <div className="relative h-56 flex-shrink-0 overflow-hidden bg-slate-950">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="glass-card rounded-3xl max-w-md w-full border border-slate-800 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col relative animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Compact Header Banner */}
+            <div className="relative h-36 flex-shrink-0 overflow-hidden bg-slate-950">
               <img
                 src={selectedCityModal.imageUrl || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80'}
                 alt={selectedCityModal.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-black/30"></div>
 
-              {/* Watch Video Trailer Button */}
+              {/* Quick Slideshow Button */}
               <button
                 onClick={() => handleOpenVideoModal(selectedCityModal)}
-                className="absolute top-4 left-4 px-3.5 py-1.5 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-[10px] font-black uppercase rounded-xl flex items-center space-x-1.5 shadow-lg border border-white/20 tracking-wider hover:scale-105 transition-transform"
+                className="absolute top-3 left-3 px-2.5 py-1 bg-slate-950/80 hover:bg-pink-600/40 text-pink-300 border border-pink-500/30 rounded-full text-[10px] font-bold flex items-center space-x-1 backdrop-blur-md transition-all shadow-sm"
               >
-                <Play className="w-3.5 h-3.5 fill-white" />
-                <span>Play Photo Slideshow</span>
+                <Play className="w-3 h-3 fill-pink-400 text-pink-400" />
+                <span>Slideshow</span>
               </button>
 
+              {/* Close Button */}
               <button
                 onClick={handleCloseModal}
-                className="absolute top-4 right-4 p-2 bg-slate-950/80 text-slate-300 hover:text-white rounded-full border border-slate-700 z-10"
+                className="absolute top-3 right-3 w-7 h-7 bg-slate-950/80 hover:bg-slate-800 text-slate-300 hover:text-white rounded-full border border-slate-700/60 flex items-center justify-center backdrop-blur-md transition-colors z-10"
+                title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
-              <div className="absolute bottom-4 left-6 right-6 flex justify-between items-end">
+              {/* City Title & Quick Stats in Header Bottom */}
+              <div className="absolute bottom-2.5 left-4 right-4 flex justify-between items-end">
                 <div>
-                  <h3 className="font-display font-black text-3xl text-white drop-shadow-md">{selectedCityModal.name}</h3>
-                  <p className="text-xs text-slate-200 font-bold flex items-center space-x-1.5 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                  <h3 className="font-display font-black text-xl text-white drop-shadow-md leading-tight">
+                    {selectedCityModal.name}
+                  </h3>
+                  <p className="text-[11px] text-slate-300 font-semibold flex items-center space-x-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-cyan-400 shrink-0" />
                     <span>{selectedCityModal.country} • {selectedCityModal.region}</span>
                   </p>
                 </div>
-                <span className="px-3 py-1 bg-amber-500/90 text-slate-950 font-black text-xs rounded-xl flex items-center space-x-1 shadow-lg">
-                  <Star className="w-3.5 h-3.5 fill-slate-950" />
+                <div className="px-2 py-0.5 bg-amber-500/95 text-slate-950 font-black text-xs rounded-lg flex items-center space-x-1 shadow-sm">
+                  <Star className="w-3 h-3 fill-slate-950" />
                   <span>{selectedCityModal.popularityScore}</span>
-                </span>
+                </div>
               </div>
             </div>
 
-            {/* Modal Body Activities List */}
-            <div className="p-6 overflow-y-auto space-y-4 flex-1">
-              <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-2">
-                  <Ticket className="w-4 h-4 text-purple-400" />
-                  <span>Curated Activities ({detailedCity?.activities?.length || 0})</span>
-                </h4>
-                <span className="text-xs text-emerald-400 font-bold">Cost Index: {selectedCityModal.costIndex}x</span>
-              </div>
+            {/* Modal Body - Relatable Travel Insights & Curated Highlights */}
+            <div className="p-4 overflow-y-auto space-y-3.5 flex-1 scrollbar-thin">
+              {(() => {
+                const insight = CITY_TRAVEL_INSIGHTS[selectedCityModal.name] || {
+                  vibe: 'Iconic Sights & World Landmarks',
+                  idealDuration: '3–4 Days',
+                  bestSeason: 'Spring / Fall',
+                  travelerTip: 'Great walkability and public transport connections throughout the city.',
+                };
+                const costTier = getCostIndexTierLabel(selectedCityModal.costIndex);
+                const estDailyMin = Math.round(selectedCityModal.costIndex * 65);
+                const estDailyMax = Math.round(selectedCityModal.costIndex * 110);
 
-              {detailLoading ? (
-                <div className="py-8 text-center text-xs text-slate-400">Loading city activities...</div>
-              ) : (!detailedCity?.activities || detailedCity.activities.length === 0) ? (
-                <p className="text-xs text-slate-500 italic py-4 text-center">No curated activities for this city yet.</p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {detailedCity.activities.map((act) => (
-                    <div key={act.id} className="p-3 glass-card rounded-2xl border border-slate-800 flex items-center space-x-3 hover:border-slate-700 transition-colors">
-                      {act.imageUrl && (
-                        <img src={act.imageUrl} alt={act.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="font-bold text-xs text-white truncate">{act.name}</p>
-                        <p className="text-[10px] text-slate-400 capitalize mt-0.5">{act.category} • {act.durationHours} hrs</p>
-                        <p className="text-xs font-extrabold text-emerald-400 mt-1">{formatCurrency(act.estimatedCost)}</p>
+                return (
+                  <>
+                    {/* Relatable Vibe Tagline */}
+                    <div className="flex items-center space-x-2 text-xs text-brand-300 font-semibold bg-brand-500/10 border border-brand-500/20 px-3 py-1.5 rounded-xl">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span className="truncate">{insight.vibe}</span>
+                    </div>
+
+                    {/* Relatable Snapshot Stats (3 compact cards) */}
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="p-2 glass-card rounded-xl border border-slate-800/80">
+                        <div className="flex items-center justify-center space-x-1 text-[10px] text-slate-400 font-medium">
+                          <Wallet className="w-3 h-3 text-emerald-400" />
+                          <span>Est. Daily</span>
+                        </div>
+                        <p className="text-xs font-black text-emerald-400 mt-0.5">
+                          ${estDailyMin}-${estDailyMax}
+                        </p>
+                        <p className="text-[9px] text-slate-500 capitalize">{costTier.tier} Tier</p>
+                      </div>
+
+                      <div className="p-2 glass-card rounded-xl border border-slate-800/80">
+                        <div className="flex items-center justify-center space-x-1 text-[10px] text-slate-400 font-medium">
+                          <Clock className="w-3 h-3 text-brand-400" />
+                          <span>Ideal Stay</span>
+                        </div>
+                        <p className="text-xs font-black text-brand-300 mt-0.5 truncate">
+                          {insight.idealDuration}
+                        </p>
+                        <p className="text-[9px] text-slate-500">Recommended</p>
+                      </div>
+
+                      <div className="p-2 glass-card rounded-xl border border-slate-800/80">
+                        <div className="flex items-center justify-center space-x-1 text-[10px] text-slate-400 font-medium">
+                          <Calendar className="w-3 h-3 text-purple-400" />
+                          <span>Best Time</span>
+                        </div>
+                        <p className="text-xs font-black text-purple-300 mt-0.5 truncate">
+                          {insight.bestSeason}
+                        </p>
+                        <p className="text-[9px] text-slate-500">Top Weather</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    {/* Relatable Traveler Insider Tip */}
+                    <div className="p-2.5 bg-slate-900/90 border border-slate-800 rounded-xl flex items-start space-x-2 text-[11px] text-slate-300">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      <p className="leading-snug">
+                        <strong className="text-slate-200">Traveler Tip: </strong>
+                        {insight.travelerTip}
+                      </p>
+                    </div>
+
+                    {/* Curated Highlights / Activities */}
+                    <div className="space-y-2 pt-1">
+                      <div className="flex justify-between items-center pb-1 border-b border-slate-800/80">
+                        <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+                          <Ticket className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Curated Highlights ({detailedCity?.activities?.length || 0})</span>
+                        </h4>
+                        <span className="text-[10px] font-bold text-slate-400">
+                          Multiplier: <span className="text-emerald-400">{selectedCityModal.costIndex}x</span>
+                        </span>
+                      </div>
+
+                      {detailLoading ? (
+                        <div className="py-4 text-center text-xs text-slate-400">Loading city highlights...</div>
+                      ) : (!detailedCity?.activities || detailedCity.activities.length === 0) ? (
+                        <p className="text-xs text-slate-500 italic py-2 text-center">No curated activities for this city yet.</p>
+                      ) : (
+                        <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1 scrollbar-thin">
+                          {detailedCity.activities.map((act) => (
+                            <div
+                              key={act.id}
+                              className="p-2 glass-card rounded-xl border border-slate-800/80 flex items-center space-x-2.5 hover:border-slate-700/80 transition-colors"
+                            >
+                              {act.imageUrl ? (
+                                <img
+                                  src={act.imageUrl}
+                                  alt={act.name}
+                                  className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg bg-slate-800/80 flex items-center justify-center flex-shrink-0 text-slate-500">
+                                  <Ticket className="w-4 h-4" />
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-xs text-white truncate">{act.name}</p>
+                                <p className="text-[10px] text-slate-400 capitalize mt-0.5">
+                                  {act.category} • {act.durationHours} hrs
+                                </p>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <span className="text-xs font-black text-emerald-400">
+                                  {formatCurrency(act.estimatedCost)}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Modal Footer CTA */}
-            <div className="p-4 bg-slate-950 border-t border-slate-800 flex justify-between items-center flex-shrink-0">
+            <div className="p-3 bg-slate-950/90 border-t border-slate-800/80 flex justify-between items-center flex-shrink-0">
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white"
+                className="px-3.5 py-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
               >
-                Close Preview
+                Close
               </button>
               <button
                 onClick={() => {
@@ -817,10 +1018,10 @@ export const CitySearchPage = () => {
                   handleCloseModal();
                   navigate(`/trips/new?city=${encodeURIComponent(cityName)}`);
                 }}
-                className="px-5 py-2.5 bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-glow flex items-center space-x-1.5"
+                className="px-4 py-2 bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-glow flex items-center space-x-1.5 transition-all hover:scale-[1.02]"
               >
                 <span>Plan Trip with {selectedCityModal.name}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
