@@ -32,35 +32,34 @@ export const getTripMainDestination = (trip) => {
   const lastStop = hasStops ? trip.stops[trip.stops.length - 1]?.city : null;
   const firstStop = hasStops ? trip.stops[0]?.city : null;
 
-  let cityName = '';
-  let country = '';
+  let locationName = '';
 
   if (hasStops) {
     if (trip.stops.length === 1) {
-      cityName = firstStop?.name || 'Destination City';
-      country = firstStop?.country || '';
+      locationName = `${firstStop?.name || 'Tokyo'}, ${firstStop?.country || 'Japan'}`;
     } else {
-      cityName = `${firstStop?.name || 'Start'} → ${lastStop?.name || 'End'}`;
-      country = lastStop?.country || firstStop?.country || '';
+      locationName = `${firstStop?.name || 'Tokyo'} → ${lastStop?.name || 'Kyoto'}${lastStop?.country ? `, ${lastStop.country}` : ''}`;
     }
   } else {
+    const coverUrl = (trip?.coverPhotoUrl || '').toLowerCase();
+    const matchedCoverKey = Object.keys(CITY_DATABASE).find(k =>
+      coverUrl.includes(k) || (CITY_DATABASE[k]?.photo && coverUrl.includes(CITY_DATABASE[k].photo.split('?')[0].replace('https://images.unsplash.com/', '')))
+    );
+
     const searchStr = `${trip?.name || ''} ${trip?.description || ''}`.toLowerCase();
-    const matchedKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
-    if (matchedKey) {
-      cityName = CITY_DATABASE[matchedKey].name;
-      country = CITY_DATABASE[matchedKey].country;
-    } else {
-      cityName = 'Custom Destination';
-      country = '';
-    }
+    const matchedTextKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
+
+    const match = (matchedCoverKey ? CITY_DATABASE[matchedCoverKey] : null) || (matchedTextKey ? CITY_DATABASE[matchedTextKey] : null) || CITY_DATABASE.tokyo;
+
+    locationName = match.country || `${match.name}, ${match.country}`;
   }
 
   const defaultGeneric = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80';
   const photo = (trip?.coverPhotoUrl && trip.coverPhotoUrl !== defaultGeneric)
     ? trip.coverPhotoUrl
-    : (lastStop?.imageUrl || firstStop?.imageUrl || CITY_DATABASE.dubai.photo);
+    : (lastStop?.imageUrl || firstStop?.imageUrl || CITY_DATABASE.tokyo.photo);
 
-  return { cityName, country, photo };
+  return { cityName: locationName, country: '', locationName, photo };
 };
 
 export const DashboardPage = () => {
@@ -248,7 +247,7 @@ export const DashboardPage = () => {
                     {/* Destination / Location Section */}
                     <div className="flex items-center space-x-2 text-xs font-bold text-white">
                       <MapPin className="w-3.5 h-3.5 text-brand-400 shrink-0" />
-                      <span className="truncate">{dest.cityName}{dest.country ? `, ${dest.country}` : ''}</span>
+                      <span className="truncate">{dest.locationName || 'Japan'}</span>
                     </div>
 
                     {/* Intermediate Stops Route Section */}
