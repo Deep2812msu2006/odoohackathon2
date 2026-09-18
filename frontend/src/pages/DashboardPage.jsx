@@ -11,20 +11,20 @@ import { formatDateRange, formatCurrency } from '../utils/formatters.js';
 import { Compass, Map, Building2, Globe, Plus, ArrowRight, Share2, Sparkles, Calendar, Star, CheckCircle2, Ticket } from 'lucide-react';
 
 export const CITY_DATABASE = {
-  tokyo: { name: 'Tokyo', country: 'Japan', flag: '🇯🇵', photo: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&auto=format&fit=crop&q=80' },
-  paris: { name: 'Paris', country: 'France', flag: '🇫🇷', photo: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80' },
-  rome: { name: 'Rome', country: 'Italy', flag: '🇮🇹', photo: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80' },
-  'new york': { name: 'New York', country: 'United States', flag: '🇺🇸', photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&auto=format&fit=crop&q=80' },
-  london: { name: 'London', country: 'United Kingdom', flag: '🇬🇧', photo: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop&q=80' },
-  dubai: { name: 'Dubai', country: 'United Arab Emirates', flag: '🇦🇪', photo: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80' },
-  sydney: { name: 'Sydney', country: 'Australia', flag: '🇦🇺', photo: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80' },
-  venice: { name: 'Venice', country: 'Italy', flag: '🇮🇹', photo: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=800&auto=format&fit=crop&q=80' },
-  cairo: { name: 'Cairo', country: 'Egypt', flag: '🇪🇬', photo: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&auto=format&fit=crop&q=80' },
-  rio: { name: 'Rio de Janeiro', country: 'Brazil', flag: '🇧🇷', photo: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&auto=format&fit=crop&q=80' },
-  barcelona: { name: 'Barcelona', country: 'Spain', flag: '🇪🇸', photo: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&auto=format&fit=crop&q=80' },
-  amsterdam: { name: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', photo: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80' },
-  kyoto: { name: 'Kyoto', country: 'Japan', flag: '🇯🇵', photo: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&auto=format&fit=crop&q=80' },
-  bangkok: { name: 'Bangkok', country: 'Thailand', flag: '🇹🇭', photo: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80' },
+  tokyo: { name: 'Tokyo', country: 'Japan', flag: '🇯🇵', photo: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=480&auto=format&fit=crop&q=75' },
+  paris: { name: 'Paris', country: 'France', flag: '🇫🇷', photo: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=480&auto=format&fit=crop&q=75' },
+  rome: { name: 'Rome', country: 'Italy', flag: '🇮🇹', photo: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=480&auto=format&fit=crop&q=75' },
+  'new york': { name: 'New York', country: 'United States', flag: '🇺🇸', photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=480&auto=format&fit=crop&q=75' },
+  london: { name: 'London', country: 'United Kingdom', flag: '🇬🇧', photo: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=480&auto=format&fit=crop&q=75' },
+  dubai: { name: 'Dubai', country: 'United Arab Emirates', flag: '🇦🇪', photo: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=480&auto=format&fit=crop&q=75' },
+  sydney: { name: 'Sydney', country: 'Australia', flag: '🇦🇺', photo: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=480&auto=format&fit=crop&q=75' },
+  venice: { name: 'Venice', country: 'Italy', flag: '🇮🇹', photo: 'https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=480&auto=format&fit=crop&q=75' },
+  cairo: { name: 'Cairo', country: 'Egypt', flag: '🇪🇬', photo: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=480&auto=format&fit=crop&q=75' },
+  rio: { name: 'Rio de Janeiro', country: 'Brazil', flag: '🇧🇷', photo: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=480&auto=format&fit=crop&q=75' },
+  barcelona: { name: 'Barcelona', country: 'Spain', flag: '🇪🇸', photo: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=480&auto=format&fit=crop&q=75' },
+  amsterdam: { name: 'Amsterdam', country: 'Netherlands', flag: '🇳🇱', photo: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=480&auto=format&fit=crop&q=75' },
+  kyoto: { name: 'Kyoto', country: 'Japan', flag: '🇯🇵', photo: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=480&auto=format&fit=crop&q=75' },
+  bangkok: { name: 'Bangkok', country: 'Thailand', flag: '🇹🇭', photo: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=480&auto=format&fit=crop&q=75' },
 };
 
 export const getTripMainDestination = (trip) => {

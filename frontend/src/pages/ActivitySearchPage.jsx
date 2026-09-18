@@ -12,57 +12,57 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const FALLBACK_ACTIVITY_IMAGE = 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&auto=format&fit=crop&q=80';
+const FALLBACK_ACTIVITY_IMAGE = 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=480&auto=format&fit=crop&q=75';
 
 // Category-Based Activity Photo Galleries (4 photos per category)
 const ACTIVITY_CATEGORY_PHOTOS = {
   sightseeing: [
-    { title: 'Iconic Landmark Vista', url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Historic Monument Tour', url: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Panoramic Viewpoint', url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Dubrovnik Adriatic Coastal View', url: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Iconic Landmark Vista', url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Historic Monument Tour', url: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Panoramic Viewpoint', url: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Dubrovnik Adriatic Coastal View', url: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=480&auto=format&fit=crop&q=75' },
   ],
   food: [
-    { title: 'Street Food Market Feast', url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Chef\'s Tasting Experience', url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Local Cuisine Platter', url: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Artisan Bakery Selection', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Street Food Market Feast', url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Chef\'s Tasting Experience', url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Local Cuisine Platter', url: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Artisan Bakery Selection', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=480&auto=format&fit=crop&q=75' },
   ],
   adventure: [
-    { title: 'Mountain Summit Trail', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Kayaking Crystal Waters', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Aerial Adventure View', url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Wilderness Exploration', url: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Mountain Summit Trail', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Kayaking Crystal Waters', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Aerial Adventure View', url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Wilderness Exploration', url: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?w=480&auto=format&fit=crop&q=75' },
   ],
   culture: [
-    { title: 'Ancient Temple Interior', url: 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Art Museum Gallery Hall', url: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Heritage Architecture Walk', url: 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Cultural Festival Ceremony', url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Ancient Temple Interior', url: 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Art Museum Gallery Hall', url: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Heritage Architecture Walk', url: 'https://images.unsplash.com/photo-1529260830199-42c24126f198?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Cultural Festival Ceremony', url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=480&auto=format&fit=crop&q=75' },
   ],
   nightlife: [
-    { title: 'Neon City Lights District', url: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Rooftop Bar Skyline View', url: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Live Music Performance', url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Evening Cruise Atmosphere', url: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Neon City Lights District', url: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Rooftop Bar Skyline View', url: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Live Music Performance', url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Evening Cruise Atmosphere', url: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=480&auto=format&fit=crop&q=75' },
   ],
   relaxation: [
-    { title: 'Coastal Beach Serenity', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Garden Zen Pathway', url: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Thermal Spa Retreat', url: 'https://images.unsplash.com/photo-1529963183134-61a90db47eaf?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Sunset Horizon View', url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Coastal Beach Serenity', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Garden Zen Pathway', url: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Thermal Spa Retreat', url: 'https://images.unsplash.com/photo-1529963183134-61a90db47eaf?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Sunset Horizon View', url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=480&auto=format&fit=crop&q=75' },
   ],
   shopping: [
-    { title: 'Grand Bazaar Market Lane', url: 'https://images.unsplash.com/photo-1527838832700-5059252407fa?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Artisan Craft Workshop', url: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Designer Boutique Street', url: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Local Souvenir Selection', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Grand Bazaar Market Lane', url: 'https://images.unsplash.com/photo-1527838832700-5059252407fa?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Artisan Craft Workshop', url: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Designer Boutique Street', url: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Local Souvenir Selection', url: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=480&auto=format&fit=crop&q=75' },
   ],
   other: [
-    { title: 'Unique Local Experience', url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Hidden Gem Discovery', url: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Off-the-Beaten-Path Tour', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200&auto=format&fit=crop&q=80' },
-    { title: 'Memorable Photo Moment', url: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200&auto=format&fit=crop&q=80' },
+    { title: 'Unique Local Experience', url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Hidden Gem Discovery', url: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Off-the-Beaten-Path Tour', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=480&auto=format&fit=crop&q=75' },
+    { title: 'Memorable Photo Moment', url: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=480&auto=format&fit=crop&q=75' },
   ],
 };
 
