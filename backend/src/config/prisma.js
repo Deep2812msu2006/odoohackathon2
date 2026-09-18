@@ -578,8 +578,8 @@ const mockPrisma = new MockPrismaClient();
 
 export const prisma = new Proxy(realPrisma, {
   get: (target, prop) => {
-    // If mock is explicitly enabled, direct calls to mock client
-    if (process.env.MOCK_DATABASE === 'true') {
+    // If DATABASE_URL is not configured, fallback to mock client
+    if (!process.env.DATABASE_URL && process.env.MOCK_DATABASE === 'true') {
       if (mockPrisma[prop]) return mockPrisma[prop];
       return createModelMock(prop);
     }
