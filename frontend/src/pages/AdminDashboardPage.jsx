@@ -85,14 +85,28 @@ export const AdminDashboardPage = () => {
     );
   }
 
-  const { overview, popularCities, popularActivities, financialSummary, tripBudgets, monthlyFinancials, yearlyFinancials } = analyticsData;
+  const actualAnalytics = analyticsData?.analytics || analyticsData || {};
+  const overview = actualAnalytics.overview || {
+    totalUsers: 0,
+    totalTrips: 0,
+    publicTrips: 0,
+    totalCities: 0,
+    totalActivities: 0,
+    totalShares: 0,
+  };
+  const financialSummary = actualAnalytics.financialSummary || {};
+  const popularCities = actualAnalytics.popularCities || [];
+  const popularActivities = actualAnalytics.popularActivities || [];
+  const tripBudgets = actualAnalytics.tripBudgets || [];
+  const monthlyFinancials = actualAnalytics.monthlyFinancials || [];
+  const yearlyFinancials = actualAnalytics.yearlyFinancials || [];
 
   const chartData = [
-    { name: 'Users', count: overview.totalUsers, fill: '#3b82f6' },
-    { name: 'Trips', count: overview.totalTrips, fill: '#8b5cf6' },
-    { name: 'Shares', count: overview.totalShares, fill: '#10b981' },
-    { name: 'Cities', count: overview.totalCities, fill: '#f59e0b' },
-    { name: 'Activities', count: overview.totalActivities, fill: '#ec4899' },
+    { name: 'Users', count: overview.totalUsers || 0, fill: '#3b82f6' },
+    { name: 'Trips', count: overview.totalTrips || 0, fill: '#8b5cf6' },
+    { name: 'Shares', count: overview.totalShares || 0, fill: '#10b981' },
+    { name: 'Cities', count: overview.totalCities || 0, fill: '#f59e0b' },
+    { name: 'Activities', count: overview.totalActivities || 0, fill: '#ec4899' },
   ];
 
   const filteredUsers = (usersData || []).filter(u =>

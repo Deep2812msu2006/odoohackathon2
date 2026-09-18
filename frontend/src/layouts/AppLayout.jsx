@@ -65,7 +65,7 @@ export const AppLayout = () => {
           queryKey: ['adminAnalytics'],
           queryFn: async () => {
             const res = await adminApi.getAnalytics();
-            return res.data;
+            return res.data?.analytics || res.data;
           },
         });
         queryClient.prefetchQuery({
