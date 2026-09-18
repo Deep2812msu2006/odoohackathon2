@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cityApi } from '../services/cityApi.js';
@@ -354,6 +355,18 @@ export const CitySearchPage = () => {
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const audioRef = useRef(null);
 
+  // Lock body scroll when modal is active
+  useEffect(() => {
+    if (selectedCityModal || videoModalCity) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedCityModal, videoModalCity]);
+
   // Sync search state with URL parameter if present
   useEffect(() => {
     if (urlSearchParam) {
@@ -658,8 +671,8 @@ export const CitySearchPage = () => {
       )}
 
       {/* Cinematic Landmark Photo Slideshow Fullscreen Modal with Ambient Soundtrack */}
-      {videoModalCity && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/98 backdrop-blur-2xl animate-fade-in w-screen h-screen">
+      {videoModalCity && createPortal(
+        <div className="fixed inset-0 z-[9999] flex flex-col bg-slate-950/98 backdrop-blur-2xl animate-fade-in w-screen h-screen">
           <audio
             ref={audioRef}
             src={BACKGROUND_TRAVEL_MUSIC}
@@ -825,13 +838,14 @@ export const CitySearchPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* City Detail & Activities Preview Modal - Compact & Relatable */}
-      {selectedCityModal && !videoModalCity && (
+      {selectedCityModal && !videoModalCity && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
           onClick={handleCloseModal}
         >
           <div
@@ -1025,7 +1039,8 @@ export const CitySearchPage = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
