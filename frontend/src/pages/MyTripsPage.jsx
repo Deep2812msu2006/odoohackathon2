@@ -85,22 +85,39 @@ export const MyTripsPage = () => {
   };
 
   const getTripMainDestination = (trip) => {
-    const mainStop = (trip.stops && trip.stops.length > 0) ? trip.stops[trip.stops.length - 1]?.city : null;
-    const firstStop = (trip.stops && trip.stops.length > 0) ? trip.stops[0]?.city : null;
-    const searchStr = `${trip.name || ''} ${trip.description || ''}`.toLowerCase();
-    const matchedKey = Object.keys(CITY_PHOTOS).find(k => searchStr.includes(k));
-    const matchedInfo = matchedKey ? CITY_PHOTOS[matchedKey] : null;
+    const hasStops = trip.stops && trip.stops.length > 0;
+    const mainStop = hasStops ? trip.stops[trip.stops.length - 1]?.city : null;
+    const firstStop = hasStops ? trip.stops[0]?.city : null;
 
-    const cityName = mainStop?.name || firstStop?.name || matchedInfo?.cityName || (trip.name?.length > 2 ? trip.name : 'Tokyo');
-    const country = mainStop?.country || firstStop?.country || matchedInfo?.country || 'Japan';
-    const flag = matchedInfo?.flag || (country === 'Japan' ? '🇯🇵' : country === 'France' ? '🇫🇷' : country === 'Italy' ? '🇮🇹' : '📍');
-    
+    let cityName = '';
+    let country = '';
+
+    if (hasStops) {
+      if (trip.stops.length === 1) {
+        cityName = firstStop?.name || 'Destination City';
+        country = firstStop?.country || '';
+      } else {
+        cityName = `${firstStop?.name || 'Start'} → ${mainStop?.name || 'End'}`;
+        country = mainStop?.country || firstStop?.country || '';
+      }
+    } else {
+      const searchStr = `${trip.name || ''} ${trip.description || ''}`.toLowerCase();
+      const matchedKey = Object.keys(CITY_PHOTOS).find(k => searchStr.includes(k));
+      if (matchedKey) {
+        cityName = CITY_PHOTOS[matchedKey].cityName;
+        country = CITY_PHOTOS[matchedKey].country;
+      } else {
+        cityName = 'Custom Destination';
+        country = '';
+      }
+    }
+
     const defaultGeneric = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80';
     const photo = (trip.coverPhotoUrl && trip.coverPhotoUrl !== defaultGeneric)
       ? trip.coverPhotoUrl
-      : (mainStop?.imageUrl || matchedInfo?.photo || CITY_PHOTOS.tokyo.photo);
+      : (mainStop?.imageUrl || firstStop?.imageUrl || CITY_PHOTOS.tokyo.photo);
 
-    return { cityName, country, flag, photo };
+    return { cityName, country, photo };
   };
 
   return (
@@ -194,12 +211,6 @@ export const MyTripsPage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
                   <div className="absolute inset-0 bg-gradient-to-r from-brand-500/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950/80"></div>
-                  
-                  {/* Main Destination Badge */}
-                  <div className="absolute top-4 left-4 flex items-center space-x-1.5 px-3 py-1.5 bg-slate-950/85 backdrop-blur-xl text-white text-[11px] font-black rounded-xl border border-white/20 shadow-xl z-10">
-                    <span className="text-sm">{dest.flag}</span>
-                    <span>{dest.cityName}{dest.country ? `, ${dest.country}` : ''}</span>
-                  </div>
                 
                   {/* Status Badge with Pulse Animation */}
                   <button

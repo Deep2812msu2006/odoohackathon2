@@ -32,26 +32,35 @@ export const getTripMainDestination = (trip) => {
   const lastStop = hasStops ? trip.stops[trip.stops.length - 1]?.city : null;
   const firstStop = hasStops ? trip.stops[0]?.city : null;
 
-  const coverUrl = (trip?.coverPhotoUrl || '').split('?')[0];
-  const matchedCoverKey = Object.keys(CITY_DATABASE).find(k => 
-    coverUrl && (CITY_DATABASE[k].photo.includes(coverUrl) || coverUrl.includes(CITY_DATABASE[k].photo.split('?')[0]))
-  );
+  let cityName = '';
+  let country = '';
 
-  const searchStr = `${trip?.name || ''} ${trip?.description || ''}`.toLowerCase();
-  const matchedTextKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
-
-  const matchedInfo = (matchedCoverKey ? CITY_DATABASE[matchedCoverKey] : null) || (matchedTextKey ? CITY_DATABASE[matchedTextKey] : null);
-
-  const cityName = lastStop?.name || firstStop?.name || matchedInfo?.name || (trip?.name && trip.name !== 'er' && trip.name !== 'asa' ? trip.name : 'Dubai');
-  const country = lastStop?.country || firstStop?.country || matchedInfo?.country || (matchedInfo ? matchedInfo.country : 'United Arab Emirates');
-  const flag = matchedInfo?.flag || (country === 'Japan' ? '🇯🇵' : country === 'France' ? '🇫🇷' : country === 'United Arab Emirates' ? '🇦🇪' : '📍');
+  if (hasStops) {
+    if (trip.stops.length === 1) {
+      cityName = firstStop?.name || 'Destination City';
+      country = firstStop?.country || '';
+    } else {
+      cityName = `${firstStop?.name || 'Start'} → ${lastStop?.name || 'End'}`;
+      country = lastStop?.country || firstStop?.country || '';
+    }
+  } else {
+    const searchStr = `${trip?.name || ''} ${trip?.description || ''}`.toLowerCase();
+    const matchedKey = Object.keys(CITY_DATABASE).find(k => searchStr.includes(k));
+    if (matchedKey) {
+      cityName = CITY_DATABASE[matchedKey].name;
+      country = CITY_DATABASE[matchedKey].country;
+    } else {
+      cityName = 'Custom Destination';
+      country = '';
+    }
+  }
 
   const defaultGeneric = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop&q=80';
   const photo = (trip?.coverPhotoUrl && trip.coverPhotoUrl !== defaultGeneric)
     ? trip.coverPhotoUrl
-    : (lastStop?.imageUrl || matchedInfo?.photo || CITY_DATABASE.dubai.photo);
+    : (lastStop?.imageUrl || firstStop?.imageUrl || CITY_DATABASE.dubai.photo);
 
-  return { cityName, country, flag, photo };
+  return { cityName, country, photo };
 };
 
 export const DashboardPage = () => {
@@ -218,12 +227,6 @@ export const DashboardPage = () => {
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
-
-                    {/* Main Destination Badge */}
-                    <div className="absolute top-3 left-3 flex items-center space-x-1.5 px-2.5 py-1 bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black rounded-xl border border-white/20 shadow-lg z-10">
-                      <span className="text-xs">{dest.flag}</span>
-                      <span>{dest.cityName}{dest.country ? `, ${dest.country}` : ''}</span>
-                    </div>
                     
                     {trip.isPublic && (
                       <span className="absolute top-3 right-3 px-2.5 py-1 bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black uppercase rounded-xl tracking-wider shadow-lg z-10">
