@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { publicApi } from '../services/publicApi.js';
 import { tripApi } from '../services/tripApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { UserAvatar } from '../components/UserAvatar.jsx';
 import { formatDate, formatDateRange, formatCurrency } from '../utils/formatters.js';
 import toast from 'react-hot-toast';
 import { Copy, Calendar, MapPin, Ticket, User, Share2, Compass, CheckCircle2, ArrowRight, Globe, Lock } from 'lucide-react';
@@ -94,10 +95,11 @@ export const PublicTripPage = () => {
             </div>
             <h1 className="font-display font-extrabold text-4xl text-white drop-shadow-lg">{trip.name}</h1>
             <div className="flex items-center space-x-3 text-sm text-slate-200 bg-slate-900/50 backdrop-blur-sm rounded-xl px-4 py-2">
-              <img
-                src={trip.user?.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
-                alt={trip.user?.name}
-                className="w-8 h-8 rounded-full object-cover border-2 border-brand-500/30"
+              <UserAvatar
+                name={trip.user?.name}
+                photoUrl={trip.user?.profilePhotoUrl}
+                className="w-8 h-8 rounded-full"
+                textClassName="text-[11px] font-black"
               />
               <span>Planned by <strong className="text-white">{trip.user?.name}</strong></span>
               <span className="text-slate-500">•</span>

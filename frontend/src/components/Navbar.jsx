@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { UserAvatar } from './UserAvatar.jsx';
 import { Compass, Plus, User, LogOut, ShieldCheck, Map, Building2, Ticket, Sparkles } from 'lucide-react';
 
 export const Navbar = () => {
@@ -77,10 +78,11 @@ export const Navbar = () => {
                   className="flex items-center space-x-2.5 p-1.5 rounded-2xl hover:bg-slate-800/80 transition-colors focus:outline-none ring-1 ring-slate-800 hover:ring-brand-500/50"
                 >
                   <div className="relative">
-                    <img
-                      src={user.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
-                      alt={user.name}
-                      className="w-9 h-9 rounded-xl object-cover ring-2 ring-brand-500/60"
+                    <UserAvatar
+                      name={user.name}
+                      photoUrl={user.profilePhotoUrl}
+                      className="w-9 h-9 rounded-xl"
+                      textClassName="text-xs font-black"
                     />
                     <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full absolute -bottom-0.5 -right-0.5 ring-2 ring-slate-950"></span>
                   </div>

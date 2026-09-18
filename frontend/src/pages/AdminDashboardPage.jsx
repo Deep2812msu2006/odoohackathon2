@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { adminApi } from '../services/adminApi.js';
 import { systemApi } from '../services/systemApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { UserAvatar } from '../components/UserAvatar.jsx';
 import { formatCurrency } from '../utils/formatters.js';
 import toast from 'react-hot-toast';
 import { 
@@ -463,10 +464,11 @@ export const AdminDashboardPage = () => {
                       <tr key={u.id} className="hover:bg-slate-900/60 transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center space-x-3">
-                            <img
-                              src={u.profilePhotoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
-                              alt={u.name}
-                              className="w-9 h-9 rounded-xl object-cover border border-slate-700"
+                            <UserAvatar
+                              name={u.name}
+                              photoUrl={u.profilePhotoUrl}
+                              className="w-10 h-10 rounded-xl"
+                              textClassName="text-xs font-black"
                             />
                             <div>
                               <p className="font-extrabold text-white flex items-center space-x-2">
