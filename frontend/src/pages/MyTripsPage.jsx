@@ -20,7 +20,7 @@ export const MyTripsPage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const { data: trips = [], isLoading } = useQuery({
-    queryKey: ['myTrips'],
+    queryKey: ['trips'],
     queryFn: async () => {
       const res = await tripApi.getUserTrips();
       return res.data.trips;
@@ -31,7 +31,8 @@ export const MyTripsPage = () => {
     mutationFn: (id) => tripApi.deleteTrip(id),
     onSuccess: () => {
       toast.success('Trip deleted successfully');
-      queryClient.invalidateQueries(['myTrips']);
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
       setDeleteModalOpen(false);
       setSelectedTrip(null);
     },
@@ -44,7 +45,8 @@ export const MyTripsPage = () => {
     mutationFn: ({ id, isPublic }) => tripApi.publishTrip(id, isPublic),
     onSuccess: (res) => {
       toast.success(res.message);
-      queryClient.invalidateQueries(['myTrips']);
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
     },
     onError: (err) => {
       toast.error(err.message || 'Failed to update visibility');

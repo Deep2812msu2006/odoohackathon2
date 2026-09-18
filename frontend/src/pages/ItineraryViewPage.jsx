@@ -99,7 +99,9 @@ export const ItineraryViewPage = () => {
         }
       }
 
-      queryClient.invalidateQueries(['trip', tripId]);
+      queryClient.invalidateQueries({ queryKey: ['trip', tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
       toast.success('All-Inclusive Travel Package & Boarding Passes saved! 🎉', { icon: '✈️' });
     } catch (err) {
       toast.error(err.message || 'Failed to save package to database.');

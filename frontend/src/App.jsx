@@ -43,8 +43,8 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      refetchOnMount: false,
-      staleTime: 15 * 60 * 1000, // 15 minutes instant cache - 0ms route transitions!
+      refetchOnMount: true, // Automatically refresh invalidated queries on page transitions without full browser refresh
+      staleTime: 30 * 1000, // 30s fresh cache for instant transitions
       gcTime: 60 * 60 * 1000, // 1 hour memory retention
       retry: 1,
     },

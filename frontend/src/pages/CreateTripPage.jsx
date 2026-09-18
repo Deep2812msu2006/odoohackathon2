@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext.jsx';
 import { tripApi } from '../services/tripApi.js';
 import toast from 'react-hot-toast';
@@ -8,6 +9,7 @@ import { Map, Calendar, Image, FileText, ArrowRight, Share2, Search, X, Sparkles
 export const CreateTripPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const cityParam = searchParams.get('city') || searchParams.get('cityName');
 
@@ -85,6 +87,10 @@ export const CreateTripPage = () => {
         coverPhotoUrl: coverPhotoUrl || sampleCovers[0].url,
         isPublic,
       });
+
+      // Instantly invalidate trips cache so Dashboard and My Trips update without needing a page refresh
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
 
       toast.success('Trip details saved! Launching itinerary builder...');
       navigate(`/trips/${res.data.trip.id}/builder`);

@@ -85,7 +85,9 @@ export const ItineraryBuilderPage = () => {
   const addStopMutation = useMutation({
     mutationFn: (data) => tripApi.addStop(tripId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['trip', tripId]);
+      queryClient.invalidateQueries({ queryKey: ['trip', tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
       toast.success('City stop added to itinerary!');
       setAddStopModalOpen(false);
       resetStopForm();
@@ -97,7 +99,9 @@ export const ItineraryBuilderPage = () => {
   const reorderMutation = useMutation({
     mutationFn: (stopsArray) => tripApi.reorderStops(tripId, stopsArray),
     onSuccess: () => {
-      queryClient.invalidateQueries(['trip', tripId]);
+      queryClient.invalidateQueries({ queryKey: ['trip', tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
       toast.success('Stop order updated.');
     },
   });
@@ -106,7 +110,9 @@ export const ItineraryBuilderPage = () => {
   const deleteStopMutation = useMutation({
     mutationFn: (stopId) => tripApi.deleteStop(tripId, stopId),
     onSuccess: () => {
-      queryClient.invalidateQueries(['trip', tripId]);
+      queryClient.invalidateQueries({ queryKey: ['trip', tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
       toast.success('Stop removed.');
     },
   });
@@ -115,7 +121,9 @@ export const ItineraryBuilderPage = () => {
   const addActivityMutation = useMutation({
     mutationFn: ({ stopId, data }) => tripApi.addActivityToStop(tripId, stopId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['trip', tripId]);
+      queryClient.invalidateQueries({ queryKey: ['trip', tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
       toast.success('Activity scheduled!');
       setAddActivityModalOpen(false);
       resetActivityForm();
@@ -127,7 +135,9 @@ export const ItineraryBuilderPage = () => {
   const deleteActivityLinkMutation = useMutation({
     mutationFn: ({ stopId, linkId }) => tripApi.removeActivityLink(tripId, stopId, linkId),
     onSuccess: () => {
-      queryClient.invalidateQueries(['trip', tripId]);
+      queryClient.invalidateQueries({ queryKey: ['trip', tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['myTrips'] });
       toast.success('Activity removed.');
     },
   });
