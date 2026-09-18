@@ -780,9 +780,9 @@ export const ActivitySearchPage = () => {
                   { id: 'all', label: 'All Costs' },
                   { id: 'wishlist', label: `💖 Saved Wishlist (${wishlist.length})` },
                   { id: 'free', label: 'Free Only' },
-                  { id: 'budget', label: '< $30' },
-                  { id: 'mid', label: '$30 - $80' },
-                  { id: 'luxury', label: '$80+' },
+                  { id: 'budget', label: '< ₹2,500' },
+                  { id: 'mid', label: '₹2,500 - ₹6,500' },
+                  { id: 'luxury', label: '₹6,500+' },
                 ].map((item) => (
                   <button
                     key={item.id}

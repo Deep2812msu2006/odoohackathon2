@@ -645,12 +645,12 @@ export const ItineraryBuilderPage = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Custom Cost ($ USD, optional)
+                  Custom Cost (₹ INR, optional)
                 </label>
                 <input
                   type="number"
-                  step="0.01"
-                  placeholder={selectedActivity ? `Default: $${selectedActivity.estimatedCost}` : '0.00'}
+                  step="1"
+                  placeholder={selectedActivity ? `Default: ${formatCurrency(selectedActivity.estimatedCost)}` : '₹0'}
                   value={actCustomCost}
                   onChange={(e) => setActCustomCost(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl glass-input text-xs"

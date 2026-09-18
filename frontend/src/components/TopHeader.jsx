@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { cityApi } from '../services/cityApi.js';
 import { tripApi } from '../services/tripApi.js';
 import { activityApi } from '../services/activityApi.js';
+import { formatCurrency } from '../utils/formatters.js';
 import { UserAvatar } from './UserAvatar.jsx';
 import { User, LogOut, ShieldCheck, Search, X, MapPin, Map, Ticket, ArrowRight, ArrowLeft, PanelLeftClose, PanelLeftOpen, Menu } from 'lucide-react';
 
@@ -241,7 +242,7 @@ export const TopHeader = ({ onToggleSidebar, collapsed = false }) => {
                         >
                           <div className="min-w-0 pr-2">
                             <p className="font-bold text-white text-xs truncate">{act.name}</p>
-                            <p className="text-[10px] text-slate-400">{act.category} • ${act.estimatedCost}</p>
+                            <p className="text-[10px] text-slate-400">{act.category} • {formatCurrency(act.estimatedCost)}</p>
                           </div>
                           <ArrowRight className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                         </div>

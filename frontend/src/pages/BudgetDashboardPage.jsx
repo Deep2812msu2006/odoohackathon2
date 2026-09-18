@@ -193,7 +193,7 @@ export const BudgetDashboardPage = () => {
     setNewCost('');
     setNewDate('');
     setShowAddModal(false);
-    toast.success(`Added "${newItem.name}" ($${costVal}) to trip budget!`, { icon: '💰' });
+    toast.success(`Added "${newItem.name}" (${formatCurrency(costVal)}) to trip budget!`, { icon: '💰' });
   };
 
   const handleDeleteCustomExpense = (id) => {
@@ -217,7 +217,7 @@ export const BudgetDashboardPage = () => {
         <div className="flex items-center gap-3">
           {/* Target Daily Budget Input */}
           <div className="glass-card px-4 py-2.5 rounded-2xl border border-slate-800 flex items-center space-x-3 shadow-lg">
-            <label className="text-xs text-slate-300 font-bold">Target Daily Budget ($):</label>
+            <label className="text-xs text-slate-300 font-bold">Target Budget Index:</label>
             <input
               type="number"
               value={targetBudgetInput}
@@ -489,14 +489,14 @@ export const BudgetDashboardPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 font-bold mb-1">Cost Amount ($)</label>
+                  <label className="block text-slate-300 font-bold mb-1">Cost Amount (Base Units)</label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="1"
                     required
                     value={newCost}
                     onChange={(e) => setNewCost(e.target.value)}
-                    placeholder="120.00"
+                    placeholder="50"
                     className="w-full px-3.5 py-2.5 rounded-xl glass-input text-emerald-400 font-bold text-xs"
                   />
                 </div>

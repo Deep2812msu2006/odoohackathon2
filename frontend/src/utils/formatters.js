@@ -1,10 +1,18 @@
-export const formatCurrency = (amount, currency = 'USD') => {
-  return new Intl.NumberFormat('en-US', {
+// Indian Rupee (INR) conversion rate for presentation & pitching in India (1 USD = ₹85)
+export const INR_CONVERSION_RATE = 85;
+
+export const formatCurrency = (amount, currency = 'INR', convertFromUSD = true) => {
+  if (amount === null || amount === undefined || isNaN(amount)) {
+    return '₹0';
+  }
+  const numericAmount = Number(amount);
+  const inrValue = convertFromUSD ? Math.round(numericAmount * INR_CONVERSION_RATE) : Math.round(numericAmount);
+
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amount || 0);
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(inrValue);
 };
 
 export const formatDate = (dateString) => {
