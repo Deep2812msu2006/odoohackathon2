@@ -5,6 +5,8 @@ import { userApi } from '../services/userApi.js';
 import { ConfirmModal } from '../components/ConfirmModal.jsx';
 import { UserAvatar } from '../components/UserAvatar.jsx';
 import toast from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
+import { tripApi } from '../services/tripApi.js';
 import {
   User, Mail, Globe, Camera, Trash2, Save, ShieldCheck, Settings,
   Lock, Bell, Eye, EyeOff, Sparkles, MapPin, Calendar, Award,
@@ -33,6 +35,18 @@ export const ProfilePage = () => {
   const navigate = useNavigate();
   const { user, updateUserProfile, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+
+  // Fetch real trip data for stats
+  const { data: tripsData } = useQuery({
+    queryKey: ['trips'],
+    queryFn: () => tripApi.getUserTrips(),
+    staleTime: 30000,
+  });
+  const myTrips = tripsData?.data?.trips || tripsData?.data || [];
+  const totalTrips = Array.isArray(myTrips) ? myTrips.length : 0;
+  const totalCities = Array.isArray(myTrips)
+    ? myTrips.reduce((sum, trip) => sum + (trip.cities?.length || trip._count?.cities || 0), 0)
+    : 0;
 
   // Profile State
   const [name, setName] = useState(user?.name || '');
@@ -135,10 +149,10 @@ export const ProfilePage = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const stats = [
-    { label: 'Trips Planned', value: 3, icon: MapPin, color: 'text-brand-400', bg: 'bg-brand-500/10' },
+    { label: 'Trips Planned', value: totalTrips, icon: MapPin, color: 'text-brand-400', bg: 'bg-brand-500/10' },
     { label: 'Saved Wishlist', value: wishlist.length, icon: Heart, color: 'text-pink-400', bg: 'bg-pink-500/10' },
-    { label: 'Cities Visited', value: 7, icon: Globe, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-    { label: 'Member Since', value: '2026', icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+    { label: 'Cities Visited', value: totalCities, icon: Globe, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Member Since', value: new Date(user?.createdAt || Date.now()).getFullYear(), icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
   ];
 
   const handleProfileSubmit = async (e) => {

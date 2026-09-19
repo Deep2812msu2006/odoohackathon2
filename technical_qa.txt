@@ -1,0 +1,188 @@
+# 🧠 GlobeTrotter — Technical Q&A for Pitch
+
+> Prepared for judges' Q&A session (4–5 min). Read this before you present!
+
+---
+
+## 🏗️ ARCHITECTURE
+
+### Q1: What is your overall tech stack?
+**A:** GlobeTrotter uses a **3-tier architecture**:
+- **Frontend**: React (Vite) + TanStack Query for state/cache management, Tailwind CSS for UI
+- **Backend**: Node.js + Express REST API, Prisma ORM for database access
+- **Database**: PostgreSQL (hosted on Supabase/Render)
+- **Deployment**: Frontend on Vercel, Backend on Render
+
+---
+
+### Q2: Why did you choose React with Vite over Create React App or Next.js?
+**A:** Vite gives us **significantly faster Hot Module Replacement (HMR)** — build times are 10–100x faster than CRA. We didn't need SSR, so Next.js was overkill. Vite's ES module-based dev server is ideal for a SPA dashboard like ours.
+
+---
+
+### Q3: Why Prisma as ORM instead of raw SQL or Sequelize?
+**A:** Prisma gives us:
+- **Type-safe queries** — eliminates a whole class of runtime SQL errors
+- **Auto-generated migrations** from schema changes
+- **Readable schema definition** in `schema.prisma`
+- Compared to Sequelize, Prisma's DX (developer experience) is far superior and it handles relations more elegantly
+
+---
+
+## 🗄️ DATABASE DESIGN
+
+### Q4: How is your database structured? Walk us through the schema.
+**A:** Core tables:
+| Table | Purpose |
+|---|---|
+| `User` | Auth data (email, hashed password, role) |
+| `Trip` | Trip metadata (title, destination, dates, budget, status) |
+| `City` | Cities/stops within a trip (ordered list) |
+| `DayActivity` | Activities per day per city |
+| `Expense` | Budget tracking entries per trip |
+
+Relations: `User → many Trips → many Cities → many DayActivities`. This normalized design avoids data duplication and makes budget aggregation efficient.
+
+---
+
+### Q5: How do you handle data normalization? Is it in 3NF?
+**A:** Yes. Each entity is in **Third Normal Form (3NF)**:
+- No repeating groups — cities are separate rows, not a JSON blob in Trip
+- No transitive dependencies — a city's data depends only on its own primary key
+- This makes queries efficient (e.g., "sum expenses by trip" is a simple GROUP BY)
+
+---
+
+### Q6: How do you prevent SQL injection?
+**A:** Prisma uses **parameterized queries** by default — user input is never interpolated directly into SQL strings. Even if a user types `'; DROP TABLE trips; --`, Prisma treats it as a literal string value, not SQL code.
+
+---
+
+## 🔐 SECURITY & AUTH
+
+### Q7: How does authentication work?
+**A:** We use **JWT (JSON Web Tokens)**:
+1. User logs in → server validates credentials → issues a signed JWT
+2. JWT is stored client-side (localStorage/cookie)
+3. Every API request includes `Authorization: Bearer <token>` header
+4. Server middleware verifies the token signature before processing any protected route
+
+---
+
+### Q8: How do you differentiate admin vs regular user access?
+**A:** The JWT payload includes a `role` field (`USER` or `ADMIN`). Backend middleware checks `req.user.role === 'ADMIN'` before allowing access to admin routes like `/api/admin/users`. On the frontend, the Admin Dashboard is only rendered when the user's role matches.
+
+---
+
+### Q9: Are passwords stored securely?
+**A:** Passwords are **never stored in plain text**. We use **bcrypt** (industry standard) with a salt round of 10, making brute-force attacks computationally expensive. The hash is one-way — even we can't recover a user's password.
+
+---
+
+## ⚡ PERFORMANCE & STATE MANAGEMENT
+
+### Q10: How do you handle UI performance and prevent unnecessary API calls?
+**A:** We use **TanStack Query** (React Query) which provides:
+- **Caching**: Data is cached with a `staleTime` of 30 seconds — same data isn't re-fetched on every component mount
+- **Background refetching**: Data stays fresh without blocking UI
+- **Query invalidation**: When you create/update a trip, we call `invalidateQueries(['trips'])` which automatically refetches only the affected data
+
+---
+
+### Q11: Why does the dashboard load fast even with lots of data?
+**A:** Three reasons:
+1. **TanStack Query cache** serves data instantly on revisit (no API call needed within staleTime window)
+2. **Optimistic updates** — UI updates immediately before server confirmation, making it feel instant
+3. **Lazy loading** — We only load components when needed using React's code-splitting
+
+---
+
+### Q12: What happens if the backend is slow or down?
+**A:** TanStack Query has built-in **retry logic** (3 retries with exponential backoff). If the backend is unreachable, the cached data is shown (stale-while-revalidate pattern). We also show loading skeletons and error states to maintain a good UX.
+
+---
+
+## 🌐 API DESIGN
+
+### Q13: How is your REST API structured?
+**A:** We follow REST conventions:
+```
+GET    /api/trips          → List all trips for logged-in user
+POST   /api/trips          → Create new trip
+GET    /api/trips/:id      → Get single trip with cities & activities
+PUT    /api/trips/:id      → Update trip
+DELETE /api/trips/:id      → Delete trip
+GET    /api/admin/users    → Admin only: list all users
+```
+Each route is protected by auth middleware and role-based access control.
+
+---
+
+### Q14: How do you handle CORS (Cross-Origin Resource Sharing)?
+**A:** Our Express backend has the `cors` middleware configured to **whitelist only our frontend's domain** (Vercel URL). This prevents unauthorized websites from making API requests on behalf of our users.
+
+---
+
+## 🚀 DEPLOYMENT
+
+### Q15: How is your app deployed? What about CI/CD?
+**A:**
+- **Frontend** → Vercel: Auto-deploys on every `git push` to `main` branch (CI/CD built-in)
+- **Backend** → Render: Docker/Node container, also auto-deploys on push via webhook
+- **Database** → PostgreSQL on Render/Supabase with daily automated backups
+- We have a `render.yaml` file that defines our infrastructure as code
+
+---
+
+### Q16: How do you manage environment variables and secrets?
+**A:** All sensitive data (DB URL, JWT secret, API keys) are stored as **environment variables**, never hardcoded in source code. Vercel and Render both have secure secrets management dashboards. The `.env` file is in `.gitignore` so it's never committed to GitHub.
+
+---
+
+## 🧩 FEATURES
+
+### Q17: How does the itinerary generation work?
+**A:** When a user creates a trip with a start date, duration, and cities:
+1. The backend saves the trip structure with cities and ordered stops
+2. The frontend's `ItineraryViewPage` dynamically generates **day-by-day breakdowns** from that data
+3. Activities are assigned to specific days, and the UI renders boarding pass cards, hotel vouchers, and day cards using this structured data
+
+---
+
+### Q18: What is the public trip sharing feature?
+**A:** Every trip has a unique shareable link (`/public/trip/:id`). The `PublicTripPage` component fetches trip data **without requiring authentication** via a public API endpoint. This is useful for sharing itineraries with travel companions.
+
+---
+
+### Q19: How does the budget tracking work?
+**A:** Each trip has an associated `budget` field and `Expense` records. The `BudgetDashboardPage` aggregates expenses per category (flights, hotels, food, activities) and computes remaining budget. Visual charts show spending distribution in real-time.
+
+---
+
+## 🔮 SCALABILITY
+
+### Q20: How would you scale this if you got 100,000 users?
+**A:** Several steps:
+1. **Database**: Add read replicas for heavy read traffic, implement connection pooling (PgBouncer)
+2. **Caching**: Add Redis layer for frequently accessed data (popular destinations, user sessions)
+3. **API**: Move to microservices or add a message queue (e.g., BullMQ) for async tasks like email notifications
+4. **CDN**: Serve static assets via CDN (Vercel already does this)
+5. **Rate limiting**: Add API rate limiting to prevent abuse
+
+---
+
+## ⚡ QUICK FIRE ANSWERS
+
+| Judge's Question | Your Answer |
+|---|---|
+| "What database?" | PostgreSQL with Prisma ORM |
+| "How is it hosted?" | Vercel (frontend) + Render (backend) |
+| "Is it secure?" | JWT auth + bcrypt passwords + parameterized queries |
+| "How do you handle state?" | TanStack Query with caching + invalidation |
+| "What's the main tech challenge?" | Real-time cache sync across pages without full page reload |
+| "Why not use Firebase?" | We wanted full control over our schema and business logic; SQL gives us complex queries |
+| "Is there a mobile app?" | Currently web-only, but React Native would be the path forward since we can reuse logic |
+
+---
+
+> 💡 **Tip**: If a judge asks something you don't know, say: *"That's a great point — we haven't implemented that yet, but our architecture would support it by [X approach]."*
